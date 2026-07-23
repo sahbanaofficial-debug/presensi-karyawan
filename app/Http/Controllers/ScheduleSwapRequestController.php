@@ -205,8 +205,7 @@ final class ScheduleSwapRequestController extends Controller
         return view(
             'schedule-swap-requests.index',
             [
-                'scheduleSwapRequests' =>
-                    $scheduleSwapRequests,
+                'scheduleSwapRequests' => $scheduleSwapRequests,
 
                 'search' => $search,
 
@@ -264,31 +263,25 @@ final class ScheduleSwapRequestController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'partner_date' =>
-                    'Permohonan pertukaran yang sama masih menunggu keputusan.',
+                'partner_date' => 'Permohonan pertukaran yang sama masih menunggu keputusan.',
             ]);
         }
 
         $scheduleSwapRequest =
             ScheduleSwapRequest::query()->create([
-                'requester_employee_id' =>
-                    $validated[
+                'requester_employee_id' => $validated[
                         'requester_employee_id'
                     ],
 
-                'partner_employee_id' =>
-                    $validated[
+                'partner_employee_id' => $validated[
                         'partner_employee_id'
                     ],
 
-                'requester_date' =>
-                    $validated['requester_date'],
+                'requester_date' => $validated['requester_date'],
 
-                'partner_date' =>
-                    $validated['partner_date'],
+                'partner_date' => $validated['partner_date'],
 
-                'reason' =>
-                    $validated['reason'],
+                'reason' => $validated['reason'],
 
                 'status' => 'pending',
 
@@ -374,17 +367,13 @@ final class ScheduleSwapRequestController extends Controller
         return view(
             'schedule-swap-requests.show',
             [
-                'scheduleSwapRequest' =>
-                    $scheduleSwapRequest,
+                'scheduleSwapRequest' => $scheduleSwapRequest,
 
-                'requesterSchedule' =>
-                    $requesterSchedule,
+                'requesterSchedule' => $requesterSchedule,
 
-                'partnerSchedule' =>
-                    $partnerSchedule,
+                'partnerSchedule' => $partnerSchedule,
 
-                'canBeDecided' =>
-                    $canBeDecided,
+                'canBeDecided' => $canBeDecided,
             ]
         );
     }
@@ -425,8 +414,7 @@ final class ScheduleSwapRequestController extends Controller
                     !== 'pending'
                 ) {
                     throw ValidationException::withMessages([
-                        'decision' =>
-                            'Permohonan pertukaran jadwal sudah pernah diputuskan.',
+                        'decision' => 'Permohonan pertukaran jadwal sudah pernah diputuskan.',
                     ]);
                 }
 
@@ -434,11 +422,9 @@ final class ScheduleSwapRequestController extends Controller
                     $lockedRequest->update([
                         'status' => 'rejected',
 
-                        'approved_by' =>
-                            $approverId,
+                        'approved_by' => $approverId,
 
-                        'approved_at' =>
-                            now(),
+                        'approved_at' => now(),
                     ]);
 
                     return;
@@ -475,8 +461,7 @@ final class ScheduleSwapRequestController extends Controller
                     || $partnerSchedule === null
                 ) {
                     throw ValidationException::withMessages([
-                        'decision' =>
-                            'Jadwal salah satu karyawan sudah tidak tersedia. Permohonan tidak dapat disetujui.',
+                        'decision' => 'Jadwal salah satu karyawan sudah tidak tersedia. Permohonan tidak dapat disetujui.',
                     ]);
                 }
 
@@ -489,69 +474,56 @@ final class ScheduleSwapRequestController extends Controller
                         ->exists()
                 ) {
                     throw ValidationException::withMessages([
-                        'decision' =>
-                            'Pertukaran tidak dapat disetujui karena salah satu jadwal sudah memiliki data presensi.',
+                        'decision' => 'Pertukaran tidak dapat disetujui karena salah satu jadwal sudah memiliki data presensi.',
                     ]);
                 }
 
                 $requesterOriginal = [
-                    'work_schedule_id' =>
-                        $requesterSchedule
-                            ->work_schedule_id,
+                    'work_schedule_id' => $requesterSchedule
+                        ->work_schedule_id,
 
-                    'schedule_status' =>
-                        $requesterSchedule
-                            ->schedule_status,
+                    'schedule_status' => $requesterSchedule
+                        ->schedule_status,
                 ];
 
                 $partnerOriginal = [
-                    'work_schedule_id' =>
-                        $partnerSchedule
-                            ->work_schedule_id,
+                    'work_schedule_id' => $partnerSchedule
+                        ->work_schedule_id,
 
-                    'schedule_status' =>
-                        $partnerSchedule
-                            ->schedule_status,
+                    'schedule_status' => $partnerSchedule
+                        ->schedule_status,
                 ];
 
                 $requesterSchedule->update([
-                    'work_schedule_id' =>
-                        $partnerOriginal[
+                    'work_schedule_id' => $partnerOriginal[
                             'work_schedule_id'
                         ],
 
-                    'schedule_status' =>
-                        $partnerOriginal[
+                    'schedule_status' => $partnerOriginal[
                             'schedule_status'
                         ],
 
-                    'approved_by' =>
-                        $approverId,
+                    'approved_by' => $approverId,
                 ]);
 
                 $partnerSchedule->update([
-                    'work_schedule_id' =>
-                        $requesterOriginal[
+                    'work_schedule_id' => $requesterOriginal[
                             'work_schedule_id'
                         ],
 
-                    'schedule_status' =>
-                        $requesterOriginal[
+                    'schedule_status' => $requesterOriginal[
                             'schedule_status'
                         ],
 
-                    'approved_by' =>
-                        $approverId,
+                    'approved_by' => $approverId,
                 ]);
 
                 $lockedRequest->update([
                     'status' => 'approved',
 
-                    'approved_by' =>
-                        $approverId,
+                    'approved_by' => $approverId,
 
-                    'approved_at' =>
-                        now(),
+                    'approved_at' => now(),
                 ]);
             },
             3
