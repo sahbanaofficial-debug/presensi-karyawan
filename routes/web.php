@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceHistoryController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
@@ -40,6 +41,14 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         ->prefix('attendance')
         ->name('attendance.')
         ->group(function (): void {
+            Route::get(
+            '/history',
+            [
+                AttendanceHistoryController::class,
+                'index',
+            ]
+        )->name('history');
+
             Route::get(
                 '/',
                 [
