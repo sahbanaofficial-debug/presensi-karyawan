@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmployeeController;
@@ -34,10 +35,6 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     |--------------------------------------------------------------------------
     | Modul Khusus HRD
     |--------------------------------------------------------------------------
-    |
-    | HRD dapat mengelola cabang, pola jadwal kerja,
-    | dan jadwal harian karyawan.
-    |
     */
     Route::middleware('role:hrd')->group(function (): void {
         Route::resource(
@@ -68,10 +65,6 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     |--------------------------------------------------------------------------
     | Modul Data Karyawan
     |--------------------------------------------------------------------------
-    |
-    | HRD dapat melihat, menambah, dan mengubah data karyawan.
-    | Admin hanya dapat melihat daftar dan detail karyawan.
-    |
     */
     Route::prefix('employees')
         ->name('employees.')
@@ -118,10 +111,6 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     |--------------------------------------------------------------------------
     | Modul Pertukaran Jadwal
     |--------------------------------------------------------------------------
-    |
-    | HRD dan admin dapat melihat serta mencatat permohonan.
-    | Keputusan persetujuan atau penolakan hanya dilakukan HRD.
-    |
     */
     Route::middleware('role:hrd,admin')
         ->prefix('schedule-swap-requests')
@@ -155,6 +144,70 @@ Route::middleware(['auth', 'active'])->group(function (): void {
                 '/{schedule_swap_request}',
                 [
                     ScheduleSwapRequestController::class,
+                    'show',
+                ]
+            )->name('show');
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Modul Sesi Presensi dan QR Code Dinamis
+    |--------------------------------------------------------------------------
+    |
+    | HRD dan admin dapat membuka, melihat, menampilkan payload QR,
+    | dan menutup sesi presensi.
+    |
+    */
+    Route::middleware('role:hrd,admin')
+        ->prefix('attendance-sessions')
+        ->name('attendance-sessions.')
+        ->group(function (): void {
+            Route::get(
+                '/',
+                [
+                    AttendanceSessionController::class,
+                    'index',
+                ]
+            )->name('index');
+
+            Route::get(
+                '/create',
+                [
+                    AttendanceSessionController::class,
+                    'create',
+                ]
+            )->name('create');
+
+            Route::post(
+                '/',
+                [
+                    AttendanceSessionController::class,
+                    'store',
+                ]
+            )->name('store');
+
+            Route::get(
+                '/{attendance_session}/payload',
+                [
+                    AttendanceSessionController::class,
+                    'payload',
+                ]
+            )
+                ->middleware('throttle:120,1')
+                ->name('payload');
+
+            Route::patch(
+                '/{attendance_session}/close',
+                [
+                    AttendanceSessionController::class,
+                    'close',
+                ]
+            )->name('close');
+
+            Route::get(
+                '/{attendance_session}',
+                [
+                    AttendanceSessionController::class,
                     'show',
                 ]
             )->name('show');
