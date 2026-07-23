@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeScheduleController;
+use App\Http\Controllers\ScheduleSwapRequestController;
 use App\Http\Controllers\WorkScheduleController;
 use Illuminate\Support\Facades\Route;
 
@@ -53,6 +54,14 @@ Route::middleware(['auth', 'active'])->group(function (): void {
             'employee-schedules',
             EmployeeScheduleController::class
         );
+
+        Route::patch(
+            '/schedule-swap-requests/{schedule_swap_request}/decision',
+            [
+                ScheduleSwapRequestController::class,
+                'decide',
+            ]
+        )->name('schedule-swap-requests.decide');
     });
 
     /*
@@ -62,7 +71,6 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     |
     | HRD dapat melihat, menambah, dan mengubah data karyawan.
     | Admin hanya dapat melihat daftar dan detail karyawan.
-    | Penghapusan permanen tidak disediakan.
     |
     */
     Route::prefix('employees')
@@ -104,6 +112,52 @@ Route::middleware(['auth', 'active'])->group(function (): void {
                         [EmployeeController::class, 'show']
                     )->name('show');
                 });
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Modul Pertukaran Jadwal
+    |--------------------------------------------------------------------------
+    |
+    | HRD dan admin dapat melihat serta mencatat permohonan.
+    | Keputusan persetujuan atau penolakan hanya dilakukan HRD.
+    |
+    */
+    Route::middleware('role:hrd,admin')
+        ->prefix('schedule-swap-requests')
+        ->name('schedule-swap-requests.')
+        ->group(function (): void {
+            Route::get(
+                '/',
+                [
+                    ScheduleSwapRequestController::class,
+                    'index',
+                ]
+            )->name('index');
+
+            Route::get(
+                '/create',
+                [
+                    ScheduleSwapRequestController::class,
+                    'create',
+                ]
+            )->name('create');
+
+            Route::post(
+                '/',
+                [
+                    ScheduleSwapRequestController::class,
+                    'store',
+                ]
+            )->name('store');
+
+            Route::get(
+                '/{schedule_swap_request}',
+                [
+                    ScheduleSwapRequestController::class,
+                    'show',
+                ]
+            )->name('show');
         });
 });
 
