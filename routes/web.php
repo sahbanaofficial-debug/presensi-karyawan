@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
@@ -30,7 +31,27 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware(['auth', 'active'])->group(function (): void {
     Route::view('/dashboard', 'dashboard')
         ->name('dashboard');
-
+    /*
+    |--------------------------------------------------------------------------
+    | Transaksi Presensi Karyawan
+    |--------------------------------------------------------------------------
+    |
+    | Hanya karyawan aktif yang dapat mengirim transaksi presensi.
+    | Identitas sesi berasal dari UUID publik dalam payload QR.
+    |
+    */
+    Route::post(
+        '/attendance',
+        [
+            AttendanceController::class,
+            'store',
+        ]
+    )
+        ->middleware([
+            'role:employee',
+            'throttle:10,1',
+        ])
+        ->name('attendance.store');
     /*
     |--------------------------------------------------------------------------
     | Modul Khusus HRD
