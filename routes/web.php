@@ -31,27 +31,40 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware(['auth', 'active'])->group(function (): void {
     Route::view('/dashboard', 'dashboard')
         ->name('dashboard');
-    /*
+   /*
     |--------------------------------------------------------------------------
-    | Transaksi Presensi Karyawan
+    | Presensi Karyawan
     |--------------------------------------------------------------------------
-    |
-    | Hanya karyawan aktif yang dapat mengirim transaksi presensi.
-    | Identitas sesi berasal dari UUID publik dalam payload QR.
-    |
     */
-    Route::post(
-        '/attendance',
-        [
-            AttendanceController::class,
-            'store',
-        ]
-    )
-        ->middleware([
-            'role:employee',
-            'throttle:10,1',
-        ])
-        ->name('attendance.store');
+    Route::middleware('role:employee')
+        ->prefix('attendance')
+        ->name('attendance.')
+        ->group(function (): void {
+            Route::get(
+                '/',
+                [
+                    AttendanceController::class,
+                    'create',
+                ]
+            )->name('create');
+
+            Route::post(
+                '/',
+                [
+                    AttendanceController::class,
+                    'store',
+                ]
+            )
+                ->middleware('throttle:10,1')
+                ->name('store');
+        });
+
+Route::post(
+    '/logout',
+    [AuthenticatedSessionController::class, 'destroy']
+)
+    ->middleware('auth')
+    ->name('logout');
     /*
     |--------------------------------------------------------------------------
     | Modul Khusus HRD
