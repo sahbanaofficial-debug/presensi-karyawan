@@ -184,6 +184,8 @@
                 ['hrd', 'admin'],
                 true
             );
+                $isEmployee =
+        $authenticatedUser?->role === 'employee';
     @endphp
 
     <nav class="navbar navbar-expand-lg navbar-dark app-navbar">
@@ -227,7 +229,41 @@
                             Dashboard
                         </a>
                     </li>
+                    @if ($isEmployee)
+    @if ($isEmployee)
+    <li class="nav-item">
+        <a
+            href="{{ route('attendance.create') }}"
+            class="nav-link {{
+                request()->routeIs('attendance.create')
+                    ? 'active'
+                    : ''
+            }}"
+            @if (request()->routeIs('attendance.create'))
+                aria-current="page"
+            @endif
+        >
+            Presensi
+        </a>
+    </li>
 
+    <li class="nav-item">
+        <a
+            href="{{ route('attendance.history') }}"
+            class="nav-link {{
+                request()->routeIs('attendance.history')
+                    ? 'active'
+                    : ''
+            }}"
+            @if (request()->routeIs('attendance.history'))
+                aria-current="page"
+            @endif
+        >
+            Riwayat Presensi
+        </a>
+    </li>
+
+@endif        
                     @if ($isHrdOrAdmin)
                         <li class="nav-item">
                             <a
