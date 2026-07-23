@@ -272,6 +272,25 @@
                                 Pertukaran Jadwal
                             </a>
                         </li>
+                        <li class="nav-item">
+    <a
+        href="{{ route('attendance-sessions.index') }}"
+        class="nav-link {{
+            request()->routeIs('attendance-sessions.*')
+                ? 'active'
+                : ''
+        }}"
+        @if (
+            request()->routeIs(
+                'attendance-sessions.*'
+            )
+        )
+            aria-current="page"
+        @endif
+    >
+        Sesi Presensi
+    </a>
+</li>
                     @endif
 
                     @if ($authenticatedUser?->hasRole('hrd'))
