@@ -23,7 +23,7 @@ final class TotpService
     public function __construct(
         private readonly int $period = 30,
         private readonly int $digits = 6,
-        string $algorithm = 'sha256'
+        string $algorithm = 'sha1'
     ) {
         if ($this->period < 15 || $this->period > 300) {
             throw new InvalidArgumentException(
