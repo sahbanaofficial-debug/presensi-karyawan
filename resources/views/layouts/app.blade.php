@@ -176,6 +176,14 @@
             'employee' => 'Karyawan',
             default => 'Pengguna',
         };
+
+        $isHrdOrAdmin =
+            $authenticatedUser !== null
+            && in_array(
+                $authenticatedUser->role,
+                ['hrd', 'admin'],
+                true
+            );
     @endphp
 
     <nav class="navbar navbar-expand-lg navbar-dark app-navbar">
@@ -220,14 +228,7 @@
                         </a>
                     </li>
 
-                    @if (
-                        $authenticatedUser !== null
-                        && in_array(
-                            $authenticatedUser->role,
-                            ['hrd', 'admin'],
-                            true
-                        )
-                    )
+                    @if ($isHrdOrAdmin)
                         <li class="nav-item">
                             <a
                                 href="{{ route('employees.index') }}"
@@ -243,6 +244,32 @@
                                 @endif
                             >
                                 Data Karyawan
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a
+                                href="{{
+                                    route(
+                                        'schedule-swap-requests.index'
+                                    )
+                                }}"
+                                class="nav-link {{
+                                    request()->routeIs(
+                                        'schedule-swap-requests.*'
+                                    )
+                                        ? 'active'
+                                        : ''
+                                }}"
+                                @if (
+                                    request()->routeIs(
+                                        'schedule-swap-requests.*'
+                                    )
+                                )
+                                    aria-current="page"
+                                @endif
+                            >
+                                Pertukaran Jadwal
                             </a>
                         </li>
                     @endif
