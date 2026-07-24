@@ -176,6 +176,8 @@
             'employee' => 'Karyawan',
             default => 'Pengguna',
         };
+        $isHrd =
+            $authenticatedUser?->role === 'hrd';
 
         $isHrdOrAdmin =
             $authenticatedUser !== null
@@ -340,6 +342,33 @@
         Monitoring Presensi
     </a>
 </li>
+@if ($isHrd)
+    <li class="nav-item">
+        <a
+            href="{{
+                route(
+                    'attendance-validation-logs.index'
+                )
+            }}"
+            class="nav-link {{
+                request()->routeIs(
+                    'attendance-validation-logs.*'
+                )
+                    ? 'active'
+                    : ''
+            }}"
+            @if (
+                request()->routeIs(
+                    'attendance-validation-logs.*'
+                )
+            )
+                aria-current="page"
+            @endif
+        >
+            Log Validasi Presensi
+        </a>
+    </li>
+@endif
              {{-- Menu HRD dan admin lainnya tetap dipertahankan --}}
         @endif
 
