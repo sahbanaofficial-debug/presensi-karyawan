@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceCorrectionController;
 use App\Http\Controllers\AttendanceHistoryController;
 use App\Http\Controllers\AttendanceMonitoringController;
 use App\Http\Controllers\AttendanceValidationLogController;
@@ -105,7 +106,57 @@ Route::get(
 )
     ->middleware('role:hrd')
     ->name('attendance-validation-logs.index');
-Route::post(
+/*
+|--------------------------------------------------------------------------
+| Koreksi Manual Presensi
+|--------------------------------------------------------------------------
+|
+| HRD dapat membuat presensi manual dan mengoreksi transaksi
+| presensi yang sudah tersimpan. Setiap tindakan dicatat
+| dalam riwayat audit.
+|
+*/
+Route::middleware('role:hrd')
+    ->prefix('attendance-corrections')
+    ->name('attendance-corrections.')
+    ->group(function (): void {
+        Route::get(
+            '/create',
+            [
+                AttendanceCorrectionController::class,
+                'create',
+            ]
+        )->name('create');
+
+        Route::post(
+            '/',
+            [
+                AttendanceCorrectionController::class,
+                'store',
+            ]
+        )->name('store');
+
+        Route::get(
+            '/{attendance}/edit',
+            [
+                AttendanceCorrectionController::class,
+                'edit',
+            ]
+        )
+            ->whereNumber('attendance')
+            ->name('edit');
+
+        Route::put(
+            '/{attendance}',
+            [
+                AttendanceCorrectionController::class,
+                'update',
+            ]
+        )
+            ->whereNumber('attendance')
+            ->name('update');
+    });
+    Route::post(
     '/logout',
     [AuthenticatedSessionController::class, 'destroy']
 )
