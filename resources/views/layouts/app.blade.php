@@ -229,8 +229,7 @@
                             Dashboard
                         </a>
                     </li>
-                    @if ($isEmployee)
-    @if ($isEmployee)
+   @if ($isEmployee)
     <li class="nav-item">
         <a
             href="{{ route('attendance.create') }}"
@@ -262,8 +261,7 @@
             Riwayat Presensi
         </a>
     </li>
-
-@endif        
+@endif
                     @if ($isHrdOrAdmin)
                         <li class="nav-item">
                             <a
