@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Attendance extends Model
 {
+    public const RECORD_SOURCE_SCANNER = 'scanner';
+
+    public const RECORD_SOURCE_MANUAL = 'manual';
+
     use HasFactory;
 
     /**
@@ -32,6 +36,11 @@ class Attendance extends Model
         'attendance_status',
         'punctuality_status',
         'validation_status',
+
+        'record_source',
+        'last_corrected_by',
+        'last_correction_reason',
+        'last_corrected_at',
     ];
 
     /**
@@ -49,6 +58,10 @@ class Attendance extends Model
             'accuracy' => 'float',
             'distance' => 'float',
             'geofence_radius' => 'float',
+
+            'record_source' => 'string',
+            'last_corrected_by' => 'integer',
+            'last_corrected_at' => 'datetime',
         ];
     }
 
@@ -173,5 +186,31 @@ class Attendance extends Model
             && $this->latitude <= 90
             && $this->longitude >= -180
             && $this->longitude <= 180;
+    }
+
+    /**
+     * Seluruh riwayat koreksi pada presensi ini.
+     *
+     * @return HasMany<AttendanceCorrection, $this>
+     */
+    public function corrections(): HasMany
+    {
+        return $this->hasMany(
+            AttendanceCorrection::class,
+            'attendance_id'
+        )->latest('created_at');
+    }
+
+    /**
+     * HRD terakhir yang melakukan koreksi.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function lastCorrectedBy(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'last_corrected_by'
+        );
     }
 }
