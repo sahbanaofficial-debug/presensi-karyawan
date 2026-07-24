@@ -4,6 +4,9 @@
 
 @section('content')
     @php
+        $canCorrectAttendance =
+            auth()->user()?->role === 'hrd';
+
         $attendanceTypeLabels = [
             'check_in' => 'Presensi Masuk',
             'check_out' => 'Presensi Pulang',
@@ -36,7 +39,9 @@
             'rejected' => 'text-bg-danger',
         ];
 
-        $formatDate = static function (mixed $value): string {
+        $formatDate = static function (
+            mixed $value
+        ): string {
             if ($value === null || $value === '') {
                 return '-';
             }
@@ -46,11 +51,17 @@
                     ->locale('id')
                     ->translatedFormat('d F Y');
             } catch (\Throwable) {
-                return substr((string) $value, 0, 10);
+                return substr(
+                    (string) $value,
+                    0,
+                    10
+                );
             }
         };
 
-        $formatTime = static function (mixed $value): string {
+        $formatTime = static function (
+            mixed $value
+        ): string {
             if ($value === null || $value === '') {
                 return '-';
             }
@@ -120,6 +131,25 @@
         @endif
     </header>
 
+    @if ($canCorrectAttendance)
+        <div
+            class="d-flex justify-content-end
+                mb-4"
+        >
+            <a
+                href="{{
+                    route(
+                        'attendance-corrections.create'
+                    )
+                }}"
+                class="btn btn-primary"
+            >
+                Tambah Presensi Manual
+            </a>
+        </div>
+    @endif
+
+    <div class="row g-3 mb-4"></div>
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-2">
             <section class="content-card p-3 h-100">
@@ -526,6 +556,14 @@
                         >
                             Validasi
                         </th>
+                                                @if ($canCorrectAttendance)
+                            <th
+                                scope="col"
+                                class="text-end"
+                            >
+                                Aksi
+                            </th>
+                        @endif
                     </tr>
                 </thead>
 
@@ -708,11 +746,32 @@
                                     {{ $validationStatusLabel }}
                                 </span>
                             </td>
+                                                        @if ($canCorrectAttendance)
+                                <td
+                                    class="text-end text-nowrap"
+                                >
+                                    <a
+                                        href="{{
+                                            route(
+                                                'attendance-corrections.edit',
+                                                [
+                                                    'attendance' =>
+                                                        $attendance
+                                                            ->getKey(),
+                                                ]
+                                            )
+                                        }}"
+                                        class="btn btn-outline-primary btn-sm"
+                                    >
+                                        Koreksi
+                                    </a>
+                                </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
                             <td
-                                colspan="9"
+                                colspan="{{ $canCorrectAttendance ? 10 : 9 }}"
                                 class="text-center py-5"
                             >
                                 <div class="fw-semibold mb-1">

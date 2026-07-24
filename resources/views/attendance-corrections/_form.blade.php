@@ -592,3 +592,5 @@
             };
 
             reason
+              </script>
+@endpush
