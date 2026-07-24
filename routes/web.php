@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceHistoryController;
 use App\Http\Controllers\AttendanceMonitoringController;
+use App\Http\Controllers\AttendanceValidationLogController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
@@ -86,6 +87,24 @@ Route::get(
 )
     ->middleware('role:hrd,admin')
     ->name('attendance-monitoring.index');
+/*
+|--------------------------------------------------------------------------
+| Log Validasi Presensi
+|--------------------------------------------------------------------------
+|
+| HRD dapat melihat transaksi yang diterima, ditolak,
+| dan percobaan presensi yang tidak sesuai aturan.
+|
+*/
+Route::get(
+    '/attendance-validation-logs',
+    [
+        AttendanceValidationLogController::class,
+        'index',
+    ]
+)
+    ->middleware('role:hrd')
+    ->name('attendance-validation-logs.index');
 Route::post(
     '/logout',
     [AuthenticatedSessionController::class, 'destroy']
