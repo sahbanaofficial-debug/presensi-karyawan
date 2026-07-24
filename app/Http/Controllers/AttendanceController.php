@@ -154,8 +154,11 @@ final class AttendanceController extends Controller
         }
 
         if (
-            $canScan
-            && $employeeSchedule !== null
+            $employeeSchedule !== null
+            && $employeeSchedule
+                ->requiresAttendance()
+            && $employeeSchedule
+                ->hasValidScheduleConfiguration()
         ) {
             try {
                 $scheduleTimeWindow =
@@ -164,10 +167,12 @@ final class AttendanceController extends Controller
                             $employeeSchedule
                         );
             } catch (\InvalidArgumentException) {
-                $canScan = false;
+                if ($canScan) {
+                    $canScan = false;
 
-                $scanBlockReason =
-                    'Konfigurasi waktu jadwal kerja tidak valid.';
+                    $scanBlockReason =
+                        'Konfigurasi waktu jadwal kerja tidak valid.';
+                }
             }
         }
 

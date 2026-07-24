@@ -3,6 +3,13 @@
 @section('title', 'Presensi Karyawan')
 
 @push('styles')
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    >
+
     <style>
         .scanner-wrapper {
             max-width: 520px;
@@ -45,6 +52,95 @@
             width: 1rem;
             height: 1rem;
             border-width: 0.15rem;
+        }
+
+        .geofence-map {
+            width: 100%;
+            min-height: 430px;
+            border: 1px solid #dee2e6;
+            border-radius: 1rem;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(13, 110, 253, 0.05),
+                    rgba(25, 135, 84, 0.05)
+                );
+        }
+
+        .geofence-summary {
+            border: 1px solid #dee2e6;
+            border-radius: 1rem;
+            background: #ffffff;
+        }
+
+        .geofence-metric {
+            height: 100%;
+            border: 1px solid #e9ecef;
+            border-radius: 0.75rem;
+            padding: 0.875rem;
+            background: #f8f9fa;
+        }
+
+        .geofence-metric-label {
+            margin-bottom: 0.25rem;
+            color: #6c757d;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+        }
+
+        .geofence-metric-value {
+            overflow-wrap: anywhere;
+            font-weight: 700;
+        }
+
+        .geofence-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        .geofence-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .geofence-legend-dot {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 999px;
+        }
+
+        .geofence-legend-dot.branch {
+            background: #0d6efd;
+        }
+
+        .geofence-legend-dot.device {
+            background: #dc3545;
+        }
+
+        .geofence-legend-dot.radius {
+            border: 2px solid #198754;
+            background: rgba(25, 135, 84, 0.15);
+        }
+
+        .leaflet-container {
+            font-family: inherit;
+        }
+
+        @media (max-width: 991.98px) {
+            .geofence-map {
+                min-height: 360px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .geofence-map {
+                min-height: 320px;
+            }
         }
     </style>
 @endpush
@@ -135,6 +231,37 @@
             $canScan
                 ? 'text-bg-success'
                 : 'text-bg-secondary';
+
+        $attendanceSourceLabel = static function (
+            $attendance
+        ): string {
+            return match (
+                (string) ($attendance?->record_source ?? '')
+            ) {
+                'scanner' => 'Scanner QR + Geofence',
+                'manual' => 'Manual oleh HRD',
+                default => 'Tidak diketahui',
+            };
+        };
+
+        $attendanceDistanceLabel = static function (
+            $attendance
+        ): string {
+            if (
+                $attendance === null
+                || $attendance->record_source !== 'scanner'
+                || $attendance->distance === null
+            ) {
+                return 'Tidak tersedia';
+            }
+
+            return number_format(
+                (float) $attendance->distance,
+                2,
+                ',',
+                '.'
+            ) . ' meter';
+        };
     @endphp
 
     <header
@@ -479,17 +606,21 @@
                             </div>
 
                             <div class="small text-secondary">
-                                Jarak:
+                                Sumber:
                                 {{
-                                    number_format(
-                                        (float) $checkInAttendance
-                                            ->distance,
-                                        2,
-                                        ',',
-                                        '.'
+                                    $attendanceSourceLabel(
+                                        $checkInAttendance
                                     )
                                 }}
-                                meter
+                            </div>
+
+                            <div class="small text-secondary">
+                                Jarak:
+                                {{
+                                    $attendanceDistanceLabel(
+                                        $checkInAttendance
+                                    )
+                                }}
                             </div>
                         @else
                             <div class="small text-secondary">
@@ -538,17 +669,21 @@
                             </div>
 
                             <div class="small text-secondary">
-                                Jarak:
+                                Sumber:
                                 {{
-                                    number_format(
-                                        (float) $checkOutAttendance
-                                            ->distance,
-                                        2,
-                                        ',',
-                                        '.'
+                                    $attendanceSourceLabel(
+                                        $checkOutAttendance
                                     )
                                 }}
-                                meter
+                            </div>
+
+                            <div class="small text-secondary">
+                                Jarak:
+                                {{
+                                    $attendanceDistanceLabel(
+                                        $checkOutAttendance
+                                    )
+                                }}
                             </div>
                         @else
                             <div class="small text-secondary">
@@ -561,6 +696,226 @@
         </div>
     </section>
 
+    <section
+        id="geofence-validation-section"
+        class="content-card mb-4"
+    >
+        <div
+            class="border-bottom p-3 p-md-4 d-flex flex-column
+                flex-md-row align-items-md-center
+                justify-content-between gap-3"
+        >
+            <div>
+                <h2 class="h5 fw-bold mb-1">
+                    Validasi Lokasi dan Peta Geofence
+                </h2>
+
+                <p class="small text-secondary mb-0">
+                    Periksa posisi perangkat sebelum memindai QR Code.
+                    Hasil di bawah merupakan pemeriksaan awal.
+                    Keputusan akhir tetap dilakukan oleh server.
+                </p>
+            </div>
+
+            <span
+                id="geofence-status-badge"
+                class="badge text-bg-secondary px-3 py-2"
+            >
+                Belum diperiksa
+            </span>
+        </div>
+
+        <div class="p-3 p-md-4">
+            <div class="row g-4 align-items-stretch">
+                <div class="col-lg-5">
+                    <div class="geofence-summary h-100 p-3 p-md-4">
+                        <div
+                            id="geofence-location-alert"
+                            class="alert alert-info"
+                            role="status"
+                            aria-live="polite"
+                        >
+                            Klik Periksa Lokasi untuk mengambil posisi
+                            perangkat dan menghitung estimasi jarak.
+                        </div>
+
+                        <div class="d-grid gap-2 d-sm-flex mb-4">
+                            <button
+                                type="button"
+                                id="check-location-button"
+                                class="btn btn-primary"
+                            >
+                                Periksa Lokasi
+                            </button>
+
+                            <button
+                                type="button"
+                                id="recenter-map-button"
+                                class="btn btn-outline-secondary"
+                                disabled
+                            >
+                                Pusatkan Peta
+                            </button>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-6">
+                                <div class="geofence-metric">
+                                    <div class="geofence-metric-label">
+                                        Latitude Perangkat
+                                    </div>
+
+                                    <div
+                                        id="location-latitude"
+                                        class="geofence-metric-value
+                                            location-value"
+                                    >
+                                        -
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="geofence-metric">
+                                    <div class="geofence-metric-label">
+                                        Longitude Perangkat
+                                    </div>
+
+                                    <div
+                                        id="location-longitude"
+                                        class="geofence-metric-value
+                                            location-value"
+                                    >
+                                        -
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="geofence-metric">
+                                    <div class="geofence-metric-label">
+                                        Akurasi GPS
+                                    </div>
+
+                                    <div
+                                        id="location-accuracy"
+                                        class="geofence-metric-value"
+                                    >
+                                        -
+                                    </div>
+
+                                    <div
+                                        id="location-accuracy-status"
+                                        class="small text-secondary mt-1"
+                                    >
+                                        Batas:
+                                        {{
+                                            $branch !== null
+                                                ? number_format(
+                                                    (float) $branch
+                                                        ->maximum_accuracy,
+                                                    2,
+                                                    ',',
+                                                    '.'
+                                                ) . ' meter'
+                                                : '-'
+                                        }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="geofence-metric">
+                                    <div class="geofence-metric-label">
+                                        Estimasi Jarak
+                                    </div>
+
+                                    <div
+                                        id="location-distance"
+                                        class="geofence-metric-value"
+                                    >
+                                        -
+                                    </div>
+
+                                    <div class="small text-secondary mt-1">
+                                        Radius:
+                                        <span id="location-radius">
+                                            {{
+                                                $branch !== null
+                                                    ? number_format(
+                                                        (float) $branch
+                                                            ->geofence_radius,
+                                                        2,
+                                                        ',',
+                                                        '.'
+                                                    ) . ' meter'
+                                                    : '-'
+                                            }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="border rounded-3 p-3 mb-4"
+                            aria-live="polite"
+                        >
+                            <div class="small text-secondary mb-1">
+                                Status Geofence
+                            </div>
+
+                            <div
+                                id="location-status"
+                                class="fw-bold"
+                            >
+                                Belum diperiksa
+                            </div>
+                        </div>
+
+                        <div class="geofence-legend">
+                            <span class="geofence-legend-item">
+                                <span
+                                    class="geofence-legend-dot branch"
+                                ></span>
+                                Titik Cabang
+                            </span>
+
+                            <span class="geofence-legend-item">
+                                <span
+                                    class="geofence-legend-dot device"
+                                ></span>
+                                Lokasi Perangkat
+                            </span>
+
+                            <span class="geofence-legend-item">
+                                <span
+                                    class="geofence-legend-dot radius"
+                                ></span>
+                                Radius Geofence
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div
+                        id="geofence-map"
+                        class="geofence-map"
+                        role="region"
+                        aria-label="Peta lokasi cabang dan perangkat"
+                    ></div>
+
+                    <p class="small text-secondary mt-2 mb-0">
+                        Peta digunakan sebagai visualisasi. Data
+                        presensi tetap divalidasi ulang oleh server
+                        menggunakan Formula Haversine.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="content-card">
         <div class="border-bottom p-3 p-md-4">
             <h2 class="h5 fw-bold mb-1">
@@ -568,8 +923,8 @@
             </h2>
 
             <p class="small text-secondary mb-0">
-                Arahkan kamera ke QR Code yang ditampilkan
-                pada perangkat cabang.
+                Setelah lokasi awal dinyatakan valid, arahkan
+                kamera ke QR Code dinamis pada perangkat cabang.
             </p>
         </div>
 
@@ -586,8 +941,9 @@
                     aria-live="polite"
                 >
                     @if ($canScan)
-                        Tekan tombol Mulai Kamera untuk
-                        memindai QR Code.
+                        Periksa lokasi terlebih dahulu. Kamera hanya
+                        dapat digunakan setelah lokasi awal memenuhi
+                        ketentuan geofence.
                     @else
                         {{
                             $scanBlockReason
@@ -622,7 +978,7 @@
                         class="btn btn-primary"
                         @disabled(! $canScan)
                     >
-                        Mulai Kamera
+                        Mulai Kamera dan Pindai QR
                     </button>
 
                     <button
@@ -661,53 +1017,6 @@
                         </span>
                     </div>
                 </div>
-
-                <section
-                    id="location-information"
-                    class="border rounded-3 p-3 mb-4"
-                >
-                    <h3 class="h6 fw-bold mb-3">
-                        Informasi Lokasi Perangkat
-                    </h3>
-
-                    <dl class="row small mb-0">
-                        <dt class="col-sm-4 mb-2">
-                            Latitude
-                        </dt>
-
-                        <dd
-                            id="location-latitude"
-                            class="col-sm-8 mb-2
-                                location-value"
-                        >
-                            -
-                        </dd>
-
-                        <dt class="col-sm-4 mb-2">
-                            Longitude
-                        </dt>
-
-                        <dd
-                            id="location-longitude"
-                            class="col-sm-8 mb-2
-                                location-value"
-                        >
-                            -
-                        </dd>
-
-                        <dt class="col-sm-4 mb-2">
-                            Accuracy
-                        </dt>
-
-                        <dd
-                            id="location-accuracy"
-                            class="col-sm-8 mb-0
-                                location-value"
-                        >
-                            -
-                        </dd>
-                    </dl>
-                </section>
 
                 <div
                     id="attendance-result"
@@ -754,6 +1063,12 @@
 
 @push('scripts')
     <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+    ></script>
+
+    <script
         src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
     ></script>
 
@@ -762,10 +1077,62 @@
             const canScan = @json($canScan);
 
             const attendanceEndpoint = @json(
-                route('attendance.store')
+                route('attendance.store', [], false)
             );
 
             const csrfToken = @json(csrf_token());
+
+            const toNullableNumber = function (value) {
+                if (
+                    value === null
+                    || value === undefined
+                    || value === ''
+                ) {
+                    return null;
+                }
+
+                const parsedValue = Number(value);
+
+                return Number.isFinite(parsedValue)
+                    ? parsedValue
+                    : null;
+            };
+
+            const branchLatitude = toNullableNumber(
+                @json($branch?->latitude)
+            );
+
+            const branchLongitude = toNullableNumber(
+                @json($branch?->longitude)
+            );
+
+            const geofenceRadius = toNullableNumber(
+                @json($branch?->geofence_radius)
+            );
+
+            const maximumAccuracy = toNullableNumber(
+                @json($branch?->maximum_accuracy)
+            );
+
+            const branchCode = @json(
+                (string) ($branch?->code ?? '-')
+            );
+
+            const branchName = @json(
+                (string) ($branch?->name ?? '-')
+            );
+
+            const hasMapConfiguration =
+                branchLatitude !== null
+                && branchLatitude >= -90
+                && branchLatitude <= 90
+                && branchLongitude !== null
+                && branchLongitude >= -180
+                && branchLongitude <= 180
+                && geofenceRadius !== null
+                && geofenceRadius > 0
+                && maximumAccuracy !== null
+                && maximumAccuracy > 0;
 
             const startButton = document.getElementById(
                 'start-scanner-button'
@@ -813,10 +1180,59 @@
                     'location-accuracy'
                 );
 
+            const distanceElement =
+                document.getElementById(
+                    'location-distance'
+                );
+
+            const locationStatusElement =
+                document.getElementById(
+                    'location-status'
+                );
+
+            const accuracyStatusElement =
+                document.getElementById(
+                    'location-accuracy-status'
+                );
+
+            const geofenceStatusBadge =
+                document.getElementById(
+                    'geofence-status-badge'
+                );
+
+            const geofenceLocationAlert =
+                document.getElementById(
+                    'geofence-location-alert'
+                );
+
+            const checkLocationButton =
+                document.getElementById(
+                    'check-location-button'
+                );
+
+            const recenterMapButton =
+                document.getElementById(
+                    'recenter-map-button'
+                );
+
+            const mapElement =
+                document.getElementById(
+                    'geofence-map'
+                );
+
             let qrScanner = null;
             let scannerRunning = false;
             let requestInProgress = false;
             let attendanceAccepted = false;
+            let locationCheckInProgress = false;
+            let locationReady = false;
+            let latestCoordinates = null;
+            let latestDistance = null;
+            let geofenceMap = null;
+            let branchMarker = null;
+            let deviceMarker = null;
+            let geofenceCircle = null;
+            let distanceLine = null;
 
             const setScannerAlert = function (
                 message,
@@ -855,8 +1271,10 @@
                 if (startButton !== null) {
                     startButton.disabled =
                         ! canScan
+                        || ! locationReady
                         || scannerRunning
                         || requestInProgress
+                        || locationCheckInProgress
                         || attendanceAccepted;
                 }
 
@@ -871,7 +1289,22 @@
                         ! canScan
                         || scannerRunning
                         || requestInProgress
+                        || locationCheckInProgress
                         || attendanceAccepted;
+                }
+
+                if (checkLocationButton !== null) {
+                    checkLocationButton.disabled =
+                        ! hasMapConfiguration
+                        || scannerRunning
+                        || requestInProgress
+                        || locationCheckInProgress
+                        || attendanceAccepted;
+                }
+
+                if (recenterMapButton !== null) {
+                    recenterMapButton.disabled =
+                        geofenceMap === null;
                 }
             };
 
@@ -935,13 +1368,19 @@
                         Number(data.accuracy ?? 0)
                             .toFixed(2);
 
+                    const radius =
+                        Number(data.geofence_radius ?? 0)
+                            .toFixed(2);
+
                     details.textContent =
                         attendanceType
                         + ' | Jarak '
                         + distance
-                        + ' meter | Accuracy '
+                        + ' meter | Radius '
+                        + radius
+                        + ' meter | Akurasi '
                         + accuracy
-                        + ' meter';
+                        + ' meter | Di dalam geofence';
 
                     attendanceResult.appendChild(details);
                 }
@@ -956,8 +1395,34 @@
                 attendanceResult.innerHTML = '';
             };
 
+            const setGeofenceVisualStatus = function (
+                status,
+                message,
+                badgeClass,
+                alertClass
+            ) {
+                if (locationStatusElement !== null) {
+                    locationStatusElement.textContent = status;
+                }
+
+                if (geofenceStatusBadge !== null) {
+                    geofenceStatusBadge.className =
+                        'badge ' + badgeClass + ' px-3 py-2';
+
+                    geofenceStatusBadge.textContent = status;
+                }
+
+                if (geofenceLocationAlert !== null) {
+                    geofenceLocationAlert.className =
+                        'alert ' + alertClass;
+
+                    geofenceLocationAlert.textContent = message;
+                }
+            };
+
             const updateLocationDisplay = function (
-                coordinates
+                coordinates,
+                distance
             ) {
                 if (latitudeElement !== null) {
                     latitudeElement.textContent =
@@ -974,6 +1439,32 @@
                         coordinates.accuracy.toFixed(2)
                         + ' meter';
                 }
+
+                if (distanceElement !== null) {
+                    distanceElement.textContent =
+                        distance.toFixed(2)
+                        + ' meter';
+                }
+
+                if (accuracyStatusElement !== null) {
+                    const accuracyIsValid =
+                        coordinates.accuracy
+                        <= maximumAccuracy;
+
+                    accuracyStatusElement.className =
+                        accuracyIsValid
+                            ? 'small text-success mt-1'
+                            : 'small text-danger mt-1';
+
+                    accuracyStatusElement.textContent =
+                        accuracyIsValid
+                            ? 'Akurasi memenuhi batas '
+                                + maximumAccuracy.toFixed(2)
+                                + ' meter.'
+                            : 'Akurasi melebihi batas '
+                                + maximumAccuracy.toFixed(2)
+                                + ' meter.';
+                }
             };
 
             const clearLocationDisplay = function () {
@@ -988,6 +1479,471 @@
                 if (accuracyElement !== null) {
                     accuracyElement.textContent = '-';
                 }
+
+                if (distanceElement !== null) {
+                    distanceElement.textContent = '-';
+                }
+
+                if (accuracyStatusElement !== null) {
+                    accuracyStatusElement.className =
+                        'small text-secondary mt-1';
+
+                    accuracyStatusElement.textContent =
+                        hasMapConfiguration
+                            ? 'Batas: '
+                                + maximumAccuracy.toFixed(2)
+                                + ' meter'
+                            : 'Batas: -';
+                }
+
+                setGeofenceVisualStatus(
+                    'Belum diperiksa',
+                    'Klik Periksa Lokasi untuk mengambil posisi '
+                        + 'perangkat dan menghitung estimasi jarak.',
+                    'text-bg-secondary',
+                    'alert-info'
+                );
+            };
+
+            const toRadians = function (degrees) {
+                return degrees * Math.PI / 180;
+            };
+
+            const calculateHaversineDistance = function (
+                originLatitude,
+                originLongitude,
+                destinationLatitude,
+                destinationLongitude
+            ) {
+                const earthRadiusMeters = 6371000;
+
+                const latitudeDifference = toRadians(
+                    destinationLatitude - originLatitude
+                );
+
+                const longitudeDifference = toRadians(
+                    destinationLongitude - originLongitude
+                );
+
+                const originLatitudeRadians =
+                    toRadians(originLatitude);
+
+                const destinationLatitudeRadians =
+                    toRadians(destinationLatitude);
+
+                const latitudeComponent =
+                    Math.sin(latitudeDifference / 2);
+
+                const longitudeComponent =
+                    Math.sin(longitudeDifference / 2);
+
+                const haversine =
+                    (latitudeComponent ** 2)
+                    + Math.cos(originLatitudeRadians)
+                    * Math.cos(destinationLatitudeRadians)
+                    * (longitudeComponent ** 2);
+
+                const normalizedHaversine = Math.min(
+                    1,
+                    Math.max(0, haversine)
+                );
+
+                const centralAngle = 2 * Math.atan2(
+                    Math.sqrt(normalizedHaversine),
+                    Math.sqrt(1 - normalizedHaversine)
+                );
+
+                return earthRadiusMeters * centralAngle;
+            };
+
+            const initializeMap = function () {
+                if (
+                    mapElement === null
+                    || ! hasMapConfiguration
+                    || typeof L === 'undefined'
+                ) {
+                    if (mapElement !== null) {
+                        mapElement.innerHTML =
+                            '<div class="d-flex align-items-center '
+                            + 'justify-content-center h-100 p-4 '
+                            + 'text-center text-secondary">'
+                            + 'Peta tidak dapat ditampilkan karena '
+                            + 'konfigurasi lokasi cabang atau pustaka '
+                            + 'peta belum tersedia.</div>';
+                    }
+
+                    return;
+                }
+
+                geofenceMap = L.map(
+                    mapElement,
+                    {
+                        zoomControl: true,
+                        scrollWheelZoom: false,
+                    }
+                ).setView(
+                    [
+                        branchLatitude,
+                        branchLongitude,
+                    ],
+                    18
+                );
+
+                L.tileLayer(
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    {
+                        maxZoom: 19,
+                        attribution:
+                            '&copy; OpenStreetMap contributors',
+                    }
+                ).addTo(geofenceMap);
+
+                geofenceCircle = L.circle(
+                    [
+                        branchLatitude,
+                        branchLongitude,
+                    ],
+                    {
+                        radius: geofenceRadius,
+                        color: '#198754',
+                        fillColor: '#198754',
+                        fillOpacity: 0.12,
+                        weight: 2,
+                    }
+                ).addTo(geofenceMap);
+
+                const branchPopupContent =
+                    document.createElement('div');
+
+                const branchPopupTitle =
+                    document.createElement('strong');
+
+                branchPopupTitle.textContent =
+                    'Lokasi Cabang';
+
+                const branchPopupDetail =
+                    document.createElement('div');
+
+                branchPopupDetail.textContent =
+                    branchCode
+                    + ' - '
+                    + branchName;
+
+                const branchPopupRadius =
+                    document.createElement('div');
+
+                branchPopupRadius.textContent =
+                    'Radius '
+                    + geofenceRadius.toFixed(2)
+                    + ' meter';
+
+                branchPopupContent.appendChild(
+                    branchPopupTitle
+                );
+
+                branchPopupContent.appendChild(
+                    branchPopupDetail
+                );
+
+                branchPopupContent.appendChild(
+                    branchPopupRadius
+                );
+
+                branchMarker = L.circleMarker(
+                    [
+                        branchLatitude,
+                        branchLongitude,
+                    ],
+                    {
+                        radius: 8,
+                        color: '#ffffff',
+                        fillColor: '#0d6efd',
+                        fillOpacity: 1,
+                        weight: 3,
+                    }
+                )
+                    .addTo(geofenceMap)
+                    .bindPopup(branchPopupContent);
+
+                geofenceMap.fitBounds(
+                    geofenceCircle.getBounds(),
+                    {
+                        padding: [24, 24],
+                    }
+                );
+
+                window.setTimeout(
+                    function () {
+                        geofenceMap.invalidateSize();
+                    },
+                    100
+                );
+            };
+
+            const updateMapLocation = function (
+                coordinates
+            ) {
+                if (geofenceMap === null) {
+                    return;
+                }
+
+                const devicePosition = [
+                    coordinates.latitude,
+                    coordinates.longitude,
+                ];
+
+                if (deviceMarker !== null) {
+                    geofenceMap.removeLayer(deviceMarker);
+                }
+
+                if (distanceLine !== null) {
+                    geofenceMap.removeLayer(distanceLine);
+                }
+
+                deviceMarker = L.circleMarker(
+                    devicePosition,
+                    {
+                        radius: 8,
+                        color: '#ffffff',
+                        fillColor: '#dc3545',
+                        fillOpacity: 1,
+                        weight: 3,
+                    }
+                )
+                    .addTo(geofenceMap)
+                    .bindPopup(
+                        '<strong>Lokasi Perangkat</strong><br>'
+                        + 'Akurasi '
+                        + coordinates.accuracy.toFixed(2)
+                        + ' meter'
+                    );
+
+                distanceLine = L.polyline(
+                    [
+                        [
+                            branchLatitude,
+                            branchLongitude,
+                        ],
+                        devicePosition,
+                    ],
+                    {
+                        color: '#6c757d',
+                        weight: 2,
+                        dashArray: '6, 6',
+                    }
+                ).addTo(geofenceMap);
+
+                const visibleLayers = L.featureGroup([
+                    geofenceCircle,
+                    branchMarker,
+                    deviceMarker,
+                ]);
+
+                geofenceMap.fitBounds(
+                    visibleLayers.getBounds(),
+                    {
+                        padding: [32, 32],
+                        maxZoom: 19,
+                    }
+                );
+            };
+
+            const evaluateLocation = function (
+                coordinates
+            ) {
+                if (! hasMapConfiguration) {
+                    throw new Error(
+                        'Konfigurasi geofence cabang belum lengkap.'
+                    );
+                }
+
+                const distance =
+                    calculateHaversineDistance(
+                        branchLatitude,
+                        branchLongitude,
+                        coordinates.latitude,
+                        coordinates.longitude
+                    );
+
+                const accuracyIsValid =
+                    coordinates.accuracy
+                    <= maximumAccuracy;
+
+                const isInsideGeofence =
+                    distance <= geofenceRadius;
+
+                latestCoordinates = coordinates;
+                latestDistance = distance;
+                locationReady =
+                    accuracyIsValid
+                    && isInsideGeofence;
+
+                updateLocationDisplay(
+                    coordinates,
+                    distance
+                );
+
+                updateMapLocation(
+                    coordinates
+                );
+
+                if (! accuracyIsValid) {
+                    setGeofenceVisualStatus(
+                        'Akurasi GPS Tidak Memadai',
+                        'Akurasi lokasi '
+                            + coordinates.accuracy.toFixed(2)
+                            + ' meter melebihi batas '
+                            + maximumAccuracy.toFixed(2)
+                            + ' meter. Berpindah ke area terbuka '
+                            + 'dan periksa kembali.',
+                        'text-bg-warning',
+                        'alert-warning'
+                    );
+                } else if (! isInsideGeofence) {
+                    setGeofenceVisualStatus(
+                        'Di Luar Geofence',
+                        'Perangkat berada sekitar '
+                            + distance.toFixed(2)
+                            + ' meter dari cabang, melebihi radius '
+                            + geofenceRadius.toFixed(2)
+                            + ' meter.',
+                        'text-bg-danger',
+                        'alert-danger'
+                    );
+                } else {
+                    setGeofenceVisualStatus(
+                        'Di Dalam Geofence',
+                        'Lokasi awal memenuhi syarat. Perangkat '
+                            + 'berada sekitar '
+                            + distance.toFixed(2)
+                            + ' meter dari cabang dan kamera '
+                            + 'sudah dapat digunakan.',
+                        'text-bg-success',
+                        'alert-success'
+                    );
+                }
+
+                updateButtons();
+
+                return {
+                    distance: distance,
+                    accuracyIsValid: accuracyIsValid,
+                    isInsideGeofence: isInsideGeofence,
+                    ready: locationReady,
+                };
+            };
+
+            const checkCurrentLocation = async function () {
+                if (
+                    ! hasMapConfiguration
+                    || locationCheckInProgress
+                    || requestInProgress
+                    || attendanceAccepted
+                ) {
+                    return;
+                }
+
+                locationCheckInProgress = true;
+                locationReady = false;
+                updateButtons();
+
+                setGeofenceVisualStatus(
+                    'Memeriksa Lokasi',
+                    'GPS sedang mencari pembacaan terbaik. '
+                        + 'Tunggu beberapa detik dan tetap berada '
+                        + 'di area terbuka.',
+                    'text-bg-info',
+                    'alert-info'
+                );
+
+                try {
+                    const coordinates =
+                        await getBestCurrentLocation(
+                            function (bestCoordinates) {
+                                const previewDistance =
+                                    calculateHaversineDistance(
+                                        branchLatitude,
+                                        branchLongitude,
+                                        bestCoordinates.latitude,
+                                        bestCoordinates.longitude
+                                    );
+
+                                updateLocationDisplay(
+                                    bestCoordinates,
+                                    previewDistance
+                                );
+
+                                updateMapLocation(
+                                    bestCoordinates
+                                );
+
+                                setGeofenceVisualStatus(
+                                    'Meningkatkan Akurasi GPS',
+                                    'Pembacaan terbaik sementara: '
+                                        + bestCoordinates.accuracy
+                                            .toFixed(2)
+                                        + ' meter. Target maksimal: '
+                                        + maximumAccuracy.toFixed(2)
+                                        + ' meter.',
+                                    'text-bg-info',
+                                    'alert-info'
+                                );
+                            }
+                        );
+
+                    evaluateLocation(
+                        coordinates
+                    );
+                } catch (error) {
+                    const message =
+                        error instanceof Error
+                            ? error.message
+                            : 'Lokasi perangkat tidak dapat diperoleh.';
+
+                    setGeofenceVisualStatus(
+                        'Lokasi Tidak Tersedia',
+                        message,
+                        'text-bg-danger',
+                        'alert-danger'
+                    );
+                } finally {
+                    locationCheckInProgress = false;
+                    updateButtons();
+                }
+            };
+
+            const recenterMap = function () {
+                if (geofenceMap === null) {
+                    return;
+                }
+
+                if (
+                    latestCoordinates !== null
+                    && deviceMarker !== null
+                ) {
+                    const visibleLayers = L.featureGroup([
+                        geofenceCircle,
+                        branchMarker,
+                        deviceMarker,
+                    ]);
+
+                    geofenceMap.fitBounds(
+                        visibleLayers.getBounds(),
+                        {
+                            padding: [32, 32],
+                            maxZoom: 19,
+                        }
+                    );
+
+                    return;
+                }
+
+                geofenceMap.fitBounds(
+                    geofenceCircle.getBounds(),
+                    {
+                        padding: [24, 24],
+                    }
+                );
             };
 
             const firstValidationMessage = function (
@@ -1047,7 +2003,9 @@
                 }
             };
 
-            const getCurrentLocation = function () {
+            const getBestCurrentLocation = function (
+                onProgress = null
+            ) {
                 return new Promise(function (
                     resolve,
                     reject
@@ -1065,10 +2023,51 @@
                         return;
                     }
 
-                    navigator.geolocation
-                        .getCurrentPosition(
+                    const maximumWaitMilliseconds = 30000;
+                    let bestCoordinates = null;
+                    let watchId = null;
+                    let settled = false;
+
+                    const cleanup = function () {
+                        if (watchId !== null) {
+                            navigator.geolocation.clearWatch(
+                                watchId
+                            );
+                        }
+
+                        window.clearTimeout(timeoutId);
+                    };
+
+                    const resolveBestCoordinates = function () {
+                        if (settled) {
+                            return;
+                        }
+
+                        settled = true;
+                        cleanup();
+
+                        if (bestCoordinates !== null) {
+                            resolve(bestCoordinates);
+
+                            return;
+                        }
+
+                        reject(
+                            new Error(
+                                'Lokasi perangkat belum berhasil diperoleh.'
+                            )
+                        );
+                    };
+
+                    const timeoutId = window.setTimeout(
+                        resolveBestCoordinates,
+                        maximumWaitMilliseconds
+                    );
+
+                    watchId = navigator.geolocation
+                        .watchPosition(
                             function (position) {
-                                resolve({
+                                const coordinates = {
                                     latitude:
                                         position.coords.latitude,
 
@@ -1077,21 +2076,75 @@
 
                                     accuracy:
                                         position.coords.accuracy,
-                                });
+                                };
+
+                                if (
+                                    ! Number.isFinite(
+                                        coordinates.latitude
+                                    )
+                                    || ! Number.isFinite(
+                                        coordinates.longitude
+                                    )
+                                    || ! Number.isFinite(
+                                        coordinates.accuracy
+                                    )
+                                    || coordinates.accuracy <= 0
+                                ) {
+                                    return;
+                                }
+
+                                if (
+                                    bestCoordinates === null
+                                    || coordinates.accuracy
+                                        < bestCoordinates.accuracy
+                                ) {
+                                    bestCoordinates = coordinates;
+
+                                    if (
+                                        typeof onProgress
+                                        === 'function'
+                                    ) {
+                                        onProgress(
+                                            bestCoordinates
+                                        );
+                                    }
+                                }
+
+                                if (
+                                    hasMapConfiguration
+                                    && bestCoordinates.accuracy
+                                        <= maximumAccuracy
+                                ) {
+                                    resolveBestCoordinates();
+                                }
                             },
 
                             function (error) {
-                                reject(
-                                    new Error(
-                                        locationErrorMessage(error)
-                                    )
-                                );
+                                if (
+                                    error !== null
+                                    && error.code === 1
+                                ) {
+                                    if (settled) {
+                                        return;
+                                    }
+
+                                    settled = true;
+                                    cleanup();
+
+                                    reject(
+                                        new Error(
+                                            locationErrorMessage(
+                                                error
+                                            )
+                                        )
+                                    );
+                                }
                             },
 
                             {
                                 enableHighAccuracy: true,
-                                timeout: 20000,
                                 maximumAge: 0,
+                                timeout: maximumWaitMilliseconds,
                             }
                         );
                 });
@@ -1220,9 +2273,19 @@
 
                 try {
                     const coordinates =
-                        await getCurrentLocation();
+                        await getBestCurrentLocation(
+                            function (bestCoordinates) {
+                                setProcessing(
+                                    true,
+                                    'Meningkatkan akurasi GPS: '
+                                        + bestCoordinates.accuracy
+                                            .toFixed(2)
+                                        + ' meter...'
+                                );
+                            }
+                        );
 
-                    updateLocationDisplay(
+                    evaluateLocation(
                         coordinates
                     );
 
@@ -1290,6 +2353,16 @@
                     || requestInProgress
                     || attendanceAccepted
                 ) {
+                    return;
+                }
+
+                if (! locationReady) {
+                    setScannerAlert(
+                        'Periksa lokasi dan pastikan perangkat '
+                            + 'berada di dalam geofence terlebih dahulu.',
+                        'alert-warning'
+                    );
+
                     return;
                 }
 
@@ -1386,18 +2459,54 @@
 
                 requestInProgress = false;
                 attendanceAccepted = false;
+                locationReady = false;
+                latestCoordinates = null;
+                latestDistance = null;
+
+                if (
+                    geofenceMap !== null
+                    && deviceMarker !== null
+                ) {
+                    geofenceMap.removeLayer(deviceMarker);
+                    deviceMarker = null;
+                }
+
+                if (
+                    geofenceMap !== null
+                    && distanceLine !== null
+                ) {
+                    geofenceMap.removeLayer(distanceLine);
+                    distanceLine = null;
+                }
 
                 clearResult();
                 clearLocationDisplay();
                 setProcessing(false);
 
                 setScannerAlert(
-                    'Tekan tombol Mulai Kamera untuk memindai QR Code.',
+                    'Periksa lokasi terlebih dahulu sebelum '
+                        + 'menyalakan kamera.',
                     'alert-info'
                 );
 
+                recenterMap();
+
                 updateButtons();
             };
+
+            if (checkLocationButton !== null) {
+                checkLocationButton.addEventListener(
+                    'click',
+                    checkCurrentLocation
+                );
+            }
+
+            if (recenterMapButton !== null) {
+                recenterMapButton.addEventListener(
+                    'click',
+                    recenterMap
+                );
+            }
 
             if (startButton !== null) {
                 startButton.addEventListener(
@@ -1443,6 +2552,8 @@
                 }
             );
 
+            initializeMap();
+            clearLocationDisplay();
             updateButtons();
         });
     </script>
