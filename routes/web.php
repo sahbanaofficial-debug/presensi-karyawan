@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceHistoryController;
+use App\Http\Controllers\AttendanceMonitoringController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
@@ -67,7 +68,24 @@ Route::middleware(['auth', 'active'])->group(function (): void {
                 ->middleware('throttle:10,1')
                 ->name('store');
         });
-
+/*
+|--------------------------------------------------------------------------
+| Monitoring Presensi
+|--------------------------------------------------------------------------
+|
+| HRD dan admin dapat memantau seluruh transaksi presensi
+| berdasarkan tanggal, cabang, karyawan, jenis, dan ketepatan waktu.
+|
+*/
+Route::get(
+    '/attendance-monitoring',
+    [
+        AttendanceMonitoringController::class,
+        'index',
+    ]
+)
+    ->middleware('role:hrd,admin')
+    ->name('attendance-monitoring.index');
 Route::post(
     '/logout',
     [AuthenticatedSessionController::class, 'destroy']
