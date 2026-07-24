@@ -325,7 +325,23 @@
         Sesi Presensi
     </a>
 </li>
-                    @endif
+<li class="nav-item">
+    <a
+        href="{{ route('attendance-monitoring.index') }}"
+        class="nav-link {{
+            request()->routeIs('attendance-monitoring.*')
+                ? 'active'
+                : ''
+        }}"
+        @if (request()->routeIs('attendance-monitoring.*'))
+            aria-current="page"
+        @endif
+    >
+        Monitoring Presensi
+    </a>
+</li>
+             {{-- Menu HRD dan admin lainnya tetap dipertahankan --}}
+        @endif
 
                     @if ($authenticatedUser?->hasRole('hrd'))
                         <li class="nav-item">
