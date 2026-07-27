@@ -644,6 +644,15 @@
             background: var(--brand-700) !important;
         }
 
+        .btn-primary:disabled,
+        .btn-primary.disabled {
+            border-color: var(--brand-200);
+            color: var(--brand-700);
+            background: var(--brand-100);
+            opacity: 1;
+            cursor: not-allowed;
+        }
+
         .btn-outline-primary {
             border-color: var(--brand-300);
             color: var(--brand-700);
@@ -655,6 +664,17 @@
             border-color: var(--brand-500);
             color: var(--brand-700);
             background: var(--brand-50);
+        }
+
+        .btn-outline-primary:disabled,
+        .btn-outline-primary.disabled,
+        .btn-outline-secondary:disabled,
+        .btn-outline-secondary.disabled {
+            border-color: var(--neutral-200);
+            color: var(--neutral-500);
+            background: var(--neutral-50);
+            opacity: 1;
+            cursor: not-allowed;
         }
 
         .btn-success {

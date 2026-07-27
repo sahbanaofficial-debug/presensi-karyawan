@@ -2,6 +2,305 @@
 
 @section('title', 'Detail Jadwal Harian')
 
+@push('styles')
+    <style>
+        .employee-schedule-detail-page {
+            --schedule-detail-surface: var(--neutral-0);
+            --schedule-detail-border: var(--neutral-200);
+            --schedule-detail-muted: var(--neutral-600);
+            --schedule-detail-soft: var(--brand-50);
+        }
+
+        .schedule-detail-overview-card,
+        .schedule-detail-card,
+        .schedule-detail-danger-card {
+            overflow: hidden;
+            margin-bottom: var(--space-5);
+            border: 1px solid var(--schedule-detail-border);
+            border-radius: var(--radius-lg);
+            background: var(--schedule-detail-surface);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .schedule-detail-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--space-4);
+            padding: var(--space-4) var(--space-5);
+            border-bottom: 1px solid var(--schedule-detail-border);
+            background: var(--neutral-25);
+        }
+
+        .schedule-detail-card-title {
+            margin: 0;
+            color: var(--neutral-900);
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .schedule-detail-card-copy {
+            margin: var(--space-1) 0 0;
+            color: var(--schedule-detail-muted);
+            font-size: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .schedule-detail-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: var(--space-3);
+            padding: var(--space-4);
+        }
+
+        .schedule-detail-overview-item {
+            min-width: 0;
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-25);
+        }
+
+        .schedule-detail-overview-icon {
+            display: inline-flex;
+            width: 2.5rem;
+            height: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-3);
+            border-radius: var(--radius-md);
+            color: var(--brand-700);
+            background: var(--schedule-detail-soft);
+            font-size: 1rem;
+        }
+
+        .schedule-detail-overview-label {
+            color: var(--schedule-detail-muted);
+            font-size: 0.625rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .schedule-detail-overview-value {
+            margin-top: var(--space-1);
+            color: var(--neutral-900);
+            font-size: 0.875rem;
+            font-weight: 800;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .schedule-detail-main-grid,
+        .schedule-detail-secondary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-5);
+        }
+
+        .schedule-detail-card-body {
+            padding: var(--space-4);
+        }
+
+        .schedule-detail-list {
+            display: grid;
+            gap: var(--space-3);
+            margin: 0;
+        }
+
+        .schedule-detail-row {
+            display: grid;
+            grid-template-columns: minmax(9rem, 0.85fr) minmax(0, 1.15fr);
+            gap: var(--space-3);
+            align-items: start;
+            margin: 0;
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .schedule-detail-row:last-child {
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        .schedule-detail-row dt,
+        .schedule-detail-row dd {
+            margin: 0;
+        }
+
+        .schedule-detail-row dt {
+            color: var(--schedule-detail-muted);
+            font-size: 0.6875rem;
+            font-weight: 800;
+        }
+
+        .schedule-detail-row dd {
+            min-width: 0;
+            color: var(--neutral-900);
+            font-size: 0.8125rem;
+            font-weight: 700;
+            line-height: 1.55;
+            overflow-wrap: anywhere;
+        }
+
+        .schedule-detail-work-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: var(--space-3);
+        }
+
+        .schedule-detail-work-item {
+            min-width: 0;
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-25);
+        }
+
+        .schedule-detail-work-item.is-wide {
+            grid-column: span 3;
+        }
+
+        .schedule-detail-work-label {
+            color: var(--schedule-detail-muted);
+            font-size: 0.625rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .schedule-detail-work-value {
+            margin-top: var(--space-1);
+            color: var(--neutral-900);
+            font-size: 0.875rem;
+            font-weight: 800;
+            line-height: 1.5;
+        }
+
+        .schedule-detail-notice,
+        .schedule-detail-danger-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+        }
+
+        .schedule-detail-notice {
+            border: 1px solid var(--neutral-200);
+            color: var(--neutral-700);
+            background: var(--neutral-50);
+        }
+
+        .schedule-detail-danger-notice {
+            border: 1px solid #efc9c3;
+            color: var(--danger-700);
+            background: var(--danger-50);
+        }
+
+        .schedule-detail-notice-icon {
+            display: inline-flex;
+            width: 2.5rem;
+            height: 2.5rem;
+            flex: 0 0 2.5rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.45);
+            font-size: 1rem;
+        }
+
+        .schedule-detail-notice-title {
+            margin: 0 0 var(--space-1);
+            font-size: 0.875rem;
+            font-weight: 800;
+        }
+
+        .schedule-detail-notice-copy {
+            margin: 0;
+            font-size: 0.8125rem;
+            line-height: 1.65;
+        }
+
+        .schedule-detail-attendance-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+            padding: var(--space-4);
+        }
+
+        .schedule-detail-attendance-value {
+            color: var(--neutral-900);
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.2;
+        }
+
+        .schedule-detail-danger-card {
+            border-color: #efc9c3;
+        }
+
+        .schedule-detail-danger-header {
+            padding: var(--space-4) var(--space-5);
+            border-bottom: 1px solid #efc9c3;
+            background: var(--danger-50);
+        }
+
+        .schedule-detail-danger-title {
+            margin: 0;
+            color: var(--danger-700);
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .schedule-detail-danger-body {
+            padding: var(--space-4);
+        }
+
+        @media (min-width: 768px) {
+            .schedule-detail-overview-grid,
+            .schedule-detail-card-body,
+            .schedule-detail-attendance-card,
+            .schedule-detail-danger-body {
+                padding: var(--space-5);
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .schedule-detail-overview-grid,
+            .schedule-detail-main-grid,
+            .schedule-detail-secondary-grid,
+            .schedule-detail-work-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .schedule-detail-work-item.is-wide {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .schedule-detail-card-header {
+                flex-direction: column;
+                padding: var(--space-4);
+            }
+
+            .schedule-detail-row {
+                grid-template-columns: 1fr;
+            }
+
+            .schedule-detail-attendance-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+@endpush
+
 @section('content')
     @php
         $employee = $employeeSchedule->employee;
@@ -90,439 +389,631 @@
         );
     @endphp
 
-    <header
-        class="page-header d-md-flex align-items-start
-            justify-content-between gap-3"
-    >
-        <div>
-            <h1 class="page-title">
-                Detail Jadwal Harian
-            </h1>
-
-            <p class="page-description">
-                Informasi penetapan jadwal harian karyawan.
-            </p>
-        </div>
-
-        <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
-            <a
-                href="{{ route('employee-schedules.index') }}"
-                class="btn btn-outline-secondary"
-            >
-                Kembali
-            </a>
-
-            <a
-                href="{{
-                    route(
-                        'employee-schedules.edit',
-                        $employeeSchedule
-                    )
-                }}"
-                class="btn btn-primary"
-            >
-                Edit Jadwal
-            </a>
-        </div>
-    </header>
-
-    <section class="content-card p-3 p-md-4 mb-4">
-        <div
-            class="d-flex flex-column flex-md-row
-                align-items-md-start justify-content-between gap-3"
+    <div class="employee-schedule-detail-page">
+        <header
+            class="page-header d-md-flex align-items-start
+                justify-content-between gap-3"
         >
             <div>
-                <div class="small text-secondary mb-1">
-                    Tanggal jadwal
-                </div>
+                <h1 class="page-title">
+                    Detail Jadwal Harian
+                </h1>
 
-                <h2 class="h4 fw-bold mb-2">
-                    {{
-                        $formatDate(
-                            $employeeSchedule->schedule_date
-                        )
-                    }}
-                </h2>
-
-                <p class="text-secondary mb-0">
-                    {{ $statusDescription }}
+                <p class="page-description">
+                    Informasi penetapan jadwal harian karyawan.
                 </p>
             </div>
 
-            <div>
-                <span
-                    class="badge {{ $statusClass }} fs-6 px-3 py-2"
+            <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
+                <a
+                    href="{{ route(
+                        'employee-schedules.index'
+                    ) }}"
+                    class="btn btn-outline-secondary"
                 >
+                    <i
+                        class="bi bi-arrow-left me-2"
+                        aria-hidden="true"
+                    ></i>
+
+                    Kembali
+                </a>
+
+                <a
+                    href="{{ route(
+                        'employee-schedules.edit',
+                        $employeeSchedule
+                    ) }}"
+                    class="btn btn-primary"
+                >
+                    <i
+                        class="bi bi-pencil-square me-2"
+                        aria-hidden="true"
+                    ></i>
+
+                    Edit Jadwal
+                </a>
+            </div>
+        </header>
+
+        <section
+            class="schedule-detail-overview-card"
+            aria-labelledby="schedule-overview-heading"
+        >
+            <div class="schedule-detail-card-header">
+                <div>
+                    <h2
+                        id="schedule-overview-heading"
+                        class="schedule-detail-card-title"
+                    >
+                        Ringkasan Jadwal
+                    </h2>
+
+                    <p class="schedule-detail-card-copy">
+                        Status, tanggal, dan karyawan yang menerima
+                        penetapan jadwal.
+                    </p>
+                </div>
+
+                <span class="badge {{ $statusClass }}">
                     {{ $statusLabel }}
                 </span>
             </div>
-        </div>
-    </section>
 
-    <div class="row g-4 mb-4">
-        <div class="col-lg-7">
-            <section class="content-card h-100">
-                <div class="border-bottom p-3 p-md-4">
-                    <h2 class="h5 fw-bold mb-1">
-                        Data Karyawan
-                    </h2>
+            <div class="schedule-detail-overview-grid">
+                <article class="schedule-detail-overview-item">
+                    <span class="schedule-detail-overview-icon">
+                        <i
+                            class="bi bi-calendar3"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
 
-                    <p class="small text-secondary mb-0">
-                        Karyawan yang menerima penetapan jadwal.
-                    </p>
+                    <div class="schedule-detail-overview-label">
+                        Tanggal Jadwal
+                    </div>
+
+                    <div class="schedule-detail-overview-value">
+                        {{
+                            $formatDate(
+                                $employeeSchedule->schedule_date
+                            )
+                        }}
+                    </div>
+                </article>
+
+                <article class="schedule-detail-overview-item">
+                    <span class="schedule-detail-overview-icon">
+                        <i
+                            class="bi bi-person"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <div class="schedule-detail-overview-label">
+                        Karyawan
+                    </div>
+
+                    <div class="schedule-detail-overview-value">
+                        {{ $employee?->full_name ?? '-' }}
+                    </div>
+                </article>
+
+                <article class="schedule-detail-overview-item">
+                    <span class="schedule-detail-overview-icon">
+                        <i
+                            class="bi bi-info-circle"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <div class="schedule-detail-overview-label">
+                        Keterangan Status
+                    </div>
+
+                    <div class="schedule-detail-overview-value">
+                        {{ $statusDescription }}
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <div class="schedule-detail-main-grid">
+            <section
+                class="schedule-detail-card"
+                aria-labelledby="scheduled-employee-heading"
+            >
+                <div class="schedule-detail-card-header">
+                    <div>
+                        <h2
+                            id="scheduled-employee-heading"
+                            class="schedule-detail-card-title"
+                        >
+                            Data Karyawan
+                        </h2>
+
+                        <p class="schedule-detail-card-copy">
+                            Karyawan yang menerima penetapan jadwal.
+                        </p>
+                    </div>
                 </div>
 
-                <div class="p-3 p-md-4">
+                <div class="schedule-detail-card-body">
                     @if ($employee !== null)
-                        <dl class="row mb-0">
-                            <dt class="col-sm-4 mb-2">
-                                Nomor Karyawan
-                            </dt>
+                        <dl class="schedule-detail-list">
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Nomor Karyawan
+                                </dt>
 
-                            <dd class="col-sm-8 mb-3">
-                                {{ $employee->employee_number }}
-                            </dd>
+                                <dd>
+                                    {{ $employee->employee_number }}
+                                </dd>
+                            </div>
 
-                            <dt class="col-sm-4 mb-2">
-                                Nama Lengkap
-                            </dt>
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Nama Lengkap
+                                </dt>
 
-                            <dd class="col-sm-8 mb-3">
-                                <a
-                                    href="{{
-                                        route(
+                                <dd>
+                                    <a
+                                        href="{{ route(
                                             'employees.show',
                                             $employee
-                                        )
-                                    }}"
-                                    class="fw-semibold text-decoration-none"
-                                >
-                                    {{ $employee->full_name }}
-                                </a>
-                            </dd>
-
-                            <dt class="col-sm-4 mb-2">
-                                Jabatan
-                            </dt>
-
-                            <dd class="col-sm-8 mb-3">
-                                {{ $employee->position }}
-                            </dd>
-
-                            <dt class="col-sm-4 mb-2">
-                                Status Karyawan
-                            </dt>
-
-                            <dd class="col-sm-8 mb-3">
-                                @if (
-                                    $employee->employment_status
-                                    === 'active'
-                                )
-                                    <span
-                                        class="badge text-bg-success"
+                                        ) }}"
+                                        class="fw-semibold
+                                            text-decoration-none"
                                     >
-                                        Aktif
-                                    </span>
-                                @else
-                                    <span
-                                        class="badge text-bg-secondary"
-                                    >
-                                        Tidak Aktif
-                                    </span>
-                                @endif
-                            </dd>
+                                        {{ $employee->full_name }}
+                                    </a>
+                                </dd>
+                            </div>
 
-                            <dt class="col-sm-4 mb-2">
-                                Email Akun
-                            </dt>
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Jabatan
+                                </dt>
 
-                            <dd class="col-sm-8 mb-3">
-                                {{ $employeeUser?->email ?? '-' }}
-                            </dd>
+                                <dd>
+                                    {{ $employee->position }}
+                                </dd>
+                            </div>
 
-                            <dt class="col-sm-4 mb-2">
-                                Status Akun
-                            </dt>
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Status Karyawan
+                                </dt>
 
-                            <dd class="col-sm-8 mb-0">
-                                @if ($employeeUser?->status === 'active')
-                                    <span
-                                        class="badge text-bg-success"
-                                    >
-                                        Aktif
-                                    </span>
-                                @elseif ($employeeUser !== null)
-                                    <span
-                                        class="badge text-bg-secondary"
-                                    >
-                                        Tidak Aktif
-                                    </span>
-                                @else
-                                    <span class="text-secondary">
-                                        Akun tidak tersedia
-                                    </span>
-                                @endif
-                            </dd>
+                                <dd>
+                                    @if (
+                                        $employee->employment_status
+                                        === 'active'
+                                    )
+                                        <span
+                                            class="badge
+                                                text-bg-success"
+                                        >
+                                            Aktif
+                                        </span>
+                                    @else
+                                        <span
+                                            class="badge
+                                                text-bg-secondary"
+                                        >
+                                            Tidak Aktif
+                                        </span>
+                                    @endif
+                                </dd>
+                            </div>
+
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Email Akun
+                                </dt>
+
+                                <dd>
+                                    {{ $employeeUser?->email ?? '-' }}
+                                </dd>
+                            </div>
+
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Status Akun
+                                </dt>
+
+                                <dd>
+                                    @if (
+                                        $employeeUser?->status
+                                        === 'active'
+                                    )
+                                        <span
+                                            class="badge
+                                                text-bg-success"
+                                        >
+                                            Aktif
+                                        </span>
+                                    @elseif ($employeeUser !== null)
+                                        <span
+                                            class="badge
+                                                text-bg-secondary"
+                                        >
+                                            Tidak Aktif
+                                        </span>
+                                    @else
+                                        <span class="text-secondary">
+                                            Akun tidak tersedia
+                                        </span>
+                                    @endif
+                                </dd>
+                            </div>
                         </dl>
                     @else
                         <div
-                            class="alert alert-danger mb-0"
+                            class="schedule-detail-danger-notice"
                             role="alert"
                         >
-                            Data karyawan tidak tersedia.
+                            <span
+                                class="schedule-detail-notice-icon"
+                            >
+                                <i
+                                    class="bi bi-x-octagon"
+                                    aria-hidden="true"
+                                ></i>
+                            </span>
+
+                            <div>
+                                <h3
+                                    class="schedule-detail-notice-title"
+                                >
+                                    Data karyawan tidak tersedia
+                                </h3>
+
+                                <p
+                                    class="schedule-detail-notice-copy"
+                                >
+                                    Data karyawan tidak tersedia.
+                                </p>
+                            </div>
                         </div>
                     @endif
                 </div>
             </section>
-        </div>
 
-        <div class="col-lg-5">
-            <section class="content-card h-100">
-                <div class="border-bottom p-3 p-md-4">
-                    <h2 class="h5 fw-bold mb-1">
-                        Data Cabang
-                    </h2>
+            <section
+                class="schedule-detail-card"
+                aria-labelledby="schedule-branch-heading"
+            >
+                <div class="schedule-detail-card-header">
+                    <div>
+                        <h2
+                            id="schedule-branch-heading"
+                            class="schedule-detail-card-title"
+                        >
+                            Data Cabang
+                        </h2>
 
-                    <p class="small text-secondary mb-0">
-                        Lokasi kerja karyawan.
-                    </p>
+                        <p class="schedule-detail-card-copy">
+                            Lokasi kerja karyawan.
+                        </p>
+                    </div>
                 </div>
 
-                <div class="p-3 p-md-4">
+                <div class="schedule-detail-card-body">
                     @if ($branch !== null)
-                        <dl class="mb-0">
-                            <dt class="mb-1">
-                                Kode Cabang
-                            </dt>
+                        <dl class="schedule-detail-list">
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Kode Cabang
+                                </dt>
 
-                            <dd class="mb-3">
-                                {{ $branch->code }}
-                            </dd>
+                                <dd>
+                                    {{ $branch->code }}
+                                </dd>
+                            </div>
 
-                            <dt class="mb-1">
-                                Nama Cabang
-                            </dt>
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Nama Cabang
+                                </dt>
 
-                            <dd class="mb-3">
-                                <a
-                                    href="{{
-                                        route(
+                                <dd>
+                                    <a
+                                        href="{{ route(
                                             'branches.show',
                                             $branch
-                                        )
-                                    }}"
-                                    class="fw-semibold text-decoration-none"
-                                >
-                                    {{ $branch->name }}
-                                </a>
-                            </dd>
-
-                            <dt class="mb-1">
-                                Alamat
-                            </dt>
-
-                            <dd class="mb-3">
-                                {{ $branch->address ?: '-' }}
-                            </dd>
-
-                            <dt class="mb-1">
-                                Status Cabang
-                            </dt>
-
-                            <dd class="mb-0">
-                                @if ($branch->status === 'active')
-                                    <span
-                                        class="badge text-bg-success"
+                                        ) }}"
+                                        class="fw-semibold
+                                            text-decoration-none"
                                     >
-                                        Aktif
-                                    </span>
-                                @else
-                                    <span
-                                        class="badge text-bg-secondary"
-                                    >
-                                        Tidak Aktif
-                                    </span>
-                                @endif
-                            </dd>
+                                        {{ $branch->name }}
+                                    </a>
+                                </dd>
+                            </div>
+
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Alamat
+                                </dt>
+
+                                <dd>
+                                    {{ $branch->address ?: '-' }}
+                                </dd>
+                            </div>
+
+                            <div class="schedule-detail-row">
+                                <dt>
+                                    Status Cabang
+                                </dt>
+
+                                <dd>
+                                    @if (
+                                        $branch->status === 'active'
+                                    )
+                                        <span
+                                            class="badge
+                                                text-bg-success"
+                                        >
+                                            Aktif
+                                        </span>
+                                    @else
+                                        <span
+                                            class="badge
+                                                text-bg-secondary"
+                                        >
+                                            Tidak Aktif
+                                        </span>
+                                    @endif
+                                </dd>
+                            </div>
                         </dl>
                     @else
                         <div
-                            class="alert alert-warning mb-0"
+                            class="schedule-detail-notice"
                             role="alert"
                         >
-                            Data cabang tidak tersedia.
+                            <span
+                                class="schedule-detail-notice-icon"
+                            >
+                                <i
+                                    class="bi
+                                        bi-exclamation-triangle"
+                                    aria-hidden="true"
+                                ></i>
+                            </span>
+
+                            <div>
+                                <h3
+                                    class="schedule-detail-notice-title"
+                                >
+                                    Cabang tidak tersedia
+                                </h3>
+
+                                <p
+                                    class="schedule-detail-notice-copy"
+                                >
+                                    Data cabang tidak tersedia.
+                                </p>
+                            </div>
                         </div>
                     @endif
                 </div>
             </section>
         </div>
-    </div>
 
-    <section class="content-card mb-4">
-        <div class="border-bottom p-3 p-md-4">
-            <h2 class="h5 fw-bold mb-1">
-                Pola dan Ketentuan Jam Kerja
-            </h2>
+        <section
+            class="schedule-detail-card"
+            aria-labelledby="work-schedule-policy-heading"
+        >
+            <div class="schedule-detail-card-header">
+                <div>
+                    <h2
+                        id="work-schedule-policy-heading"
+                        class="schedule-detail-card-title"
+                    >
+                        Pola dan Ketentuan Jam Kerja
+                    </h2>
 
-            <p class="small text-secondary mb-0">
-                Ketentuan waktu presensi berdasarkan pola jadwal.
-            </p>
-        </div>
+                    <p class="schedule-detail-card-copy">
+                        Ketentuan waktu presensi berdasarkan pola
+                        jadwal.
+                    </p>
+                </div>
+            </div>
 
-        <div class="p-3 p-md-4">
-            @if (
-                $scheduleStatus === 'work'
-                && $workSchedule !== null
-            )
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="small text-secondary mb-1">
-                            Nama Pola Jadwal
-                        </div>
+            <div class="schedule-detail-card-body">
+                @if (
+                    $scheduleStatus === 'work'
+                    && $workSchedule !== null
+                )
+                    <div class="schedule-detail-work-grid">
+                        <article
+                            class="schedule-detail-work-item is-wide"
+                        >
+                            <div class="schedule-detail-work-label">
+                                Nama Pola Jadwal
+                            </div>
 
-                        <div class="fw-semibold">
-                            <a
-                                href="{{
-                                    route(
+                            <div class="schedule-detail-work-value">
+                                <a
+                                    href="{{ route(
                                         'work-schedules.show',
                                         $workSchedule
-                                    )
-                                }}"
-                                class="text-decoration-none"
-                            >
-                                {{ $workSchedule->name }}
-                            </a>
-                        </div>
-
-                        @if ($workSchedule->status === 'inactive')
-                            <div class="mt-2">
-                                <span
-                                    class="badge text-bg-warning"
+                                    ) }}"
+                                    class="text-decoration-none"
                                 >
-                                    Pola jadwal tidak aktif
-                                </span>
+                                    {{ $workSchedule->name }}
+                                </a>
+
+                                @if (
+                                    $workSchedule->status
+                                    === 'inactive'
+                                )
+                                    <span
+                                        class="badge
+                                            text-bg-warning ms-2"
+                                    >
+                                        Pola jadwal tidak aktif
+                                    </span>
+                                @endif
                             </div>
-                        @endif
-                    </div>
+                        </article>
 
-                    <div class="col-md-3">
-                        <div class="small text-secondary mb-1">
-                            Jam Masuk
-                        </div>
+                        <article class="schedule-detail-work-item">
+                            <div class="schedule-detail-work-label">
+                                Jam Masuk
+                            </div>
 
-                        <div class="fw-semibold">
-                            {{
-                                $formatTime(
-                                    $workSchedule->check_in_time
-                                )
-                            }}
-                            WIB
-                        </div>
-                    </div>
+                            <div class="schedule-detail-work-value">
+                                {{
+                                    $formatTime(
+                                        $workSchedule
+                                            ->check_in_time
+                                    )
+                                }}
+                                WIB
+                            </div>
+                        </article>
 
-                    <div class="col-md-3">
-                        <div class="small text-secondary mb-1">
-                            Jam Pulang
-                        </div>
+                        <article class="schedule-detail-work-item">
+                            <div class="schedule-detail-work-label">
+                                Jam Pulang
+                            </div>
 
-                        <div class="fw-semibold">
-                            {{
-                                $formatTime(
-                                    $workSchedule->check_out_time
-                                )
-                            }}
-                            WIB
-                        </div>
-                    </div>
+                            <div class="schedule-detail-work-value">
+                                {{
+                                    $formatTime(
+                                        $workSchedule
+                                            ->check_out_time
+                                    )
+                                }}
+                                WIB
+                            </div>
+                        </article>
 
-                    <div class="col-md-4">
-                        <div
-                            class="border rounded-3 p-3 h-100"
-                        >
-                            <div class="small text-secondary mb-1">
+                        <article class="schedule-detail-work-item">
+                            <div class="schedule-detail-work-label">
                                 Presensi Masuk Dibuka
                             </div>
 
-                            <div class="fw-semibold">
+                            <div class="schedule-detail-work-value">
                                 {{
                                     $workSchedule
                                         ->check_in_open_minutes
                                 }}
                                 menit sebelum jam masuk
                             </div>
-                        </div>
-                    </div>
+                        </article>
 
-                    <div class="col-md-4">
-                        <div
-                            class="border rounded-3 p-3 h-100"
-                        >
-                            <div class="small text-secondary mb-1">
+                        <article class="schedule-detail-work-item">
+                            <div class="schedule-detail-work-label">
                                 Toleransi Keterlambatan
                             </div>
 
-                            <div class="fw-semibold">
+                            <div class="schedule-detail-work-value">
                                 {{
                                     $workSchedule
                                         ->late_tolerance_minutes
                                 }}
                                 menit
                             </div>
-                        </div>
-                    </div>
+                        </article>
 
-                    <div class="col-md-4">
-                        <div
-                            class="border rounded-3 p-3 h-100"
-                        >
-                            <div class="small text-secondary mb-1">
+                        <article class="schedule-detail-work-item">
+                            <div class="schedule-detail-work-label">
                                 Batas Presensi Pulang
                             </div>
 
-                            <div class="fw-semibold">
+                            <div class="schedule-detail-work-value">
                                 {{
                                     $workSchedule
                                         ->check_out_limit_minutes
                                 }}
                                 menit setelah jam pulang
                             </div>
+                        </article>
+                    </div>
+                @elseif ($scheduleStatus === 'work')
+                    <div
+                        class="schedule-detail-danger-notice"
+                        role="alert"
+                    >
+                        <span class="schedule-detail-notice-icon">
+                            <i
+                                class="bi bi-x-octagon"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <div>
+                            <h3
+                                class="schedule-detail-notice-title"
+                            >
+                                Pola jadwal tidak tersedia
+                            </h3>
+
+                            <p
+                                class="schedule-detail-notice-copy"
+                            >
+                                Status jadwal adalah kerja, tetapi
+                                pola jadwal tidak tersedia.
+                            </p>
                         </div>
                     </div>
-                </div>
-            @elseif ($scheduleStatus === 'work')
-                <div
-                    class="alert alert-danger mb-0"
-                    role="alert"
-                >
-                    Status jadwal adalah kerja, tetapi pola jadwal
-                    tidak tersedia.
-                </div>
-            @else
-                <div
-                    class="alert alert-light border mb-0"
-                    role="alert"
-                >
-                    Status {{ strtolower($statusLabel) }} tidak
-                    menggunakan pola jadwal kerja.
-                </div>
-            @endif
-        </div>
-    </section>
+                @else
+                    <div
+                        class="schedule-detail-notice"
+                        role="status"
+                    >
+                        <span class="schedule-detail-notice-icon">
+                            <i
+                                class="bi bi-info-circle"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
 
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <section class="content-card h-100">
-                <div class="border-bottom p-3 p-md-4">
-                    <h2 class="h5 fw-bold mb-1">
-                        Keterangan Jadwal
-                    </h2>
+                        <div>
+                            <h3
+                                class="schedule-detail-notice-title"
+                            >
+                                Pola jadwal tidak digunakan
+                            </h3>
+
+                            <p
+                                class="schedule-detail-notice-copy"
+                            >
+                                Status
+                                {{ strtolower($statusLabel) }}
+                                tidak menggunakan pola jadwal kerja.
+                            </p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        <div class="schedule-detail-secondary-grid">
+            <section
+                class="schedule-detail-card"
+                aria-labelledby="schedule-notes-heading"
+            >
+                <div class="schedule-detail-card-header">
+                    <div>
+                        <h2
+                            id="schedule-notes-heading"
+                            class="schedule-detail-card-title"
+                        >
+                            Keterangan Jadwal
+                        </h2>
+                    </div>
                 </div>
 
-                <div class="p-3 p-md-4">
+                <div class="schedule-detail-card-body">
                     @if (
                         $employeeSchedule->notes !== null
-                        && trim((string) $employeeSchedule->notes)
-                            !== ''
+                        && trim(
+                            (string) $employeeSchedule->notes
+                        ) !== ''
                     )
                         <p class="mb-0">
                             {{ $employeeSchedule->notes }}
@@ -534,145 +1025,226 @@
                     @endif
                 </div>
             </section>
-        </div>
 
-        <div class="col-lg-6">
-            <section class="content-card h-100">
-                <div class="border-bottom p-3 p-md-4">
-                    <h2 class="h5 fw-bold mb-1">
-                        Persetujuan dan Riwayat
-                    </h2>
+            <section
+                class="schedule-detail-card"
+                aria-labelledby="schedule-history-heading"
+            >
+                <div class="schedule-detail-card-header">
+                    <div>
+                        <h2
+                            id="schedule-history-heading"
+                            class="schedule-detail-card-title"
+                        >
+                            Persetujuan dan Riwayat
+                        </h2>
+                    </div>
                 </div>
 
-                <div class="p-3 p-md-4">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-5 mb-2">
-                            Ditetapkan Oleh
-                        </dt>
+                <div class="schedule-detail-card-body">
+                    <dl class="schedule-detail-list">
+                        <div class="schedule-detail-row">
+                            <dt>
+                                Ditetapkan Oleh
+                            </dt>
 
-                        <dd class="col-sm-7 mb-3">
-                            @if ($approver !== null)
-                                <div class="fw-semibold">
-                                    {{ $approver->name }}
-                                </div>
+                            <dd>
+                                @if ($approver !== null)
+                                    <div class="fw-semibold">
+                                        {{ $approver->name }}
+                                    </div>
 
-                                <div class="small text-secondary">
-                                    {{ $approver->email }}
-                                </div>
-                            @else
-                                <span class="text-secondary">
-                                    Data pengguna tidak tersedia
-                                </span>
-                            @endif
-                        </dd>
+                                    <div
+                                        class="small
+                                            text-secondary"
+                                    >
+                                        {{ $approver->email }}
+                                    </div>
+                                @else
+                                    <span class="text-secondary">
+                                        Data pengguna tidak tersedia
+                                    </span>
+                                @endif
+                            </dd>
+                        </div>
 
-                        <dt class="col-sm-5 mb-2">
-                            Dibuat
-                        </dt>
+                        <div class="schedule-detail-row">
+                            <dt>
+                                Dibuat
+                            </dt>
 
-                        <dd class="col-sm-7 mb-3">
-                            {{
-                                $formatDateTime(
-                                    $employeeSchedule->created_at
-                                )
-                            }}
-                            WIB
-                        </dd>
+                            <dd>
+                                {{
+                                    $formatDateTime(
+                                        $employeeSchedule
+                                            ->created_at
+                                    )
+                                }}
+                                WIB
+                            </dd>
+                        </div>
 
-                        <dt class="col-sm-5 mb-2">
-                            Terakhir Diubah
-                        </dt>
+                        <div class="schedule-detail-row">
+                            <dt>
+                                Terakhir Diubah
+                            </dt>
 
-                        <dd class="col-sm-7 mb-0">
-                            {{
-                                $formatDateTime(
-                                    $employeeSchedule->updated_at
-                                )
-                            }}
-                            WIB
-                        </dd>
+                            <dd>
+                                {{
+                                    $formatDateTime(
+                                        $employeeSchedule
+                                            ->updated_at
+                                    )
+                                }}
+                                WIB
+                            </dd>
+                        </div>
                     </dl>
                 </div>
             </section>
         </div>
-    </div>
 
-    <section class="content-card mb-4">
-        <div
-            class="d-flex flex-column flex-md-row
-                justify-content-between align-items-md-center
-                gap-3 p-3 p-md-4"
+        <section
+            class="schedule-detail-card"
+            aria-labelledby="schedule-attendance-heading"
         >
-            <div>
-                <h2 class="h5 fw-bold mb-1">
-                    Data Presensi
+            <div class="schedule-detail-attendance-card">
+                <div>
+                    <h2
+                        id="schedule-attendance-heading"
+                        class="schedule-detail-card-title"
+                    >
+                        Data Presensi
+                    </h2>
+
+                    <p class="schedule-detail-card-copy">
+                        Jumlah data presensi yang menggunakan
+                        jadwal ini.
+                    </p>
+                </div>
+
+                <div class="text-md-end">
+                    <div class="schedule-detail-attendance-value">
+                        {{ $attendanceCount }}
+                    </div>
+
+                    <div class="small text-secondary">
+                        data presensi
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section
+            class="schedule-detail-danger-card"
+            aria-labelledby="delete-schedule-heading"
+        >
+            <div class="schedule-detail-danger-header">
+                <h2
+                    id="delete-schedule-heading"
+                    class="schedule-detail-danger-title"
+                >
+                    Hapus Jadwal Harian
                 </h2>
-
-                <p class="small text-secondary mb-0">
-                    Jumlah data presensi yang menggunakan jadwal ini.
-                </p>
             </div>
 
-            <div>
-                <span
-                    class="badge text-bg-light border fs-6 px-3 py-2"
-                >
-                    {{ $attendanceCount }} data presensi
-                </span>
-            </div>
-        </div>
-    </section>
+            <div class="schedule-detail-danger-body">
+                @if ($attendanceCount > 0)
+                    <div
+                        class="schedule-detail-danger-notice
+                            mb-4"
+                        role="alert"
+                    >
+                        <span class="schedule-detail-notice-icon">
+                            <i
+                                class="bi bi-lock"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
 
-    <section class="content-card border-danger">
-        <div class="p-3 p-md-4">
-            <h2 class="h5 fw-bold text-danger mb-2">
-                Hapus Jadwal Harian
-            </h2>
+                        <div>
+                            <h3
+                                class="schedule-detail-notice-title"
+                            >
+                                Penghapusan tidak tersedia
+                            </h3>
 
-            @if ($attendanceCount > 0)
-                <p class="text-secondary mb-3">
-                    Jadwal tidak dapat dihapus karena sudah
-                    digunakan oleh data presensi.
-                </p>
-
-                <button
-                    type="button"
-                    class="btn btn-outline-danger"
-                    disabled
-                >
-                    Hapus Jadwal
-                </button>
-            @else
-                <p class="text-secondary mb-3">
-                    Jadwal dapat dihapus karena belum memiliki
-                    data presensi. Tindakan ini tidak dapat dibatalkan.
-                </p>
-
-                <form
-                    method="POST"
-                    action="{{
-                        route(
-                            'employee-schedules.destroy',
-                            $employeeSchedule
-                        )
-                    }}"
-                    onsubmit="
-                        return confirm(
-                            'Hapus jadwal harian ini?'
-                        );
-                    "
-                >
-                    @csrf
-                    @method('DELETE')
+                            <p
+                                class="schedule-detail-notice-copy"
+                            >
+                                Jadwal tidak dapat dihapus karena
+                                sudah digunakan oleh data presensi.
+                            </p>
+                        </div>
+                    </div>
 
                     <button
-                        type="submit"
+                        type="button"
                         class="btn btn-outline-danger"
+                        disabled
                     >
                         Hapus Jadwal
                     </button>
-                </form>
-            @endif
-        </div>
-    </section>
+                @else
+                    <div
+                        class="schedule-detail-danger-notice
+                            mb-4"
+                        role="alert"
+                    >
+                        <span class="schedule-detail-notice-icon">
+                            <i
+                                class="bi
+                                    bi-exclamation-triangle"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <div>
+                            <h3
+                                class="schedule-detail-notice-title"
+                            >
+                                Tindakan permanen
+                            </h3>
+
+                            <p
+                                class="schedule-detail-notice-copy"
+                            >
+                                Jadwal dapat dihapus karena belum
+                                memiliki data presensi. Tindakan ini
+                                tidak dapat dibatalkan.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ route(
+                            'employee-schedules.destroy',
+                            $employeeSchedule
+                        ) }}"
+                        onsubmit="
+                            return confirm(
+                                'Hapus jadwal harian ini?'
+                            );
+                        "
+                    >
+                        @csrf
+                        @method('DELETE')
+
+                        <button
+                            type="submit"
+                            class="btn btn-outline-danger"
+                        >
+                            <i
+                                class="bi bi-trash me-2"
+                                aria-hidden="true"
+                            ></i>
+
+                            Hapus Jadwal
+                        </button>
+                    </form>
+                @endif
+            </div>
+        </section>
+    </div>
 @endsection

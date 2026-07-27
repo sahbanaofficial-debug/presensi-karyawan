@@ -4,21 +4,181 @@
 
 @push('styles')
     <style>
-        .qr-stage {
+        .attendance-session-detail-page {
+            --session-surface: var(--neutral-0);
+            --session-border: var(--neutral-200);
+            --session-muted: var(--neutral-600);
+            --session-soft: var(--brand-50);
+        }
+
+        .session-overview-card,
+        .session-qr-card,
+        .session-info-card,
+        .session-branch-card,
+        .session-action-card {
+            overflow: hidden;
+            border: 1px solid var(--session-border);
+            border-radius: var(--radius-lg);
+            background: var(--session-surface);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .session-overview-card,
+        .session-branch-card,
+        .session-action-card {
+            margin-bottom: var(--space-5);
+        }
+
+        .session-overview-header,
+        .session-card-header {
             display: flex;
-            min-height: 21rem;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--space-4);
+            padding: var(--space-4) var(--space-5);
+            border-bottom: 1px solid var(--session-border);
+            background: var(--neutral-25);
+        }
+
+        .session-overview-eyebrow {
+            margin-bottom: var(--space-2);
+            color: var(--session-muted);
+            font-size: 0.625rem;
+            font-weight: 800;
+            letter-spacing: 0.055em;
+            text-transform: uppercase;
+        }
+
+        .session-overview-title {
+            margin: 0;
+            color: var(--neutral-900);
+            font-size: 1.125rem;
+            font-weight: 800;
+            letter-spacing: -0.015em;
+            line-height: 1.4;
+        }
+
+        .session-overview-copy,
+        .session-card-copy {
+            max-width: 48rem;
+            margin: var(--space-1) 0 0;
+            color: var(--session-muted);
+            font-size: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .session-overview-body {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: var(--space-3);
+            padding: var(--space-4);
+        }
+
+        .session-overview-metric {
+            min-width: 0;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-25);
+        }
+
+        .session-overview-metric-icon {
+            display: inline-flex;
+            width: 2.25rem;
+            height: 2.25rem;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            background: #ffffff;
+            margin-bottom: var(--space-3);
+            border-radius: var(--radius-md);
+            color: var(--brand-700);
+            background: var(--session-soft);
+            font-size: 0.9375rem;
+        }
+
+        .session-overview-metric-label {
+            color: var(--session-muted);
+            font-size: 0.625rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .session-overview-metric-value {
+            margin-top: var(--space-1);
+            color: var(--neutral-900);
+            font-size: 0.875rem;
+            font-weight: 800;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .session-main-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(20rem, 0.85fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-5);
+        }
+
+        .session-card-title {
+            margin: 0;
+            color: var(--neutral-900);
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .session-card-body {
+            padding: var(--space-4);
+        }
+
+        .session-status-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: 0.8125rem;
+            line-height: 1.65;
+        }
+
+        .session-status-notice.alert-success,
+        .session-status-notice.alert-warning,
+        .session-status-notice.alert-danger {
+            margin-bottom: var(--space-4);
+        }
+
+        .session-status-icon {
+            display: inline-flex;
+            width: 2.5rem;
+            height: 2.5rem;
+            flex: 0 0 2.5rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.45);
+            font-size: 1rem;
+        }
+
+        .qr-stage {
+            display: flex;
+            min-height: 22rem;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            background: var(--neutral-25);
         }
 
         .qr-code-container {
             display: flex;
-            min-height: 17.5rem;
+            min-height: 18rem;
             align-items: center;
             justify-content: center;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-0);
         }
 
         .qr-code-container img,
@@ -27,18 +187,237 @@
             height: auto !important;
         }
 
+        .session-token-panel {
+            margin-top: var(--space-4);
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-25);
+            text-align: center;
+        }
+
+        .session-token-label {
+            color: var(--session-muted);
+            font-size: 0.6875rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
         .token-value {
-            font-family: ui-monospace, SFMono-Regular, Menlo,
-                Monaco, Consolas, monospace;
+            margin: var(--space-2) 0;
+            color: var(--neutral-900);
+            font-family:
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Monaco,
+                Consolas,
+                monospace;
             font-size: clamp(1.75rem, 6vw, 3rem);
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.35rem;
+            line-height: 1.2;
+        }
+
+        .session-token-countdown {
+            color: var(--session-muted);
+            font-size: 0.75rem;
+            line-height: 1.55;
+        }
+
+        .session-detail-list {
+            display: grid;
+            gap: var(--space-3);
+            margin: 0;
+        }
+
+        .session-detail-row {
+            display: grid;
+            grid-template-columns: minmax(8rem, 0.9fr) minmax(0, 1.1fr);
+            gap: var(--space-3);
+            align-items: start;
+            margin: 0;
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .session-detail-row:last-child {
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        .session-detail-row dt,
+        .session-detail-row dd {
+            margin: 0;
+        }
+
+        .session-detail-row dt {
+            color: var(--session-muted);
+            font-size: 0.6875rem;
+            font-weight: 800;
+        }
+
+        .session-detail-row dd {
+            min-width: 0;
+            color: var(--neutral-900);
+            font-size: 0.8125rem;
+            line-height: 1.55;
+            overflow-wrap: anywhere;
         }
 
         .session-identifier {
             overflow-wrap: anywhere;
-            font-family: ui-monospace, SFMono-Regular, Menlo,
-                Monaco, Consolas, monospace;
+            font-family:
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Monaco,
+                Consolas,
+                monospace;
+            font-size: 0.75rem;
+        }
+
+        .session-branch-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--space-4);
+            padding: var(--space-4);
+        }
+
+        .session-branch-panel {
+            min-width: 0;
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-25);
+        }
+
+        .session-branch-panel-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin: 0 0 var(--space-4);
+            color: var(--neutral-900);
+            font-size: 0.875rem;
+            font-weight: 800;
+        }
+
+        .session-branch-panel-icon {
+            display: inline-flex;
+            width: 2.25rem;
+            height: 2.25rem;
+            flex: 0 0 2.25rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--brand-700);
+            background: var(--session-soft);
+            font-size: 0.9375rem;
+        }
+
+        .session-action-body {
+            padding: var(--space-4);
+        }
+
+        .session-action-warning,
+        .session-action-neutral,
+        .session-branch-error {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+        }
+
+        .session-action-warning {
+            margin-bottom: var(--space-4);
+            border: 1px solid #f0ddb0;
+            color: var(--warning-700);
+            background: var(--warning-50);
+        }
+
+        .session-action-neutral {
+            border: 1px solid var(--neutral-200);
+            color: var(--neutral-700);
+            background: var(--neutral-50);
+        }
+
+        .session-branch-error {
+            margin: var(--space-4);
+            border: 1px solid #efc9c3;
+            color: var(--danger-700);
+            background: var(--danger-50);
+        }
+
+        .session-action-icon {
+            display: inline-flex;
+            width: 2.5rem;
+            height: 2.5rem;
+            flex: 0 0 2.5rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.45);
+            font-size: 1rem;
+        }
+
+        .session-action-title {
+            margin: 0 0 var(--space-1);
+            font-size: 0.875rem;
+            font-weight: 800;
+        }
+
+        .session-action-copy {
+            margin: 0;
+            font-size: 0.8125rem;
+            line-height: 1.65;
+        }
+
+        @media (min-width: 768px) {
+            .session-overview-body,
+            .session-card-body,
+            .session-branch-grid,
+            .session-action-body {
+                padding: var(--space-5);
+            }
+        }
+
+        @media (max-width: 1199.98px) {
+            .session-main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .session-overview-body,
+            .session-branch-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .session-overview-header,
+            .session-card-header {
+                flex-direction: column;
+                padding: var(--space-4);
+            }
+
+            .session-detail-row {
+                grid-template-columns: 1fr;
+            }
+
+            .qr-stage {
+                min-height: 18rem;
+            }
+
+            .qr-code-container {
+                min-height: 15rem;
+            }
+
+            .token-value {
+                letter-spacing: 0.2rem;
+            }
         }
     </style>
 @endpush
@@ -186,119 +565,230 @@
         };
     @endphp
 
-    <header
-        class="page-header d-md-flex align-items-start
-            justify-content-between gap-3"
-    >
-        <div>
-            <h1 class="page-title">
-                Detail Sesi Presensi
-            </h1>
-
-            <p class="page-description">
-                Informasi sesi dan QR Code dinamis
-                berbasis TOTP.
-            </p>
-        </div>
-
-        <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
-            <a
-                href="{{ route('attendance-sessions.index') }}"
-                class="btn btn-outline-secondary"
-            >
-                Kembali ke Daftar
-            </a>
-
-            <a
-                href="{{ route('attendance-sessions.create') }}"
-                class="btn btn-primary"
-            >
-                Buka Sesi Baru
-            </a>
-        </div>
-    </header>
-
-    <section class="content-card p-3 p-md-4 mb-4">
-        <div
-            class="d-flex flex-column flex-md-row
-                justify-content-between align-items-md-start gap-3"
+    <div class="attendance-session-detail-page">
+        <header
+            class="page-header d-md-flex align-items-start
+                justify-content-between gap-3"
         >
             <div>
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    <span class="badge {{ $attendanceTypeClass }}">
-                        {{ $attendanceTypeLabel }}
-                    </span>
+                <h1 class="page-title">
+                    Detail Sesi Presensi
+                </h1>
 
-                    <span class="badge {{ $statusClass }}">
-                        {{ $statusLabel }}
-                    </span>
-                </div>
-
-                <h2 class="h4 fw-bold mb-2">
-                    {{ $branch?->code ?? 'Cabang tidak tersedia' }}
-                    @if ($branch !== null)
-                        — {{ $branch->name }}
-                    @endif
-                </h2>
-
-                <p class="text-secondary mb-0">
-                    {{ $sessionStateLabel }}
+                <p class="page-description">
+                    Informasi sesi dan QR Code dinamis
+                    berbasis TOTP.
                 </p>
             </div>
 
-            <div class="text-md-end">
-                <div class="small text-secondary">
-                    Jumlah presensi diterima
-                </div>
+            <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
+                <a
+                    href="{{ route(
+                        'attendance-sessions.index'
+                    ) }}"
+                    class="btn btn-outline-secondary"
+                >
+                    <i
+                        class="bi bi-arrow-left me-2"
+                        aria-hidden="true"
+                    ></i>
 
-                <div class="fs-3 fw-bold">
-                    {{ (int) $attendanceSession->attendances_count }}
-                </div>
+                    Kembali ke Daftar
+                </a>
+
+                <a
+                    href="{{ route(
+                        'attendance-sessions.create'
+                    ) }}"
+                    class="btn btn-primary"
+                >
+                    <i
+                        class="bi bi-plus-lg me-2"
+                        aria-hidden="true"
+                    ></i>
+
+                    Buka Sesi Baru
+                </a>
             </div>
-        </div>
-    </section>
+        </header>
 
-    <div class="row g-4 mb-4">
-        <div class="col-xl-7">
-            <section class="content-card h-100">
-                <div class="border-bottom p-3 p-md-4">
-                    <h2 class="h5 fw-bold mb-1">
-                        QR Code Dinamis
+        <section
+            class="session-overview-card"
+            aria-labelledby="session-overview-heading"
+        >
+            <div class="session-overview-header">
+                <div>
+                    <div class="session-overview-eyebrow">
+                        Ringkasan sesi
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge {{ $attendanceTypeClass }}">
+                            {{ $attendanceTypeLabel }}
+                        </span>
+
+                        <span class="badge {{ $statusClass }}">
+                            {{ $statusLabel }}
+                        </span>
+                    </div>
+
+                    <h2
+                        id="session-overview-heading"
+                        class="session-overview-title"
+                    >
+                        {{ $branch?->code ?? 'Cabang tidak tersedia' }}
+
+                        @if ($branch !== null)
+                            |
+                            {{ $branch->name }}
+                        @endif
                     </h2>
 
-                    <p class="small text-secondary mb-0">
-                        QR Code diperbarui mengikuti periode
-                        token TOTP.
+                    <p class="session-overview-copy">
+                        {{ $sessionStateLabel }}
                     </p>
                 </div>
+            </div>
 
-                <div class="p-3 p-md-4">
+            <div class="session-overview-body">
+                <article class="session-overview-metric">
+                    <span class="session-overview-metric-icon">
+                        <i
+                            class="bi bi-person-check"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <div class="session-overview-metric-label">
+                        Presensi Diterima
+                    </div>
+
+                    <div class="session-overview-metric-value">
+                        {{
+                            (int) $attendanceSession
+                                ->attendances_count
+                        }}
+                        data
+                    </div>
+                </article>
+
+                <article class="session-overview-metric">
+                    <span class="session-overview-metric-icon">
+                        <i
+                            class="bi bi-calendar3"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <div class="session-overview-metric-label">
+                        Tanggal Sesi
+                    </div>
+
+                    <div class="session-overview-metric-value">
+                        {{
+                            $formatDate(
+                                $attendanceSession->session_date
+                            )
+                        }}
+                    </div>
+                </article>
+
+                <article class="session-overview-metric">
+                    <span class="session-overview-metric-icon">
+                        <i
+                            class="bi bi-clock"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <div class="session-overview-metric-label">
+                        Rentang Waktu
+                    </div>
+
+                    <div class="session-overview-metric-value">
+                        {{
+                            $formatTime(
+                                $attendanceSession->start_time
+                            )
+                        }}
+                        –
+                        {{
+                            $formatTime(
+                                $attendanceSession->end_time
+                            )
+                        }}
+                        WIB
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <div class="session-main-grid">
+            <section
+                class="session-qr-card"
+                aria-labelledby="dynamic-qr-heading"
+            >
+                <div class="session-card-header">
+                    <div>
+                        <h2
+                            id="dynamic-qr-heading"
+                            class="session-card-title"
+                        >
+                            QR Code Dinamis
+                        </h2>
+
+                        <p class="session-card-copy">
+                            QR Code diperbarui mengikuti periode
+                            token TOTP.
+                        </p>
+                    </div>
+
+                    <span class="badge text-bg-light border">
+                        TOTP
+                    </span>
+                </div>
+
+                <div class="session-card-body">
                     <div
                         id="qr-status-alert"
-                        class="alert {{
+                        class="session-status-notice alert {{
                             $isUsable
                                 ? 'alert-success'
                                 : 'alert-warning'
                         }}"
                         role="status"
                     >
-                        @if ($isUsable)
-                            QR Code aktif dan dapat dipindai.
-                        @elseif ($hasNotStarted)
-                            Sesi belum memasuki waktu mulai.
-                        @else
-                            QR Code tidak aktif.
-                        @endif
+                        <span class="session-status-icon">
+                            <i
+                                class="bi {{
+                                    $isUsable
+                                        ? 'bi-check2-circle'
+                                        : 'bi-exclamation-triangle'
+                                }}"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <span>
+                            @if ($isUsable)
+                                QR Code aktif dan dapat dipindai.
+                            @elseif ($hasNotStarted)
+                                Sesi belum memasuki waktu mulai.
+                            @else
+                                QR Code tidak aktif.
+                            @endif
+                        </span>
                     </div>
 
-                    <div class="qr-stage mb-4">
+                    <div class="qr-stage">
                         <div
                             id="qr-code-container"
                             class="qr-code-container"
                         >
                             <div
                                 id="qr-placeholder"
-                                class="text-center text-secondary px-3"
+                                class="text-center
+                                    text-secondary px-3"
                             >
                                 @if ($isUsable)
                                     Memuat QR Code...
@@ -309,19 +799,19 @@
                         </div>
                     </div>
 
-                    <div class="text-center">
-                        <div class="small text-secondary mb-1">
+                    <div class="session-token-panel">
+                        <div class="session-token-label">
                             Token saat ini
                         </div>
 
                         <div
                             id="token-value"
-                            class="token-value mb-2"
+                            class="token-value"
                         >
                             {{ $currentToken ?? '------' }}
                         </div>
 
-                        <div class="small text-secondary">
+                        <div class="session-token-countdown">
                             Token diperbarui dalam
                             <span
                                 id="token-countdown"
@@ -329,7 +819,8 @@
                             >
                                 {{
                                     $tokenSecondsRemaining !== null
-                                        ? $tokenSecondsRemaining.' detik'
+                                        ? $tokenSecondsRemaining
+                                            .' detik'
                                         : '-'
                                 }}
                             </span>
@@ -340,289 +831,448 @@
                             id="refresh-qr-button"
                             class="btn btn-sm
                                 btn-outline-primary mt-3"
-                            @disabled(! $attendanceSession->isActive())
+                            @disabled(
+                                ! $attendanceSession->isActive()
+                            )
                         >
+                            <i
+                                class="bi bi-arrow-clockwise me-2"
+                                aria-hidden="true"
+                            ></i>
+
                             Perbarui QR Sekarang
                         </button>
                     </div>
                 </div>
             </section>
-        </div>
 
-        <div class="col-xl-5">
-            <section class="content-card h-100">
-                <div class="border-bottom p-3 p-md-4">
-                    <h2 class="h5 fw-bold mb-1">
-                        Informasi Sesi
-                    </h2>
+            <section
+                class="session-info-card"
+                aria-labelledby="session-information-heading"
+            >
+                <div class="session-card-header">
+                    <div>
+                        <h2
+                            id="session-information-heading"
+                            class="session-card-title"
+                        >
+                            Informasi Sesi
+                        </h2>
+                    </div>
                 </div>
 
-                <div class="p-3 p-md-4">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-5 mb-2">
-                            UUID Publik
-                        </dt>
+                <div class="session-card-body">
+                    <dl class="session-detail-list">
+                        <div class="session-detail-row">
+                            <dt>
+                                UUID Publik
+                            </dt>
 
-                        <dd
-                            class="col-sm-7 mb-3
-                                session-identifier"
-                        >
-                            {{ $attendanceSession->public_id }}
-                        </dd>
+                            <dd class="session-identifier">
+                                {{ $attendanceSession->public_id }}
+                            </dd>
+                        </div>
 
-                        <dt class="col-sm-5 mb-2">
-                            Jenis Presensi
-                        </dt>
+                        <div class="session-detail-row">
+                            <dt>
+                                Jenis Presensi
+                            </dt>
 
-                        <dd class="col-sm-7 mb-3">
-                            {{ $attendanceTypeLabel }}
-                        </dd>
+                            <dd>
+                                {{ $attendanceTypeLabel }}
+                            </dd>
+                        </div>
 
-                        <dt class="col-sm-5 mb-2">
-                            Tanggal Sesi
-                        </dt>
+                        <div class="session-detail-row">
+                            <dt>
+                                Tanggal Sesi
+                            </dt>
 
-                        <dd class="col-sm-7 mb-3">
-                            {{
-                                $formatDate(
-                                    $attendanceSession->session_date
-                                )
-                            }}
-                        </dd>
-
-                        <dt class="col-sm-5 mb-2">
-                            Waktu Mulai
-                        </dt>
-
-                        <dd class="col-sm-7 mb-3">
-                            {{
-                                $formatTime(
-                                    $attendanceSession->start_time
-                                )
-                            }}
-                            WIB
-                        </dd>
-
-                        <dt class="col-sm-5 mb-2">
-                            Waktu Berakhir
-                        </dt>
-
-                        <dd class="col-sm-7 mb-3">
-                            {{
-                                $formatTime(
-                                    $attendanceSession->end_time
-                                )
-                            }}
-                            WIB
-                        </dd>
-
-                        <dt class="col-sm-5 mb-2">
-                            Status
-                        </dt>
-
-                        <dd class="col-sm-7 mb-3">
-                            <span class="badge {{ $statusClass }}">
-                                {{ $statusLabel }}
-                            </span>
-                        </dd>
-
-                        <dt class="col-sm-5 mb-2">
-                            Pembuat Sesi
-                        </dt>
-
-                        <dd class="col-sm-7 mb-3">
-                            @if ($creator !== null)
-                                <div class="fw-semibold">
-                                    {{ $creator->name }}
-                                </div>
-
-                                <div class="small text-secondary">
-                                    {{ $creatorRoleLabel }}
-                                </div>
-                            @else
-                                -
-                            @endif
-                        </dd>
-
-                        <dt class="col-sm-5 mb-2">
-                            Dibuat Pada
-                        </dt>
-
-                        <dd class="col-sm-7 mb-3">
-                            {{
-                                $formatDateTime(
-                                    $attendanceSession->created_at
-                                )
-                            }}
-                            WIB
-                        </dd>
-
-                        <dt class="col-sm-5 mb-2">
-                            Ditutup Pada
-                        </dt>
-
-                        <dd class="col-sm-7 mb-3">
-                            @if (
-                                $attendanceSession->closed_at !== null
-                            )
+                            <dd>
                                 {{
-                                    $formatDateTime(
-                                        $attendanceSession->closed_at
+                                    $formatDate(
+                                        $attendanceSession
+                                            ->session_date
+                                    )
+                                }}
+                            </dd>
+                        </div>
+
+                        <div class="session-detail-row">
+                            <dt>
+                                Waktu Mulai
+                            </dt>
+
+                            <dd>
+                                {{
+                                    $formatTime(
+                                        $attendanceSession
+                                            ->start_time
                                     )
                                 }}
                                 WIB
-                            @else
-                                -
-                            @endif
-                        </dd>
+                            </dd>
+                        </div>
 
-                        <dt class="col-sm-5 mb-2">
-                            Log Validasi
-                        </dt>
+                        <div class="session-detail-row">
+                            <dt>
+                                Waktu Berakhir
+                            </dt>
 
-                        <dd class="col-sm-7 mb-0">
-                            {{
-                                (int) $attendanceSession
-                                    ->validation_logs_count
-                            }}
-                            log
-                        </dd>
+                            <dd>
+                                {{
+                                    $formatTime(
+                                        $attendanceSession
+                                            ->end_time
+                                    )
+                                }}
+                                WIB
+                            </dd>
+                        </div>
+
+                        <div class="session-detail-row">
+                            <dt>
+                                Status
+                            </dt>
+
+                            <dd>
+                                <span
+                                    class="badge
+                                        {{ $statusClass }}"
+                                >
+                                    {{ $statusLabel }}
+                                </span>
+                            </dd>
+                        </div>
+
+                        <div class="session-detail-row">
+                            <dt>
+                                Pembuat Sesi
+                            </dt>
+
+                            <dd>
+                                @if ($creator !== null)
+                                    <div class="fw-semibold">
+                                        {{ $creator->name }}
+                                    </div>
+
+                                    <div
+                                        class="small
+                                            text-secondary"
+                                    >
+                                        {{ $creatorRoleLabel }}
+                                    </div>
+                                @else
+                                    -
+                                @endif
+                            </dd>
+                        </div>
+
+                        <div class="session-detail-row">
+                            <dt>
+                                Dibuat Pada
+                            </dt>
+
+                            <dd>
+                                {{
+                                    $formatDateTime(
+                                        $attendanceSession
+                                            ->created_at
+                                    )
+                                }}
+                                WIB
+                            </dd>
+                        </div>
+
+                        <div class="session-detail-row">
+                            <dt>
+                                Ditutup Pada
+                            </dt>
+
+                            <dd>
+                                @if (
+                                    $attendanceSession
+                                        ->closed_at !== null
+                                )
+                                    {{
+                                        $formatDateTime(
+                                            $attendanceSession
+                                                ->closed_at
+                                        )
+                                    }}
+                                    WIB
+                                @else
+                                    -
+                                @endif
+                            </dd>
+                        </div>
+
+                        <div class="session-detail-row">
+                            <dt>
+                                Log Validasi
+                            </dt>
+
+                            <dd>
+                                {{
+                                    (int) $attendanceSession
+                                        ->validation_logs_count
+                                }}
+                                log
+                            </dd>
+                        </div>
                     </dl>
                 </div>
             </section>
         </div>
-    </div>
 
-    <section class="content-card mb-4">
-        <div class="border-bottom p-3 p-md-4">
-            <h2 class="h5 fw-bold mb-1">
-                Informasi Cabang dan Geofence
-            </h2>
-        </div>
+        <section
+            class="session-branch-card"
+            aria-labelledby="session-branch-heading"
+        >
+            <div class="session-card-header">
+                <div>
+                    <h2
+                        id="session-branch-heading"
+                        class="session-card-title"
+                    >
+                        Informasi Cabang dan Geofence
+                    </h2>
 
-        <div class="p-3 p-md-4">
+                    <p class="session-card-copy">
+                        Konfigurasi lokasi yang digunakan untuk
+                        validasi presensi sesi ini.
+                    </p>
+                </div>
+            </div>
+
             @if ($branch !== null)
-                <div class="row g-4">
-                    <div class="col-lg-6">
-                        <dl class="row mb-0">
-                            <dt class="col-sm-4 mb-2">
-                                Kode Cabang
-                            </dt>
+                <div class="session-branch-grid">
+                    <article class="session-branch-panel">
+                        <h3 class="session-branch-panel-title">
+                            <span
+                                class="session-branch-panel-icon"
+                            >
+                                <i
+                                    class="bi bi-building"
+                                    aria-hidden="true"
+                                ></i>
+                            </span>
 
-                            <dd class="col-sm-8 mb-3">
-                                {{ $branch->code }}
-                            </dd>
+                            Identitas Cabang
+                        </h3>
 
-                            <dt class="col-sm-4 mb-2">
-                                Nama Cabang
-                            </dt>
+                        <dl class="session-detail-list">
+                            <div class="session-detail-row">
+                                <dt>
+                                    Kode Cabang
+                                </dt>
 
-                            <dd class="col-sm-8 mb-3">
-                                {{ $branch->name }}
-                            </dd>
+                                <dd>
+                                    {{ $branch->code }}
+                                </dd>
+                            </div>
 
-                            <dt class="col-sm-4 mb-2">
-                                Alamat
-                            </dt>
+                            <div class="session-detail-row">
+                                <dt>
+                                    Nama Cabang
+                                </dt>
 
-                            <dd class="col-sm-8 mb-0">
-                                {{ $branch->address }}
-                            </dd>
+                                <dd>
+                                    {{ $branch->name }}
+                                </dd>
+                            </div>
+
+                            <div class="session-detail-row">
+                                <dt>
+                                    Alamat
+                                </dt>
+
+                                <dd>
+                                    {{ $branch->address }}
+                                </dd>
+                            </div>
                         </dl>
-                    </div>
+                    </article>
 
-                    <div class="col-lg-6">
-                        <dl class="row mb-0">
-                            <dt class="col-sm-5 mb-2">
-                                Latitude
-                            </dt>
+                    <article class="session-branch-panel">
+                        <h3 class="session-branch-panel-title">
+                            <span
+                                class="session-branch-panel-icon"
+                            >
+                                <i
+                                    class="bi bi-geo-alt"
+                                    aria-hidden="true"
+                                ></i>
+                            </span>
 
-                            <dd class="col-sm-7 mb-3">
-                                {{ $branch->latitude }}
-                            </dd>
+                            Konfigurasi Geofence
+                        </h3>
 
-                            <dt class="col-sm-5 mb-2">
-                                Longitude
-                            </dt>
+                        <dl class="session-detail-list">
+                            <div class="session-detail-row">
+                                <dt>
+                                    Latitude
+                                </dt>
 
-                            <dd class="col-sm-7 mb-3">
-                                {{ $branch->longitude }}
-                            </dd>
+                                <dd>
+                                    {{ $branch->latitude }}
+                                </dd>
+                            </div>
 
-                            <dt class="col-sm-5 mb-2">
-                                Radius Geofence
-                            </dt>
+                            <div class="session-detail-row">
+                                <dt>
+                                    Longitude
+                                </dt>
 
-                            <dd class="col-sm-7 mb-3">
-                                {{ $branch->geofence_radius }}
-                                meter
-                            </dd>
+                                <dd>
+                                    {{ $branch->longitude }}
+                                </dd>
+                            </div>
 
-                            <dt class="col-sm-5 mb-2">
-                                Batas Akurasi
-                            </dt>
+                            <div class="session-detail-row">
+                                <dt>
+                                    Radius Geofence
+                                </dt>
 
-                            <dd class="col-sm-7 mb-0">
-                                {{ $branch->maximum_accuracy }}
-                                meter
-                            </dd>
+                                <dd>
+                                    {{ $branch->geofence_radius }}
+                                    meter
+                                </dd>
+                            </div>
+
+                            <div class="session-detail-row">
+                                <dt>
+                                    Batas Akurasi
+                                </dt>
+
+                                <dd>
+                                    {{ $branch->maximum_accuracy }}
+                                    meter
+                                </dd>
+                            </div>
                         </dl>
-                    </div>
+                    </article>
                 </div>
             @else
-                <div class="alert alert-danger mb-0">
-                    Data cabang tidak tersedia.
+                <div
+                    class="session-branch-error"
+                    role="alert"
+                >
+                    <span class="session-action-icon">
+                        <i
+                            class="bi bi-exclamation-triangle"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <div>
+                        <h3 class="session-action-title">
+                            Data cabang tidak tersedia
+                        </h3>
+
+                        <p class="session-action-copy">
+                            Data cabang tidak tersedia.
+                        </p>
+                    </div>
                 </div>
             @endif
-        </div>
-    </section>
+        </section>
 
-    <section class="content-card">
-        <div class="border-bottom p-3 p-md-4">
-            <h2 class="h5 fw-bold mb-1">
-                Tindakan Sesi
-            </h2>
-        </div>
+        <section
+            class="session-action-card"
+            aria-labelledby="session-action-heading"
+        >
+            <div class="session-card-header">
+                <div>
+                    <h2
+                        id="session-action-heading"
+                        class="session-card-title"
+                    >
+                        Tindakan Sesi
+                    </h2>
 
-        <div class="p-3 p-md-4">
-            @if ($attendanceSession->isActive())
-                <div class="alert alert-warning">
-                    Menutup sesi akan menghentikan penggunaan
-                    QR Code secara langsung.
+                    <p class="session-card-copy">
+                        Kelola status operasional sesi presensi.
+                    </p>
                 </div>
+            </div>
 
-                <form
-                    method="POST"
-                    action="{{
-                        route(
+            <div class="session-action-body">
+                @if ($attendanceSession->isActive())
+                    <div class="session-action-warning">
+                        <span class="session-action-icon">
+                            <i
+                                class="bi bi-exclamation-triangle"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <div>
+                            <h3 class="session-action-title">
+                                QR Code akan langsung berhenti
+                            </h3>
+
+                            <p class="session-action-copy">
+                                Menutup sesi akan menghentikan
+                                penggunaan QR Code secara langsung.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ route(
                             'attendance-sessions.close',
                             $attendanceSession
-                        )
-                    }}"
-                    onsubmit="
-                        return confirm(
-                            'Tutup sesi presensi ini?'
-                        );
-                    "
-                >
-                    @csrf
-                    @method('PATCH')
-
-                    <button
-                        type="submit"
-                        class="btn btn-danger"
+                        ) }}"
+                        onsubmit="
+                            return confirm(
+                                'Tutup sesi presensi ini?'
+                            );
+                        "
                     >
-                        Tutup Sesi Presensi
-                    </button>
-                </form>
-            @else
-                <div class="alert alert-light border mb-0">
-                    Sesi sudah tidak aktif dan tidak dapat
-                    ditutup kembali.
-                </div>
-            @endif
-        </div>
-    </section>
+                        @csrf
+                        @method('PATCH')
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger"
+                        >
+                            <i
+                                class="bi bi-stop-circle me-2"
+                                aria-hidden="true"
+                            ></i>
+
+                            Tutup Sesi Presensi
+                        </button>
+                    </form>
+                @else
+                    <div
+                        class="session-action-neutral"
+                        role="status"
+                    >
+                        <span class="session-action-icon">
+                            <i
+                                class="bi bi-lock"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <div>
+                            <h3 class="session-action-title">
+                                Sesi tidak aktif
+                            </h3>
+
+                            <p class="session-action-copy">
+                                Sesi sudah tidak aktif dan tidak
+                                dapat ditutup kembali.
+                            </p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </section>
+    </div>
 @endsection
 
 @push('scripts')
@@ -681,7 +1331,8 @@
                 }
 
                 statusAlert.className =
-                    'alert ' + alertClass;
+                    'session-status-notice alert '
+                    + alertClass;
 
                 statusAlert.textContent = message;
             };

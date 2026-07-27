@@ -11,41 +11,270 @@
     >
 
     <style>
+        /*
+         * Attendance workspace
+         * Uses the global PT Gadai Ogan Baru design tokens
+         * defined in layouts/app.blade.php.
+         */
+        .attendance-page {
+            --attendance-orange: var(--brand-500);
+            --attendance-orange-dark: var(--brand-700);
+            --attendance-orange-soft: var(--brand-50);
+            --attendance-border: var(--neutral-200);
+            --attendance-muted: var(--neutral-600);
+            --attendance-surface: var(--neutral-0);
+        }
+
+        .attendance-progress {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin-bottom: var(--space-5);
+            overflow: hidden;
+            border: 1px solid var(--attendance-border);
+            border-radius: var(--radius-lg);
+            background: var(--attendance-surface);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .attendance-progress-step {
+            position: relative;
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+        }
+
+        .attendance-progress-step + .attendance-progress-step {
+            border-left: 1px solid var(--attendance-border);
+        }
+
+        .attendance-progress-number {
+            display: inline-flex;
+            width: 2.25rem;
+            height: 2.25rem;
+            flex: 0 0 2.25rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--attendance-orange-dark);
+            background: var(--attendance-orange-soft);
+            font-size: 0.8125rem;
+            font-weight: 800;
+        }
+
+        .attendance-progress-title {
+            display: block;
+            color: var(--neutral-900);
+            font-size: 0.8125rem;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .attendance-progress-copy {
+            display: block;
+            margin-top: var(--space-1);
+            color: var(--attendance-muted);
+            font-size: 0.6875rem;
+            line-height: 1.45;
+        }
+
+        .attendance-section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+        }
+
+        .attendance-section-icon {
+            display: inline-flex;
+            width: 2.5rem;
+            height: 2.5rem;
+            flex: 0 0 2.5rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--attendance-orange-dark);
+            background: var(--attendance-orange-soft);
+            font-size: 1rem;
+        }
+
+        .attendance-section-title {
+            margin: 0;
+            color: var(--neutral-900);
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            line-height: 1.4;
+        }
+
+        .attendance-section-copy {
+            margin: var(--space-1) 0 0;
+            color: var(--attendance-muted);
+            font-size: 0.75rem;
+            line-height: 1.55;
+        }
+
+        .employee-summary-card,
+        .schedule-summary-card,
+        .attendance-overview-card,
+        .geofence-workspace,
+        .scanner-panel,
+        .usage-panel {
+            border-color: var(--attendance-border);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .employee-summary-card > .border-bottom,
+        .schedule-summary-card > .border-bottom,
+        .attendance-overview-card > .border-bottom,
+        .geofence-workspace > .border-bottom,
+        .scanner-panel > .border-bottom {
+            background: var(--neutral-25);
+        }
+
+        .employee-summary-card dl,
+        .schedule-summary-card dl {
+            margin: 0;
+        }
+
+        .employee-summary-card dt,
+        .schedule-summary-card dt {
+            color: var(--attendance-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .employee-summary-card dd,
+        .schedule-summary-card dd {
+            color: var(--neutral-900);
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+
+        .attendance-status-card {
+            position: relative;
+            height: 100%;
+            min-height: 11rem;
+            padding: var(--space-4);
+            overflow: hidden;
+            border: 1px solid var(--attendance-border);
+            border-radius: var(--radius-md);
+            background: var(--attendance-surface);
+        }
+
+        .attendance-status-card::before {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 0.1875rem;
+            background: var(--brand-300);
+            content: "";
+        }
+
+        .attendance-status-card .small {
+            line-height: 1.65;
+        }
+
         .scanner-wrapper {
-            max-width: 520px;
+            max-width: 42rem;
             margin-right: auto;
             margin-left: auto;
         }
 
         .scanner-stage {
-            min-height: 340px;
+            position: relative;
+            min-height: 23rem;
             overflow: hidden;
-            border: 2px dashed #ced4da;
-            border-radius: 1rem;
-            background: #f8f9fa;
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            background: var(--neutral-25);
+        }
+
+        .scanner-stage::after {
+            position: absolute;
+            inset: var(--space-3);
+            border: 1px dashed var(--brand-300);
+            border-radius: var(--radius-md);
+            content: "";
+            pointer-events: none;
         }
 
         #qr-reader {
             width: 100%;
-            min-height: 340px;
+            min-height: 23rem;
         }
 
         #qr-reader video {
+            display: block;
+            width: 100% !important;
             max-width: 100%;
-            border-radius: 0.75rem;
+            min-height: 23rem;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
         }
 
-        .attendance-status-card {
-            height: 100%;
-            border: 1px solid #dee2e6;
-            border-radius: 0.75rem;
-            padding: 1rem;
+        #qr-reader__dashboard {
+            padding: var(--space-3) !important;
+        }
+
+        #qr-reader__dashboard button {
+            min-height: 2.5rem;
+            padding: 0.5rem 0.875rem;
+            border: 1px solid var(--brand-500);
+            border-radius: var(--radius-md);
+            color: var(--neutral-0);
+            background: var(--brand-500);
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 700;
+        }
+
+        .scanner-empty-state {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            max-width: 22rem;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .scanner-empty-icon {
+            display: inline-flex;
+            width: 3.25rem;
+            height: 3.25rem;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-2);
+            border-radius: var(--radius-lg);
+            color: var(--attendance-orange-dark);
+            background: var(--attendance-orange-soft);
+            font-size: 1.375rem;
+        }
+
+        .scanner-empty-title {
+            color: var(--neutral-900);
+            font-size: 0.9375rem;
+            font-weight: 800;
+        }
+
+        .scanner-empty-copy {
+            color: var(--attendance-muted);
+            font-size: 0.75rem;
+            line-height: 1.6;
         }
 
         .location-value {
             overflow-wrap: anywhere;
-            font-family: ui-monospace, SFMono-Regular, Menlo,
-                Monaco, Consolas, monospace;
+            font-family:
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Monaco,
+                Consolas,
+                monospace;
+            font-size: 0.8125rem;
         }
 
         .processing-spinner {
@@ -56,96 +285,186 @@
 
         .geofence-map {
             width: 100%;
-            min-height: 430px;
-            border: 1px solid #dee2e6;
-            border-radius: 1rem;
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(13, 110, 253, 0.05),
-                    rgba(25, 135, 84, 0.05)
-                );
+            min-height: 29rem;
+            overflow: hidden;
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            background: var(--neutral-100);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
         }
 
         .geofence-summary {
-            border: 1px solid #dee2e6;
-            border-radius: 1rem;
-            background: #ffffff;
+            border: 1px solid var(--attendance-border);
+            border-radius: var(--radius-lg);
+            background: var(--attendance-surface);
         }
 
         .geofence-metric {
             height: 100%;
-            border: 1px solid #e9ecef;
-            border-radius: 0.75rem;
-            padding: 0.875rem;
-            background: #f8f9fa;
+            min-height: 6.25rem;
+            padding: var(--space-3);
+            border: 1px solid var(--attendance-border);
+            border-radius: var(--radius-md);
+            background: var(--neutral-25);
         }
 
         .geofence-metric-label {
-            margin-bottom: 0.25rem;
-            color: #6c757d;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.025em;
+            margin-bottom: var(--space-2);
+            color: var(--attendance-muted);
+            font-size: 0.625rem;
+            font-weight: 800;
+            letter-spacing: 0.055em;
             text-transform: uppercase;
         }
 
         .geofence-metric-value {
             overflow-wrap: anywhere;
-            font-weight: 700;
+            color: var(--neutral-900);
+            font-size: 0.875rem;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .geofence-status-panel {
+            padding: var(--space-3);
+            border: 1px solid var(--attendance-border);
+            border-radius: var(--radius-md);
+            background: var(--neutral-25);
         }
 
         .geofence-legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
-            font-size: 0.8125rem;
+            gap: var(--space-3);
+            color: var(--attendance-muted);
+            font-size: 0.75rem;
         }
 
         .geofence-legend-item {
             display: inline-flex;
             align-items: center;
-            gap: 0.375rem;
+            gap: var(--space-2);
         }
 
         .geofence-legend-dot {
-            width: 0.75rem;
-            height: 0.75rem;
-            border-radius: 999px;
+            width: 0.6875rem;
+            height: 0.6875rem;
+            flex: 0 0 0.6875rem;
+            border-radius: var(--radius-pill);
         }
 
         .geofence-legend-dot.branch {
-            background: #0d6efd;
+            background: var(--brand-500);
         }
 
         .geofence-legend-dot.device {
-            background: #dc3545;
+            background: var(--neutral-800);
         }
 
         .geofence-legend-dot.radius {
-            border: 2px solid #198754;
-            background: rgba(25, 135, 84, 0.15);
+            border: 2px solid var(--success-500);
+            background: var(--success-50);
         }
 
         .leaflet-container {
             font-family: inherit;
         }
 
+        .leaflet-control-zoom a {
+            color: var(--neutral-800);
+        }
+
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-tip {
+            color: var(--neutral-900);
+            background: var(--neutral-0);
+        }
+
+        .attendance-page .alert {
+            margin-bottom: var(--space-4);
+        }
+
+        .attendance-page .btn i {
+            font-size: 0.9375rem;
+        }
+
+        .usage-list {
+            display: grid;
+            gap: var(--space-3);
+            margin: 0;
+            padding: 0;
+            counter-reset: usage-counter;
+            list-style: none;
+        }
+
+        .usage-list li {
+            position: relative;
+            min-height: 2rem;
+            padding-left: 2.75rem;
+            color: var(--attendance-muted);
+            font-size: 0.8125rem;
+            line-height: 1.6;
+            counter-increment: usage-counter;
+        }
+
+        .usage-list li::before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: inline-flex;
+            width: 2rem;
+            height: 2rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            color: var(--attendance-orange-dark);
+            background: var(--attendance-orange-soft);
+            content: counter(usage-counter);
+            font-size: 0.6875rem;
+            font-weight: 800;
+        }
+
         @media (max-width: 991.98px) {
             .geofence-map {
-                min-height: 360px;
+                min-height: 24rem;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .attendance-progress {
+                grid-template-columns: 1fr;
+            }
+
+            .attendance-progress-step + .attendance-progress-step {
+                border-top: 1px solid var(--attendance-border);
+                border-left: 0;
             }
         }
 
         @media (max-width: 575.98px) {
+            .attendance-progress-step {
+                padding: var(--space-3);
+            }
+
             .geofence-map {
-                min-height: 320px;
+                min-height: 20rem;
+            }
+
+            .scanner-stage,
+            #qr-reader,
+            #qr-reader video {
+                min-height: 19rem;
+            }
+
+            .geofence-metric {
+                min-height: 5.75rem;
             }
         }
     </style>
 @endpush
 
 @section('content')
+    <div class="attendance-page">
     @php
         $scheduleStatusLabels = [
             'work' => 'Hari Kerja',
@@ -289,6 +608,59 @@
         </div>
     </header>
 
+    <section
+        class="attendance-progress"
+        aria-label="Tahapan presensi"
+    >
+        <div class="attendance-progress-step">
+            <span class="attendance-progress-number">
+                1
+            </span>
+
+            <span>
+                <span class="attendance-progress-title">
+                    Validasi lokasi
+                </span>
+
+                <span class="attendance-progress-copy">
+                    Periksa GPS, akurasi, dan radius geofence.
+                </span>
+            </span>
+        </div>
+
+        <div class="attendance-progress-step">
+            <span class="attendance-progress-number">
+                2
+            </span>
+
+            <span>
+                <span class="attendance-progress-title">
+                    Pindai QR
+                </span>
+
+                <span class="attendance-progress-copy">
+                    Gunakan QR dinamis yang aktif di cabang.
+                </span>
+            </span>
+        </div>
+
+        <div class="attendance-progress-step">
+            <span class="attendance-progress-number">
+                3
+            </span>
+
+            <span>
+                <span class="attendance-progress-title">
+                    Validasi server
+                </span>
+
+                <span class="attendance-progress-copy">
+                    Sistem memeriksa TOTP, jadwal, dan duplikasi.
+                </span>
+            </span>
+        </div>
+    </section>
+
     @if (! $canScan)
         <div
             class="alert alert-warning"
@@ -309,11 +681,26 @@
 
     <div class="row g-4 mb-4">
         <div class="col-xl-6">
-            <section class="content-card h-100">
+            <section class="content-card h-100 employee-summary-card">
                 <div class="border-bottom p-3 p-md-4">
-                    <h2 class="h5 fw-bold mb-1">
-                        Data Karyawan
-                    </h2>
+                    <div class="attendance-section-header">
+                        <span class="attendance-section-icon">
+                            <i
+                                class="bi bi-person-badge"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <div>
+                            <h2 class="attendance-section-title">
+                                Data Karyawan
+                            </h2>
+
+                            <p class="attendance-section-copy">
+                                Identitas dan ketentuan lokasi akun.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="p-3 p-md-4">
@@ -407,11 +794,26 @@
         </div>
 
         <div class="col-xl-6">
-            <section class="content-card h-100">
+            <section class="content-card h-100 schedule-summary-card">
                 <div class="border-bottom p-3 p-md-4">
-                    <h2 class="h5 fw-bold mb-1">
-                        Jadwal Hari Ini
-                    </h2>
+                    <div class="attendance-section-header">
+                        <span class="attendance-section-icon">
+                            <i
+                                class="bi bi-calendar2-check"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <div>
+                            <h2 class="attendance-section-title">
+                                Jadwal Hari Ini
+                            </h2>
+
+                            <p class="attendance-section-copy">
+                                Waktu operasional presensi berdasarkan jadwal.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="p-3 p-md-4">
@@ -547,15 +949,26 @@
         </div>
     </div>
 
-    <section class="content-card mb-4">
+    <section class="content-card mb-4 attendance-overview-card">
         <div class="border-bottom p-3 p-md-4">
-            <h2 class="h5 fw-bold mb-1">
-                Status Presensi Hari Ini
-            </h2>
+            <div class="attendance-section-header">
+                <span class="attendance-section-icon">
+                    <i
+                        class="bi bi-clock-history"
+                        aria-hidden="true"
+                    ></i>
+                </span>
 
-            <p class="small text-secondary mb-0">
-                Waktu yang ditampilkan berasal dari waktu server.
-            </p>
+                <div>
+                    <h2 class="attendance-section-title">
+                        Status Presensi Hari Ini
+                    </h2>
+
+                    <p class="attendance-section-copy">
+                        Waktu yang ditampilkan berasal dari waktu server.
+                    </p>
+                </div>
+            </div>
         </div>
 
         <div class="p-3 p-md-4">
@@ -698,7 +1111,7 @@
 
     <section
         id="geofence-validation-section"
-        class="content-card mb-4"
+        class="content-card mb-4 geofence-workspace"
     >
         <div
             class="border-bottom p-3 p-md-4 d-flex flex-column
@@ -706,15 +1119,26 @@
                 justify-content-between gap-3"
         >
             <div>
-                <h2 class="h5 fw-bold mb-1">
-                    Validasi Lokasi dan Peta Geofence
-                </h2>
+                <div class="attendance-section-header">
+                    <span class="attendance-section-icon">
+                        <i
+                            class="bi bi-geo-alt"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
 
-                <p class="small text-secondary mb-0">
-                    Periksa posisi perangkat sebelum memindai QR Code.
-                    Hasil di bawah merupakan pemeriksaan awal.
-                    Keputusan akhir tetap dilakukan oleh server.
-                </p>
+                    <div>
+                        <h2 class="attendance-section-title">
+                            Validasi Lokasi dan Peta Geofence
+                        </h2>
+
+                        <p class="attendance-section-copy">
+                            Pemeriksaan awal posisi, akurasi GPS, dan
+                            estimasi jarak sebelum pemindaian QR.
+                            Keputusan akhir tetap dilakukan oleh server.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <span
@@ -745,6 +1169,10 @@
                                 id="check-location-button"
                                 class="btn btn-primary"
                             >
+                                <i
+                                    class="bi bi-crosshair me-2"
+                                    aria-hidden="true"
+                                ></i>
                                 Periksa Lokasi
                             </button>
 
@@ -754,6 +1182,10 @@
                                 class="btn btn-outline-secondary"
                                 disabled
                             >
+                                <i
+                                    class="bi bi-arrows-fullscreen me-2"
+                                    aria-hidden="true"
+                                ></i>
                                 Pusatkan Peta
                             </button>
                         </div>
@@ -858,7 +1290,7 @@
                         </div>
 
                         <div
-                            class="border rounded-3 p-3 mb-4"
+                            class="geofence-status-panel mb-4"
                             aria-live="polite"
                         >
                             <div class="small text-secondary mb-1">
@@ -916,16 +1348,27 @@
         </div>
     </section>
 
-    <section class="content-card">
+    <section class="content-card scanner-panel">
         <div class="border-bottom p-3 p-md-4">
-            <h2 class="h5 fw-bold mb-1">
-                Pemindai QR Code
-            </h2>
+            <div class="attendance-section-header">
+                <span class="attendance-section-icon">
+                    <i
+                        class="bi bi-qr-code-scan"
+                        aria-hidden="true"
+                    ></i>
+                </span>
 
-            <p class="small text-secondary mb-0">
-                Setelah lokasi awal dinyatakan valid, arahkan
-                kamera ke QR Code dinamis pada perangkat cabang.
-            </p>
+                <div>
+                    <h2 class="attendance-section-title">
+                        Pemindai QR Code
+                    </h2>
+
+                    <p class="attendance-section-copy">
+                        Kamera tersedia setelah lokasi awal memenuhi
+                        ketentuan geofence.
+                    </p>
+                </div>
+            </div>
         </div>
 
         <div class="p-3 p-md-4">
@@ -960,11 +1403,27 @@
                         id="scanner-placeholder"
                         class="d-flex align-items-center
                             justify-content-center
-                            text-center text-secondary
-                            h-100 p-4"
+                            text-center h-100 p-4"
                         style="min-height: 340px;"
                     >
-                        Kamera belum dinyalakan.
+                        <div class="scanner-empty-state">
+                            <span class="scanner-empty-icon">
+                                <i
+                                    class="bi bi-qr-code-scan"
+                                    aria-hidden="true"
+                                ></i>
+                            </span>
+
+                            <span class="scanner-empty-title">
+                                Kamera belum dinyalakan
+                            </span>
+
+                            <span class="scanner-empty-copy">
+                                Periksa lokasi terlebih dahulu.
+                                Kamera akan tersedia setelah posisi
+                                memenuhi radius dan batas akurasi.
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -978,6 +1437,10 @@
                         class="btn btn-primary"
                         @disabled(! $canScan)
                     >
+                        <i
+                            class="bi bi-camera me-2"
+                            aria-hidden="true"
+                        ></i>
                         Mulai Kamera dan Pindai QR
                     </button>
 
@@ -987,6 +1450,10 @@
                         class="btn btn-outline-secondary"
                         disabled
                     >
+                        <i
+                            class="bi bi-camera-video-off me-2"
+                            aria-hidden="true"
+                        ></i>
                         Matikan Kamera
                     </button>
 
@@ -996,6 +1463,10 @@
                         class="btn btn-outline-primary"
                         disabled
                     >
+                        <i
+                            class="bi bi-arrow-clockwise me-2"
+                            aria-hidden="true"
+                        ></i>
                         Pindai Ulang
                     </button>
                 </div>
@@ -1027,12 +1498,27 @@
         </div>
     </section>
 
-    <section class="content-card p-3 p-md-4 mt-4">
-        <h2 class="h5 fw-bold mb-3">
-            Ketentuan Penggunaan
-        </h2>
+    <section class="content-card p-3 p-md-4 mt-4 usage-panel">
+        <div class="attendance-section-header mb-4">
+            <span class="attendance-section-icon">
+                <i
+                    class="bi bi-info-circle"
+                    aria-hidden="true"
+                ></i>
+            </span>
 
-        <ol class="small text-secondary mb-0 ps-3">
+            <div>
+                <h2 class="attendance-section-title">
+                    Ketentuan Penggunaan
+                </h2>
+
+                <p class="attendance-section-copy">
+                    Ikuti tahapan berikut agar validasi berjalan stabil.
+                </p>
+            </div>
+        </div>
+
+        <ol class="usage-list">
             <li class="mb-2">
                 Izinkan browser mengakses kamera dan lokasi
                 perangkat.
@@ -1059,6 +1545,7 @@
             </li>
         </ol>
     </section>
+    </div>
 @endsection
 
 @push('scripts')
@@ -1657,7 +2144,7 @@
                     {
                         radius: 8,
                         color: '#ffffff',
-                        fillColor: '#0d6efd',
+                        fillColor: '#e56a1f',
                         fillOpacity: 1,
                         weight: 3,
                     }
@@ -1705,7 +2192,7 @@
                     {
                         radius: 8,
                         color: '#ffffff',
-                        fillColor: '#dc3545',
+                        fillColor: '#353b41',
                         fillOpacity: 1,
                         weight: 3,
                     }
@@ -1727,7 +2214,7 @@
                         devicePosition,
                     ],
                     {
-                        color: '#6c757d',
+                        color: '#7a828b',
                         weight: 2,
                         dashArray: '6, 6',
                     }
