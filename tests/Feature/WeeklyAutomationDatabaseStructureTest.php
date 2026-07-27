@@ -60,6 +60,13 @@ final class WeeklyAutomationDatabaseStructureTest extends TestCase
                     'work_schedule_id',
                     'schedule_date',
                     'schedule_status',
+                    'work_schedule_name_snapshot',
+                    'check_in_time_snapshot',
+                    'check_out_time_snapshot',
+                    'check_in_open_minutes_snapshot',
+                    'check_in_limit_minutes_snapshot',
+                    'late_tolerance_minutes_snapshot',
+                    'check_out_limit_minutes_snapshot',
                     'notes',
                     'created_at',
                     'updated_at',
@@ -220,7 +227,104 @@ final class WeeklyAutomationDatabaseStructureTest extends TestCase
         );
     }
 
-    public function test_published_daily_schedule_can_store_leave_and_historical_source(): void
+        public function test_weekly_item_keeps_snapshot_after_work_schedule_master_changes(): void
+    {
+        $branch = Branch::factory()->create();
+        $hrd = $this->createHrd();
+        $employee = $this->createEmployee($branch);
+        $workSchedule = $this->createWorkSchedule();
+
+        $weeklyScheduleId =
+            $this->insertWeeklySchedule(
+                branch: $branch,
+                hrd: $hrd,
+                weekStartDate: '2026-09-06',
+                weekEndDate: '2026-09-12'
+            );
+
+        $originalName = $workSchedule->name;
+
+        $weeklyItemId = DB::table(
+            'weekly_schedule_items'
+        )->insertGetId([
+            'weekly_schedule_id' => $weeklyScheduleId,
+            'employee_id' => $employee->id,
+            'work_schedule_id' => $workSchedule->id,
+            'schedule_date' => '2026-09-07',
+            'schedule_status' => 'work',
+            'work_schedule_name_snapshot' => $originalName,
+            'check_in_time_snapshot' => '08:45:00',
+            'check_out_time_snapshot' => '17:00:00',
+            'check_in_open_minutes_snapshot' => 30,
+            'check_in_limit_minutes_snapshot' => 30,
+            'late_tolerance_minutes_snapshot' => 5,
+            'check_out_limit_minutes_snapshot' => 60,
+            'notes' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('work_schedules')
+            ->where('id', $workSchedule->id)
+            ->update([
+                'name' => 'Pola Kerja yang Sudah Diubah',
+                'check_in_time' => '09:00:00',
+                'check_out_time' => '18:00:00',
+                'check_in_open_minutes' => 15,
+                'check_in_limit_minutes' => 45,
+                'late_tolerance_minutes' => 10,
+                'check_out_limit_minutes' => 90,
+                'updated_at' => now(),
+            ]);
+
+        $weeklyItem = DB::table(
+            'weekly_schedule_items'
+        )
+            ->where('id', $weeklyItemId)
+            ->first();
+
+        $this->assertNotNull($weeklyItem);
+
+        $this->assertSame(
+            $originalName,
+            $weeklyItem->work_schedule_name_snapshot
+        );
+
+        $this->assertSame(
+            '08:45:00',
+            $weeklyItem->check_in_time_snapshot
+        );
+
+        $this->assertSame(
+            '17:00:00',
+            $weeklyItem->check_out_time_snapshot
+        );
+
+        $this->assertSame(
+            30,
+            (int) $weeklyItem
+                ->check_in_open_minutes_snapshot
+        );
+
+        $this->assertSame(
+            30,
+            (int) $weeklyItem
+                ->check_in_limit_minutes_snapshot
+        );
+
+        $this->assertSame(
+            5,
+            (int) $weeklyItem
+                ->late_tolerance_minutes_snapshot
+        );
+
+        $this->assertSame(
+            60,
+            (int) $weeklyItem
+                ->check_out_limit_minutes_snapshot
+        );
+    }
+public function test_published_daily_schedule_can_store_leave_and_historical_source(): void
     {
         $branch = Branch::factory()->create();
         $hrd = $this->createHrd();
