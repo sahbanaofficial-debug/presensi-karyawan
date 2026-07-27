@@ -58,6 +58,22 @@ class Branch extends Model
     }
 
     /**
+     * Roster mingguan milik cabang.
+     */
+    public function weeklySchedules(): HasMany
+    {
+        return $this->hasMany(WeeklySchedule::class);
+    }
+
+    /**
+     * Terminal QR yang terdaftar pada cabang.
+     */
+    public function branchTerminals(): HasMany
+    {
+        return $this->hasMany(BranchTerminal::class);
+    }
+
+    /**
      * Transaksi presensi yang terjadi pada cabang.
      */
     public function attendances(): HasMany

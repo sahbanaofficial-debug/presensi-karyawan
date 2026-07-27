@@ -23,6 +23,7 @@ class Attendance extends Model
     protected $fillable = [
         'employee_id',
         'attendance_session_id',
+        'branch_terminal_id',
         'employee_schedule_id',
         'branch_id',
         'attendance_type',
@@ -35,6 +36,7 @@ class Attendance extends Model
         'geofence_radius',
         'attendance_status',
         'punctuality_status',
+        'late_minutes',
         'validation_status',
 
         'record_source',
@@ -53,11 +55,13 @@ class Attendance extends Model
         return [
             'attendance_date' => 'date',
             'attendance_time' => 'datetime',
+            'branch_terminal_id' => 'integer',
             'latitude' => 'float',
             'longitude' => 'float',
             'accuracy' => 'float',
             'distance' => 'float',
             'geofence_radius' => 'float',
+            'late_minutes' => 'integer',
 
             'record_source' => 'string',
             'last_corrected_by' => 'integer',
@@ -82,6 +86,16 @@ class Attendance extends Model
     }
 
     /**
+     * Terminal cabang yang menampilkan QR presensi.
+     */
+    public function branchTerminal(): BelongsTo
+    {
+        return $this->belongsTo(
+            BranchTerminal::class
+        );
+    }
+
+    /**
      * Jadwal harian yang menjadi dasar presensi.
      */
     public function employeeSchedule(): BelongsTo
@@ -95,6 +109,14 @@ class Attendance extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    /**
+     * Memeriksa apakah presensi berasal dari terminal terdaftar.
+     */
+    public function wasRecordedThroughTerminal(): bool
+    {
+        return $this->branch_terminal_id !== null;
     }
 
     /**

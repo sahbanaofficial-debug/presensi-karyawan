@@ -51,6 +51,16 @@ class Employee extends Model
     }
 
     /**
+     * Item roster mingguan milik karyawan.
+     */
+    public function weeklyScheduleItems(): HasMany
+    {
+        return $this->hasMany(
+            WeeklyScheduleItem::class
+        );
+    }
+
+    /**
      * Seluruh transaksi presensi milik karyawan.
      */
     public function attendances(): HasMany

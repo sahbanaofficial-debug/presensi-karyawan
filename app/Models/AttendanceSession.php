@@ -12,6 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AttendanceSession extends Model
 {
+    public const TYPE_AUTO = 'auto';
+
+    public const SOURCE_MANUAL = 'manual';
+
+    public const SOURCE_AUTOMATIC = 'automatic';
+
     use HasFactory, HasUuids;
 
     /**
@@ -23,7 +29,10 @@ class AttendanceSession extends Model
      */
     protected $fillable = [
         'branch_id',
+        'weekly_schedule_id',
         'attendance_type',
+        'session_source',
+        'automation_key',
         'session_date',
         'start_time',
         'end_time',
@@ -79,6 +88,16 @@ class AttendanceSession extends Model
     }
 
     /**
+     * Roster mingguan yang menghasilkan sesi otomatis.
+     */
+    public function weeklySchedule(): BelongsTo
+    {
+        return $this->belongsTo(
+            WeeklySchedule::class
+        );
+    }
+
+    /**
      * HRD atau admin yang membuat sesi.
      */
     public function creator(): BelongsTo
@@ -103,6 +122,30 @@ class AttendanceSession extends Model
     public function validationLogs(): HasMany
     {
         return $this->hasMany(ValidationLog::class);
+    }
+
+    /**
+     * Memeriksa apakah sesi dibuat oleh sistem otomatis.
+     */
+    public function isAutomatic(): bool
+    {
+        return $this->session_source === self::SOURCE_AUTOMATIC;
+    }
+
+    /**
+     * Memeriksa apakah sesi dibuat secara manual.
+     */
+    public function isManual(): bool
+    {
+        return $this->session_source === self::SOURCE_MANUAL;
+    }
+
+    /**
+     * Memeriksa apakah sesi menggunakan tipe resolver otomatis.
+     */
+    public function isAutoType(): bool
+    {
+        return $this->attendance_type === self::TYPE_AUTO;
     }
 
     /**

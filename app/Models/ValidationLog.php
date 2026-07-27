@@ -25,6 +25,7 @@ class ValidationLog extends Model
     protected $fillable = [
         'user_id',
         'attendance_session_id',
+        'branch_terminal_id',
         'validation_type',
         'status',
         'reason',
@@ -43,6 +44,7 @@ class ValidationLog extends Model
     protected function casts(): array
     {
         return [
+            'branch_terminal_id' => 'integer',
             'latitude' => 'float',
             'longitude' => 'float',
             'accuracy' => 'float',
@@ -65,6 +67,24 @@ class ValidationLog extends Model
     public function attendanceSession(): BelongsTo
     {
         return $this->belongsTo(AttendanceSession::class);
+    }
+
+    /**
+     * Terminal cabang yang berkaitan dengan validasi.
+     */
+    public function branchTerminal(): BelongsTo
+    {
+        return $this->belongsTo(
+            BranchTerminal::class
+        );
+    }
+
+    /**
+     * Memeriksa apakah validasi berasal dari terminal terdaftar.
+     */
+    public function wasGeneratedThroughTerminal(): bool
+    {
+        return $this->branch_terminal_id !== null;
     }
 
     /**

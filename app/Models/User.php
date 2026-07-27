@@ -71,6 +71,50 @@ class User extends Authenticatable
     }
 
     /**
+     * Roster mingguan yang dibuat oleh pengguna.
+     */
+    public function createdWeeklySchedules(): HasMany
+    {
+        return $this->hasMany(
+            WeeklySchedule::class,
+            'created_by'
+        );
+    }
+
+    /**
+     * Roster mingguan yang diterbitkan oleh pengguna.
+     */
+    public function publishedWeeklySchedules(): HasMany
+    {
+        return $this->hasMany(
+            WeeklySchedule::class,
+            'published_by'
+        );
+    }
+
+    /**
+     * Terminal cabang yang didaftarkan oleh pengguna.
+     */
+    public function createdBranchTerminals(): HasMany
+    {
+        return $this->hasMany(
+            BranchTerminal::class,
+            'created_by'
+        );
+    }
+
+    /**
+     * Terminal cabang yang dicabut oleh pengguna.
+     */
+    public function revokedBranchTerminals(): HasMany
+    {
+        return $this->hasMany(
+            BranchTerminal::class,
+            'revoked_by'
+        );
+    }
+
+    /**
      * Jadwal karyawan yang disetujui oleh pengguna.
      */
     public function approvedEmployeeSchedules(): HasMany
