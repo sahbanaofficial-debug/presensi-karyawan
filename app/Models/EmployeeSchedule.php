@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EmployeeSchedule extends Model
 {
+    public const SOURCE_MANUAL = 'manual';
+
+    public const SOURCE_WEEKLY = 'weekly';
+
     use HasFactory;
 
     /**
@@ -17,10 +21,19 @@ class EmployeeSchedule extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'weekly_schedule_item_id',
         'employee_id',
         'work_schedule_id',
         'schedule_date',
         'schedule_status',
+        'schedule_source',
+        'work_schedule_name_snapshot',
+        'check_in_time_snapshot',
+        'check_out_time_snapshot',
+        'check_in_open_minutes_snapshot',
+        'check_in_limit_minutes_snapshot',
+        'late_tolerance_minutes_snapshot',
+        'check_out_limit_minutes_snapshot',
         'approved_by',
         'notes',
     ];
@@ -34,7 +47,21 @@ class EmployeeSchedule extends Model
     {
         return [
             'schedule_date' => 'date',
+            'check_in_open_minutes_snapshot' => 'integer',
+            'check_in_limit_minutes_snapshot' => 'integer',
+            'late_tolerance_minutes_snapshot' => 'integer',
+            'check_out_limit_minutes_snapshot' => 'integer',
         ];
+    }
+
+    /**
+     * Item roster mingguan asal jadwal harian.
+     */
+    public function weeklyScheduleItem(): BelongsTo
+    {
+        return $this->belongsTo(
+            WeeklyScheduleItem::class
+        );
     }
 
     /**
@@ -89,6 +116,14 @@ class EmployeeSchedule extends Model
     }
 
     /**
+     * Memeriksa apakah karyawan sedang cuti.
+     */
+    public function isLeave(): bool
+    {
+        return $this->schedule_status === 'leave';
+    }
+
+    /**
      * Memeriksa apakah karyawan berstatus izin.
      */
     public function isPermit(): bool
@@ -105,6 +140,42 @@ class EmployeeSchedule extends Model
     }
 
     /**
+     * Memeriksa apakah jadwal berasal dari roster mingguan.
+     */
+    public function isFromWeeklySchedule(): bool
+    {
+        return $this->schedule_source === self::SOURCE_WEEKLY;
+    }
+
+    /**
+     * Memeriksa kelengkapan snapshot pola kerja.
+     */
+    public function hasCompleteWorkSnapshot(): bool
+    {
+        return $this->work_schedule_name_snapshot !== null
+            && $this->check_in_time_snapshot !== null
+            && $this->check_out_time_snapshot !== null
+            && $this->check_in_open_minutes_snapshot !== null
+            && $this->check_in_limit_minutes_snapshot !== null
+            && $this->late_tolerance_minutes_snapshot !== null
+            && $this->check_out_limit_minutes_snapshot !== null;
+    }
+
+    /**
+     * Memeriksa bahwa jadwal nonkerja tidak menyimpan snapshot kerja.
+     */
+    public function hasEmptyWorkSnapshot(): bool
+    {
+        return $this->work_schedule_name_snapshot === null
+            && $this->check_in_time_snapshot === null
+            && $this->check_out_time_snapshot === null
+            && $this->check_in_open_minutes_snapshot === null
+            && $this->check_in_limit_minutes_snapshot === null
+            && $this->late_tolerance_minutes_snapshot === null
+            && $this->check_out_limit_minutes_snapshot === null;
+    }
+
+    /**
      * Menentukan apakah karyawan wajib melakukan presensi.
      */
     public function requiresAttendance(): bool
@@ -118,9 +189,27 @@ class EmployeeSchedule extends Model
     public function hasValidScheduleConfiguration(): bool
     {
         if ($this->isWorkDay()) {
-            return $this->work_schedule_id !== null;
+            if ($this->work_schedule_id === null) {
+                return false;
+            }
+
+            if ($this->isFromWeeklySchedule()) {
+                return $this->weekly_schedule_item_id !== null
+                    && $this->hasCompleteWorkSnapshot();
+            }
+
+            return true;
         }
 
-        return $this->work_schedule_id === null;
+        if ($this->work_schedule_id !== null) {
+            return false;
+        }
+
+        if ($this->isFromWeeklySchedule()) {
+            return $this->weekly_schedule_item_id !== null
+                && $this->hasEmptyWorkSnapshot();
+        }
+
+        return true;
     }
 }

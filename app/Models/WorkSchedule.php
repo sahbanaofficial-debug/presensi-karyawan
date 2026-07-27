@@ -20,6 +20,7 @@ class WorkSchedule extends Model
         'check_in_time',
         'check_out_time',
         'check_in_open_minutes',
+        'check_in_limit_minutes',
         'late_tolerance_minutes',
         'check_out_limit_minutes',
         'status',
@@ -32,6 +33,7 @@ class WorkSchedule extends Model
     {
         return [
             'check_in_open_minutes' => 'integer',
+            'check_in_limit_minutes' => 'integer',
             'late_tolerance_minutes' => 'integer',
             'check_out_limit_minutes' => 'integer',
         ];
@@ -43,6 +45,16 @@ class WorkSchedule extends Model
     public function employeeSchedules(): HasMany
     {
         return $this->hasMany(EmployeeSchedule::class);
+    }
+
+    /**
+     * Item roster mingguan yang menggunakan pola jadwal ini.
+     */
+    public function weeklyScheduleItems(): HasMany
+    {
+        return $this->hasMany(
+            WeeklyScheduleItem::class
+        );
     }
 
     /**
@@ -75,6 +87,18 @@ class WorkSchedule extends Model
             $date,
             $this->check_in_time
         )->addMinutes($this->late_tolerance_minutes);
+    }
+
+    /**
+     * Mendapatkan batas akhir presensi masuk.
+     */
+    public function getCheckInLimit(
+        DateTimeInterface|string $date
+    ): CarbonImmutable {
+        return $this->combineDateAndTime(
+            $date,
+            $this->check_in_time
+        )->addMinutes($this->check_in_limit_minutes);
     }
 
     /**
