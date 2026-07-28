@@ -20,6 +20,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard')->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| Halaman Operasional Terminal Cabang
+|--------------------------------------------------------------------------
+|
+| Halaman perangkat tidak menggunakan sesi pengguna. Aktivasi dan
+| pengambilan QR dilakukan melalui API terminal stateless.
+|
+*/
+Route::view(
+    '/terminal',
+    'terminal.index'
+)->name('terminal.display');
+
 Route::middleware('guest')->group(function (): void {
     Route::get(
         '/login',
