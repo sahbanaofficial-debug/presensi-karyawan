@@ -10,6 +10,7 @@ use App\Models\AttendanceSession;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Services\AttendanceScheduleService;
+use App\Services\AutomaticAttendanceTypeResolverService;
 use App\Services\HaversineService;
 use App\Services\TotpService;
 use Carbon\CarbonImmutable;
@@ -207,7 +208,8 @@ final class AttendanceController extends Controller
         StoreAttendanceRequest $request,
         TotpService $totpService,
         HaversineService $haversineService,
-        AttendanceScheduleService $attendanceScheduleService
+        AttendanceScheduleService $attendanceScheduleService,
+        AutomaticAttendanceTypeResolverService $attendanceTypeResolverService
     ): JsonResponse {
         $user = $request->user();
 
@@ -240,7 +242,8 @@ final class AttendanceController extends Controller
                 $now,
                 $totpService,
                 $haversineService,
-                $attendanceScheduleService
+                $attendanceScheduleService,
+                $attendanceTypeResolverService
             ): array {
                 /*
                  * Profil karyawan kembali diperiksa dalam
@@ -513,12 +516,31 @@ final class AttendanceController extends Controller
                     );
                 }
 
+                $resolvedAttendanceType =
+                    $attendanceTypeResolverService
+                        ->resolve(
+                            $attendanceSession,
+                            $employeeSchedule
+                        );
+
+                if ($resolvedAttendanceType === null) {
+                    return $this->rejectedResult(
+                        userId: (int) $user->getKey(),
+                        attendanceSession: $attendanceSession,
+                        code: 'attendance_completed',
+                        message: 'Presensi masuk dan pulang untuk jadwal harian ini sudah lengkap.',
+                        httpStatus: 409,
+                        payloadReference: $payloadReference,
+                        coordinates: $coordinates,
+                        occurredAt: $now
+                    );
+                }
+
                 $scheduleResult =
                     $attendanceScheduleService
                         ->evaluate(
                             $employeeSchedule,
-                            $attendanceSession
-                                ->attendance_type,
+                            $resolvedAttendanceType,
                             $now
                         );
 
@@ -616,15 +638,14 @@ final class AttendanceController extends Controller
                         )
                         ->where(
                             'attendance_type',
-                            $attendanceSession
-                                ->attendance_type
+                            $resolvedAttendanceType
                         )
                         ->exists();
 
                 if ($attendanceExists) {
                     $attendanceTypeLabel =
-                        $attendanceSession
-                            ->isCheckIn()
+                        $resolvedAttendanceType
+                        === 'check_in'
                             ? 'masuk'
                             : 'pulang';
 
@@ -661,8 +682,7 @@ final class AttendanceController extends Controller
 
                         'branch_id' => $branch->getKey(),
 
-                        'attendance_type' => $attendanceSession
-                            ->attendance_type,
+                        'attendance_type' => $resolvedAttendanceType,
 
                         'attendance_date' => $now->format('Y-m-d'),
 

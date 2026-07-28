@@ -874,6 +874,289 @@ final class AttendanceTransactionTest extends TestCase
         );
     }
 
+    public function test_auto_session_resolves_first_scan_as_check_in(): void
+    {
+        $this->travelTo(
+            CarbonImmutable::parse(
+                '2026-10-13 08:45:00',
+                'Asia/Jakarta'
+            )
+        );
+
+        $branch = $this->createBranch();
+
+        [$user, $employee] =
+            $this->createEmployee($branch);
+
+        $approver = $this->createUser('hrd');
+
+        $employeeSchedule =
+            $this->createEmployeeSchedule(
+                employee: $employee,
+                approver: $approver,
+                scheduleDate: '2026-10-13'
+            );
+
+        $attendanceSession =
+            $this->createAttendanceSession(
+                branch: $branch,
+                creator: $approver,
+                sessionDate: '2026-10-13',
+                attendanceType: 'check_in',
+                startTime: '08:15:00',
+                endTime: '18:00:00'
+            );
+
+        $attendanceSession->update([
+            'attendance_type' => AttendanceSession::TYPE_AUTO,
+
+            'session_source' => AttendanceSession::SOURCE_AUTOMATIC,
+
+            'automation_key' => 'AUTO:'.$branch->id.':2026-10-13',
+
+            'created_by' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->postJson(
+                route('attendance.store'),
+                $this->attendancePayload(
+                    $attendanceSession->fresh(),
+                    (float) $branch->latitude,
+                    (float) $branch->longitude,
+                    5.0
+                )
+            )
+            ->assertCreated()
+            ->assertJsonPath(
+                'data.attendance_type',
+                'check_in'
+            );
+
+        $this->assertDatabaseHas(
+            'attendances',
+            [
+                'employee_schedule_id' => $employeeSchedule->id,
+
+                'attendance_session_id' => $attendanceSession->id,
+
+                'attendance_type' => 'check_in',
+            ]
+        );
+    }
+
+    public function test_auto_session_resolves_second_scan_as_check_out(): void
+    {
+        $this->travelTo(
+            CarbonImmutable::parse(
+                '2026-10-14 17:00:00',
+                'Asia/Jakarta'
+            )
+        );
+
+        $branch = $this->createBranch();
+
+        [$user, $employee] =
+            $this->createEmployee($branch);
+
+        $approver = $this->createUser('hrd');
+
+        $employeeSchedule =
+            $this->createEmployeeSchedule(
+                employee: $employee,
+                approver: $approver,
+                scheduleDate: '2026-10-14'
+            );
+
+        $attendanceSession =
+            $this->createAttendanceSession(
+                branch: $branch,
+                creator: $approver,
+                sessionDate: '2026-10-14',
+                attendanceType: 'check_in',
+                startTime: '08:15:00',
+                endTime: '18:00:00'
+            );
+
+        $attendanceSession->update([
+            'attendance_type' => AttendanceSession::TYPE_AUTO,
+
+            'session_source' => AttendanceSession::SOURCE_AUTOMATIC,
+
+            'automation_key' => 'AUTO:'.$branch->id.':2026-10-14',
+
+            'created_by' => null,
+        ]);
+
+        Attendance::query()->create([
+            'employee_id' => $employee->id,
+
+            'attendance_session_id' => $attendanceSession->id,
+
+            'employee_schedule_id' => $employeeSchedule->id,
+
+            'branch_id' => $branch->id,
+            'attendance_type' => 'check_in',
+            'attendance_date' => '2026-10-14',
+
+            'attendance_time' => '2026-10-14 08:45:00',
+
+            'latitude' => $branch->latitude,
+            'longitude' => $branch->longitude,
+            'accuracy' => 5.0,
+            'distance' => 0.0,
+
+            'geofence_radius' => $branch->geofence_radius,
+
+            'attendance_status' => 'present',
+            'punctuality_status' => 'on_time',
+            'validation_status' => 'accepted',
+        ]);
+
+        $this->actingAs($user)
+            ->postJson(
+                route('attendance.store'),
+                $this->attendancePayload(
+                    $attendanceSession->fresh(),
+                    (float) $branch->latitude,
+                    (float) $branch->longitude,
+                    5.0
+                )
+            )
+            ->assertCreated()
+            ->assertJsonPath(
+                'data.attendance_type',
+                'check_out'
+            )
+            ->assertJsonPath(
+                'data.punctuality_status',
+                'not_applicable'
+            );
+
+        $this->assertDatabaseHas(
+            'attendances',
+            [
+                'employee_schedule_id' => $employeeSchedule->id,
+
+                'attendance_session_id' => $attendanceSession->id,
+
+                'attendance_type' => 'check_out',
+            ]
+        );
+    }
+
+    public function test_auto_session_rejects_scan_after_attendance_is_complete(): void
+    {
+        $this->travelTo(
+            CarbonImmutable::parse(
+                '2026-10-15 17:00:00',
+                'Asia/Jakarta'
+            )
+        );
+
+        $branch = $this->createBranch();
+
+        [$user, $employee] =
+            $this->createEmployee($branch);
+
+        $approver = $this->createUser('hrd');
+
+        $employeeSchedule =
+            $this->createEmployeeSchedule(
+                employee: $employee,
+                approver: $approver,
+                scheduleDate: '2026-10-15'
+            );
+
+        $attendanceSession =
+            $this->createAttendanceSession(
+                branch: $branch,
+                creator: $approver,
+                sessionDate: '2026-10-15',
+                attendanceType: 'check_in',
+                startTime: '08:15:00',
+                endTime: '18:00:00'
+            );
+
+        $attendanceSession->update([
+            'attendance_type' => AttendanceSession::TYPE_AUTO,
+
+            'session_source' => AttendanceSession::SOURCE_AUTOMATIC,
+
+            'automation_key' => 'AUTO:'.$branch->id.':2026-10-15',
+
+            'created_by' => null,
+        ]);
+
+        foreach (
+            [
+                'check_in' => 'on_time',
+                'check_out' => 'not_applicable',
+            ] as $attendanceType => $punctualityStatus
+        ) {
+            Attendance::query()->create([
+                'employee_id' => $employee->id,
+
+                'attendance_session_id' => $attendanceSession->id,
+
+                'employee_schedule_id' => $employeeSchedule->id,
+
+                'branch_id' => $branch->id,
+
+                'attendance_type' => $attendanceType,
+
+                'attendance_date' => '2026-10-15',
+
+                'attendance_time' => '2026-10-15 17:00:00',
+
+                'latitude' => $branch->latitude,
+                'longitude' => $branch->longitude,
+                'accuracy' => 5.0,
+                'distance' => 0.0,
+
+                'geofence_radius' => $branch->geofence_radius,
+
+                'attendance_status' => 'present',
+
+                'punctuality_status' => $punctualityStatus,
+
+                'validation_status' => 'accepted',
+            ]);
+        }
+
+        $this->actingAs($user)
+            ->postJson(
+                route('attendance.store'),
+                $this->attendancePayload(
+                    $attendanceSession->fresh(),
+                    (float) $branch->latitude,
+                    (float) $branch->longitude,
+                    5.0
+                )
+            )
+            ->assertConflict()
+            ->assertJsonPath(
+                'code',
+                'attendance_completed'
+            );
+
+        $this->assertDatabaseCount(
+            'attendances',
+            2
+        );
+
+        $this->assertDatabaseHas(
+            'validation_logs',
+            [
+                'attendance_session_id' => $attendanceSession->id,
+
+                'validation_type' => 'attendance_completed',
+
+                'status' => 'rejected',
+            ]
+        );
+    }
+
     private function createUser(
         string $role
     ): User {
