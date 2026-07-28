@@ -22,3 +22,17 @@ Schedule::command(
 )
     ->everyFiveMinutes()
     ->withoutOverlapping(10);
+/*
+|--------------------------------------------------------------------------
+| Lifecycle Sesi Presensi Otomatis
+|--------------------------------------------------------------------------
+|
+| Sesi otomatis aktif yang telah melewati end_time ditandai expired
+| tanpa menunggu pemindaian karyawan atau halaman manajemen dibuka.
+|
+*/
+Schedule::command(
+    'attendance-sessions:expire-automatic'
+)
+    ->everyMinute()
+    ->withoutOverlapping(10);
