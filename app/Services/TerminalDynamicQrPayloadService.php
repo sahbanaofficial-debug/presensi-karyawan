@@ -186,26 +186,26 @@ final class TerminalDynamicQrPayloadService
             ),
 
             'session' => [
-            'public_id' => (string) $attendanceSession
-                ->public_id,
+                'public_id' => (string) $attendanceSession
+                    ->public_id,
 
-            'attendance_type' => (string) $attendanceSession
-                ->attendance_type,
+                'attendance_type' => (string) $attendanceSession
+                    ->attendance_type,
 
-            'session_source' => (string) $attendanceSession
-                ->session_source,
+                'session_source' => (string) $attendanceSession
+                    ->session_source,
 
-            'session_date' => $attendanceSession
-                ->session_date
-                ->format('Y-m-d'),
+                'session_date' => $attendanceSession
+                    ->session_date
+                    ->format('Y-m-d'),
 
-            'start_time' => $attendanceSession
-                ->start_time
-                ->toIso8601String(),
+                'start_time' => $attendanceSession
+                    ->start_time
+                    ->toIso8601String(),
 
-            'end_time' => $attendanceSession
-                ->end_time
-                ->toIso8601String(),
+                'end_time' => $attendanceSession
+                    ->end_time
+                    ->toIso8601String(),
             ],
 
             'qr_payload' => $qrPayload,
