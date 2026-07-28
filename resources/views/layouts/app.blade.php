@@ -1029,6 +1029,12 @@
                         'patterns' => ['branches.*'],
                         'icon' => 'bi-building',
                         'roles' => ['hrd'],
+                    ],                    [
+                        'label' => 'Terminal Cabang',
+                        'route' => 'branch-terminals.index',
+                        'patterns' => ['branch-terminals.*'],
+                        'icon' => 'bi-display',
+                        'roles' => ['hrd'],
                     ],
                     [
                         'label' => 'Pola Jadwal Kerja',

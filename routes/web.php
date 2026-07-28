@@ -10,6 +10,7 @@ use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\AttendanceValidationLogController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\BranchTerminalController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeScheduleController;
 use App\Http\Controllers\ScheduleSwapRequestController;
@@ -281,6 +282,73 @@ Route::middleware(['auth', 'active'])->group(function (): void {
             )->name('show');
         });
 
+    /*
+    |--------------------------------------------------------------------------
+    | Manajemen Terminal Cabang
+    |--------------------------------------------------------------------------
+    |
+    | HRD dapat mendaftarkan terminal, memperbarui kode aktivasi,
+    | melihat status penggunaan, dan mencabut akses perangkat.
+    |
+    */
+    Route::middleware('role:hrd')
+        ->prefix('branch-terminals')
+        ->name('branch-terminals.')
+        ->group(function (): void {
+            Route::get(
+                '/',
+                [
+                    BranchTerminalController::class,
+                    'index',
+                ]
+            )->name('index');
+
+            Route::get(
+                '/create',
+                [
+                    BranchTerminalController::class,
+                    'create',
+                ]
+            )->name('create');
+
+            Route::post(
+                '/',
+                [
+                    BranchTerminalController::class,
+                    'store',
+                ]
+            )->name('store');
+
+            Route::patch(
+                '/{branch_terminal}/renew-activation',
+                [
+                    BranchTerminalController::class,
+                    'renewActivation',
+                ]
+            )
+                ->whereNumber('branch_terminal')
+                ->name('renew-activation');
+
+            Route::patch(
+                '/{branch_terminal}/revoke',
+                [
+                    BranchTerminalController::class,
+                    'revoke',
+                ]
+            )
+                ->whereNumber('branch_terminal')
+                ->name('revoke');
+
+            Route::get(
+                '/{branch_terminal}',
+                [
+                    BranchTerminalController::class,
+                    'show',
+                ]
+            )
+                ->whereNumber('branch_terminal')
+                ->name('show');
+        });
     /*
     |--------------------------------------------------------------------------
     | Modul Sesi Presensi dan QR Code Dinamis
