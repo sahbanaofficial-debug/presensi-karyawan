@@ -44,6 +44,9 @@ final class StoreAttendanceRequest extends FormRequest
 
         $session = null;
         $token = null;
+        $version = null;
+        $terminal = null;
+        $signature = null;
 
         if ($decodedPayload !== null) {
             $sessionValue =
@@ -61,6 +64,39 @@ final class StoreAttendanceRequest extends FormRequest
             if (is_string($tokenValue)) {
                 $token = trim($tokenValue);
             }
+
+            $versionValue =
+                $decodedPayload['version'] ?? null;
+
+            $terminalValue =
+                $decodedPayload['terminal'] ?? null;
+
+            $signatureValue =
+                $decodedPayload['signature'] ?? null;
+
+            if (
+                is_int($versionValue)
+                || (
+                    is_string($versionValue)
+                    && ctype_digit(
+                        trim($versionValue)
+                    )
+                )
+            ) {
+                $version = (int) $versionValue;
+            }
+
+            if (is_string($terminalValue)) {
+                $terminal = strtolower(
+                    trim($terminalValue)
+                );
+            }
+
+            if (is_string($signatureValue)) {
+                $signature = strtolower(
+                    trim($signatureValue)
+                );
+            }
         }
 
         $this->merge([
@@ -69,6 +105,12 @@ final class StoreAttendanceRequest extends FormRequest
             'session' => $session,
 
             'token' => $token,
+
+            'version' => $version,
+
+            'terminal' => $terminal,
+
+            'signature' => $signature,
 
             'latitude' => $this->normalizeNumericInput(
                 'latitude'
@@ -119,6 +161,24 @@ final class StoreAttendanceRequest extends FormRequest
                 'required',
                 'string',
                 'regex:/^\d{6}$/',
+            ],
+
+            'version' => [
+                'nullable',
+                'integer',
+                'in:1',
+            ],
+
+            'terminal' => [
+                'nullable',
+                'string',
+                'uuid',
+            ],
+
+            'signature' => [
+                'nullable',
+                'string',
+                'regex:/^[a-f0-9]{64}$/',
             ],
 
             /*
@@ -240,6 +300,9 @@ final class StoreAttendanceRequest extends FormRequest
                 $allowedKeys = [
                     'session',
                     'token',
+                    'version',
+                    'terminal',
+                    'signature',
                 ];
 
                 $unexpectedKeys = array_diff(
@@ -251,6 +314,34 @@ final class StoreAttendanceRequest extends FormRequest
                     $validator->errors()->add(
                         'qr_payload',
                         'QR Code memuat data yang tidak diperbolehkan.'
+                    );
+                }
+
+                $terminalPayloadKeys = [
+                    'version',
+                    'terminal',
+                    'signature',
+                ];
+
+                $presentTerminalKeys =
+                    array_intersect(
+                        $terminalPayloadKeys,
+                        array_keys(
+                            $decodedPayload
+                        )
+                    );
+
+                if (
+                    $presentTerminalKeys !== []
+                    && count(
+                        $presentTerminalKeys
+                    ) !== count(
+                        $terminalPayloadKeys
+                    )
+                ) {
+                    $validator->errors()->add(
+                        'qr_payload',
+                        'Data pengikat terminal pada QR Code harus lengkap.'
                     );
                 }
             }
@@ -348,6 +439,49 @@ final class StoreAttendanceRequest extends FormRequest
      *
      * Token asli tidak perlu disimpan di dalam log.
      */
+    public function qrPayloadVersion(): ?int
+    {
+        $value = $this->validated(
+            'version'
+        );
+
+        return $value === null
+            ? null
+            : (int) $value;
+    }
+
+    public function terminalPublicId(): ?string
+    {
+        $value = $this->validated(
+            'terminal'
+        );
+
+        return is_string($value)
+            ? $value
+            : null;
+    }
+
+    public function terminalSignature(): ?string
+    {
+        $value = $this->validated(
+            'signature'
+        );
+
+        return is_string($value)
+            ? $value
+            : null;
+    }
+
+    public function hasCompleteTerminalQrBinding(): bool
+    {
+        return $this->qrPayloadVersion()
+                !== null
+            && $this->terminalPublicId()
+                !== null
+            && $this->terminalSignature()
+                !== null;
+    }
+
     public function payloadReference(): string
     {
         $validated = $this->validated();

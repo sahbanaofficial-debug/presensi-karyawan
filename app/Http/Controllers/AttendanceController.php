@@ -8,10 +8,12 @@ use App\Http\Requests\StoreAttendanceRequest;
 use App\Models\Attendance;
 use App\Models\AttendanceSession;
 use App\Models\Branch;
+use App\Models\BranchTerminal;
 use App\Models\Employee;
 use App\Services\AttendanceScheduleService;
 use App\Services\AutomaticAttendanceTypeResolverService;
 use App\Services\HaversineService;
+use App\Services\TerminalDynamicQrPayloadService;
 use App\Services\TotpService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -209,7 +211,8 @@ final class AttendanceController extends Controller
         TotpService $totpService,
         HaversineService $haversineService,
         AttendanceScheduleService $attendanceScheduleService,
-        AutomaticAttendanceTypeResolverService $attendanceTypeResolverService
+        AutomaticAttendanceTypeResolverService $attendanceTypeResolverService,
+        TerminalDynamicQrPayloadService $terminalQrPayloadService
     ): JsonResponse {
         $user = $request->user();
 
@@ -243,8 +246,10 @@ final class AttendanceController extends Controller
                 $totpService,
                 $haversineService,
                 $attendanceScheduleService,
-                $attendanceTypeResolverService
+                $attendanceTypeResolverService,
+                $terminalQrPayloadService
             ): array {
+                $branchTerminal = null;
                 /*
                  * Profil karyawan kembali diperiksa dalam
                  * transaksi untuk mencegah perubahan status
@@ -271,6 +276,10 @@ final class AttendanceController extends Controller
                         httpStatus: 403,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -299,6 +308,10 @@ final class AttendanceController extends Controller
                         httpStatus: 404,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -330,6 +343,10 @@ final class AttendanceController extends Controller
                         httpStatus: 409,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -345,6 +362,10 @@ final class AttendanceController extends Controller
                         httpStatus: 410,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -363,6 +384,10 @@ final class AttendanceController extends Controller
                         httpStatus: 422,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -379,6 +404,10 @@ final class AttendanceController extends Controller
                         httpStatus: 422,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -397,6 +426,10 @@ final class AttendanceController extends Controller
                         httpStatus: 422,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -422,6 +455,10 @@ final class AttendanceController extends Controller
                         httpStatus: 409,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -442,6 +479,10 @@ final class AttendanceController extends Controller
                         httpStatus: 403,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -459,10 +500,165 @@ final class AttendanceController extends Controller
                         httpStatus: 409,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
 
+                /*
+                 * Sesi otomatis hanya menerima QR yang
+                 * ditandatangani dan terikat pada terminal aktif.
+                 *
+                 * QR sesi manual tetap kompatibel dengan
+                 * struktur lama session + token.
+                 */
+                if (
+                    $attendanceSession->isAutomatic()
+                    && $attendanceSession
+                        ->isAutoType()
+                ) {
+                    if (
+                        ! $request
+                            ->hasCompleteTerminalQrBinding()
+                    ) {
+                        return $this->rejectedResult(
+                            userId: (int) $user->getKey(),
+                            attendanceSession: $attendanceSession,
+                            code: 'terminal_payload_required',
+                            message: 'Sesi otomatis memerlukan QR Code dari terminal cabang terdaftar.',
+                            httpStatus: 422,
+                            payloadReference: $payloadReference,
+                            coordinates: $coordinates,
+                            branchTerminalId: $branchTerminal === null
+                                ? null
+                                : (int) $branchTerminal
+                                    ->getKey(),
+                            occurredAt: $now
+                        );
+                    }
+
+                    if (
+                        $request->qrPayloadVersion()
+                        !== TerminalDynamicQrPayloadService::PAYLOAD_VERSION
+                    ) {
+                        return $this->rejectedResult(
+                            userId: (int) $user->getKey(),
+                            attendanceSession: $attendanceSession,
+                            code: 'terminal_payload_version_invalid',
+                            message: 'Versi payload QR terminal tidak didukung.',
+                            httpStatus: 422,
+                            payloadReference: $payloadReference,
+                            coordinates: $coordinates,
+                            branchTerminalId: $branchTerminal === null
+                                ? null
+                                : (int) $branchTerminal
+                                    ->getKey(),
+                            occurredAt: $now
+                        );
+                    }
+
+                    $branchTerminal =
+                        BranchTerminal::query()
+                            ->where(
+                                'public_id',
+                                $request
+                                    ->terminalPublicId()
+                            )
+                            ->lockForUpdate()
+                            ->first();
+
+                    if ($branchTerminal === null) {
+                        return $this->rejectedResult(
+                            userId: (int) $user->getKey(),
+                            attendanceSession: $attendanceSession,
+                            code: 'terminal_not_found',
+                            message: 'Terminal pembangkit QR Code tidak ditemukan.',
+                            httpStatus: 404,
+                            payloadReference: $payloadReference,
+                            coordinates: $coordinates,
+                            branchTerminalId: $branchTerminal === null
+                                ? null
+                                : (int) $branchTerminal
+                                    ->getKey(),
+                            occurredAt: $now
+                        );
+                    }
+
+                    if (! $branchTerminal->isActive()) {
+                        return $this->rejectedResult(
+                            userId: (int) $user->getKey(),
+                            attendanceSession: $attendanceSession,
+                            code: 'terminal_inactive',
+                            message: 'Terminal pembangkit QR Code tidak aktif.',
+                            httpStatus: 403,
+                            payloadReference: $payloadReference,
+                            coordinates: $coordinates,
+                            branchTerminalId: $branchTerminal === null
+                                ? null
+                                : (int) $branchTerminal
+                                    ->getKey(),
+                            occurredAt: $now
+                        );
+                    }
+
+                    if (
+                        (int) $branchTerminal->branch_id
+                        !== (int) $branch->getKey()
+                    ) {
+                        return $this->rejectedResult(
+                            userId: (int) $user->getKey(),
+                            attendanceSession: $attendanceSession,
+                            code: 'terminal_branch_mismatch',
+                            message: 'Terminal QR Code tidak berasal dari cabang sesi presensi.',
+                            httpStatus: 403,
+                            payloadReference: $payloadReference,
+                            coordinates: $coordinates,
+                            branchTerminalId: $branchTerminal === null
+                                ? null
+                                : (int) $branchTerminal
+                                    ->getKey(),
+                            occurredAt: $now
+                        );
+                    }
+
+                    $signatureIsValid =
+                        $terminalQrPayloadService
+                            ->verifySignature(
+                                sessionPublicId: $request
+                                    ->sessionPublicId(),
+
+                                token: $request
+                                    ->totpToken(),
+
+                                terminalPublicId: $request
+                                    ->terminalPublicId()
+                                        ?? '',
+
+                                signature: $request
+                                    ->terminalSignature()
+                                        ?? ''
+                            );
+
+                    if (! $signatureIsValid) {
+                        return $this->rejectedResult(
+                            userId: (int) $user->getKey(),
+                            attendanceSession: $attendanceSession,
+                            code: 'terminal_signature_invalid',
+                            message: 'Signature QR Code terminal tidak valid.',
+                            httpStatus: 422,
+                            payloadReference: $payloadReference,
+                            coordinates: $coordinates,
+                            branchTerminalId: $branchTerminal === null
+                                ? null
+                                : (int) $branchTerminal
+                                    ->getKey(),
+                            occurredAt: $now
+                        );
+                    }
+                }
                 /*
                  * Validasi TOTP menggunakan waktu server.
                  * Window nol berarti hanya token periode
@@ -486,6 +682,10 @@ final class AttendanceController extends Controller
                         httpStatus: 422,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -512,6 +712,10 @@ final class AttendanceController extends Controller
                         httpStatus: 422,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -532,6 +736,10 @@ final class AttendanceController extends Controller
                         httpStatus: 409,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -557,6 +765,10 @@ final class AttendanceController extends Controller
                         httpStatus: 422,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -584,6 +796,10 @@ final class AttendanceController extends Controller
                         httpStatus: 422,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now
                     );
                 }
@@ -620,6 +836,10 @@ final class AttendanceController extends Controller
                         httpStatus: 422,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now,
                         distance: $roundedDistance
                     );
@@ -660,6 +880,10 @@ final class AttendanceController extends Controller
                         httpStatus: 409,
                         payloadReference: $payloadReference,
                         coordinates: $coordinates,
+                        branchTerminalId: $branchTerminal === null
+                            ? null
+                            : (int) $branchTerminal
+                                ->getKey(),
                         occurredAt: $now,
                         distance: $roundedDistance
                     );
@@ -676,6 +900,11 @@ final class AttendanceController extends Controller
 
                         'attendance_session_id' => $attendanceSession
                             ->getKey(),
+
+                        'branch_terminal_id' => $branchTerminal === null
+                                ? null
+                                : (int) $branchTerminal
+                                    ->getKey(),
 
                         'employee_schedule_id' => $employeeSchedule
                             ->getKey(),
@@ -721,6 +950,10 @@ final class AttendanceController extends Controller
                     payloadReference: $payloadReference,
                     coordinates: $coordinates,
                     distance: $roundedDistance,
+                    branchTerminalId: $branchTerminal === null
+                        ? null
+                        : (int) $branchTerminal
+                            ->getKey(),
                     occurredAt: $now
                 );
 
@@ -814,6 +1047,7 @@ final class AttendanceController extends Controller
         int $httpStatus,
         string $payloadReference,
         array $coordinates,
+        ?int $branchTerminalId,
         CarbonImmutable $occurredAt,
         ?float $distance = null
     ): array {
@@ -823,6 +1057,7 @@ final class AttendanceController extends Controller
                     ? null
                     : (int) $attendanceSession
                         ->getKey(),
+            branchTerminalId: $branchTerminalId,
             validationType: $code,
             status: 'rejected',
             reason: $message,
@@ -862,12 +1097,15 @@ final class AttendanceController extends Controller
         string $payloadReference,
         array $coordinates,
         ?float $distance,
+        ?int $branchTerminalId,
         CarbonImmutable $occurredAt
     ): void {
         DB::table('validation_logs')->insert([
             'user_id' => $userId,
 
             'attendance_session_id' => $attendanceSessionId,
+
+            'branch_terminal_id' => $branchTerminalId,
 
             'validation_type' => $validationType,
 

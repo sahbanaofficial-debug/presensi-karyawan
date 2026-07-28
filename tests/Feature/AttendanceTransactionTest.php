@@ -7,13 +7,16 @@ namespace Tests\Feature;
 use App\Models\Attendance;
 use App\Models\AttendanceSession;
 use App\Models\Branch;
+use App\Models\BranchTerminal;
 use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use App\Models\User;
 use App\Models\WorkSchedule;
+use App\Services\TerminalDynamicQrPayloadService;
 use App\Services\TotpService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use JsonException;
 use Tests\TestCase;
 
@@ -1353,15 +1356,64 @@ final class AttendanceTransactionTest extends TestCase
             $timestamp
         );
 
-        $qrPayload = json_encode(
-            [
-                'session' => $attendanceSession->public_id,
+        if (
+            $attendanceSession->isAutomatic()
+            && $attendanceSession
+                ->isAutoType()
+        ) {
+            $terminalCreator =
+                User::factory()->create([
+                    'role' => 'hrd',
+                    'status' => 'active',
+                ]);
 
-                'token' => $token,
-            ],
-            JSON_THROW_ON_ERROR
-            | JSON_UNESCAPED_SLASHES
-        );
+            $branchTerminal =
+                BranchTerminal::query()->create([
+                    'branch_id' => $attendanceSession
+                        ->branch_id,
+
+                    'name' => 'Terminal Test Transaksi Otomatis',
+
+                    'device_token_hash' => hash(
+                        'sha256',
+                        (string) Str::uuid()
+                    ),
+
+                    'activation_code_hash' => null,
+                    'activation_expires_at' => null,
+                    'activated_at' => now(),
+                    'last_seen_at' => now(),
+
+                    'status' => BranchTerminal::STATUS_ACTIVE,
+
+                    'created_by' => $terminalCreator->id,
+
+                    'revoked_by' => null,
+                    'revoked_at' => null,
+                ]);
+
+            $terminalPayload = app(
+                TerminalDynamicQrPayloadService::class
+            )->payloadFor(
+                $branchTerminal
+            );
+
+            $qrPayload = (string)
+                $terminalPayload[
+                    'qr_payload'
+                ];
+        } else {
+            $qrPayload = json_encode(
+                [
+                    'session' => $attendanceSession
+                        ->public_id,
+
+                    'token' => $token,
+                ],
+                JSON_THROW_ON_ERROR
+                | JSON_UNESCAPED_SLASHES
+            );
+        }
 
         return [
             'qr_payload' => $qrPayload,
