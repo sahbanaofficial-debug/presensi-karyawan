@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\AuthenticateBranchTerminal;
 use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Foundation\Application;
@@ -13,6 +14,7 @@ return Application::configure(
 )
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -20,6 +22,8 @@ return Application::configure(
         $middleware->alias([
             'active' => EnsureActiveUser::class,
             'role' => EnsureRole::class,
+
+            'branch-terminal' => AuthenticateBranchTerminal::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
