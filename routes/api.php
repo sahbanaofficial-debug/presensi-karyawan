@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\BranchTerminalAccessController;
+use App\Http\Controllers\TerminalDynamicQrController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('terminal')
@@ -31,3 +32,15 @@ Route::prefix('terminal')
             ])
             ->name('identity');
     });
+Route::get(
+    '/terminal/qr-payload',
+    [
+        TerminalDynamicQrController::class,
+        'show',
+    ]
+)
+    ->middleware([
+        'throttle:120,1',
+        'branch-terminal',
+    ])
+    ->name('terminal.qr-payload');
