@@ -117,6 +117,34 @@
         role="alert"
         aria-live="polite"
     ></div>
+    @if ($weeklySchedule->isDraft())
+        <div
+            class="alert alert-warning"
+            id="weekly-roster-publish-warning"
+            role="alert"
+        >
+            <div class="fw-semibold mb-1">
+                Publikasi bersifat final
+            </div>
+
+            <div class="small">
+                Sistem akan membentuk jadwal harian dari seluruh
+                item roster. Publikasi ditolak apabila salah satu
+                karyawan sudah memiliki jadwal pada tanggal yang
+                sama, dan roster yang berhasil dipublikasikan
+                tidak dapat dipublikasikan ulang.
+            </div>
+        </div>
+    @else
+        <div
+            class="alert alert-success"
+            id="weekly-roster-published-summary"
+            role="status"
+        >
+            Roster telah dipublikasikan dan jadwal harian
+            berhasil dibentuk.
+        </div>
+    @endif
 
     <section class="content-card p-3 p-md-4 mb-4">
         <div class="row g-4">

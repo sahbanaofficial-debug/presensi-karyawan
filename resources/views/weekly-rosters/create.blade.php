@@ -47,6 +47,53 @@
         </div>
     </header>
 
+    @php
+        $activeEmployeeCount = $branches->sum(
+            static fn ($branch): int =>
+                $branch->employees->count()
+        );
+
+        $canCreateRoster =
+            $branches->isNotEmpty()
+            && $activeEmployeeCount > 0
+            && $workSchedules->isNotEmpty();
+    @endphp
+
+    @if ($canCreateRoster)
+        <div
+            class="alert alert-info"
+            id="weekly-roster-reference-summary"
+            role="status"
+        >
+            <div class="fw-semibold mb-1">
+                Referensi penyusunan roster siap
+            </div>
+
+            <div class="small">
+                Tersedia {{ $branches->count() }} cabang aktif,
+                {{ $activeEmployeeCount }} karyawan aktif, dan
+                {{ $workSchedules->count() }} pola kerja aktif.
+                Setiap tanggal item wajib berada dalam minggu
+                Senin sampai Minggu yang dipilih.
+            </div>
+        </div>
+    @else
+        <div
+            class="alert alert-danger"
+            id="weekly-roster-reference-summary"
+            role="alert"
+        >
+            <div class="fw-semibold mb-1">
+                Referensi roster belum lengkap
+            </div>
+
+            <div class="small">
+                Penyusunan roster membutuhkan minimal satu
+                cabang aktif, satu karyawan aktif pada cabang
+                tersebut, dan satu pola kerja aktif.
+            </div>
+        </div>
+    @endif
     <div
         id="weekly-roster-alert"
         class="alert d-none"
@@ -88,7 +135,7 @@
                                 value="{{ $branch->id }}"
                             >
                                 {{ $branch->code }}
-                                â€” {{ $branch->name }}
+                                ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â {{ $branch->name }}
                             </option>
                         @endforeach
                     </select>
@@ -142,6 +189,7 @@
                     type="button"
                     id="add-weekly-roster-item"
                     class="btn btn-outline-primary"
+                    @disabled(! $canCreateRoster)
                 >
                     <i
                         class="bi bi-plus-lg me-2"
@@ -169,6 +217,7 @@
                     type="submit"
                     id="save-weekly-roster"
                     class="btn btn-primary"
+                    @disabled(! $canCreateRoster)
                 >
                     Simpan sebagai Draft
                 </button>
@@ -225,7 +274,7 @@
                                         $employee
                                             ->employee_number
                                     }}
-                                    â€” {{ $employee->full_name }}
+                                    ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â {{ $employee->full_name }}
                                     ({{ $employee->position }})
                                 </option>
                             @endforeach
@@ -298,7 +347,7 @@
                                 value="{{ $workSchedule->id }}"
                             >
                                 {{ $workSchedule->name }}
-                                â€”
+                                ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â
                                 {{
                                     substr(
                                         (string) $workSchedule

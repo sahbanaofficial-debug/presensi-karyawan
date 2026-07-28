@@ -58,6 +58,13 @@
                 'route' => 'employee-schedules.index',
                 'icon' => 'bi-calendar-check',
             ],
+        [
+            'label' => 'Roster mingguan',
+            'description' => 'Susun dan publikasikan jadwal satu minggu.',
+            'route' => 'weekly-rosters.index',
+            'icon' => 'bi-calendar3-week',
+        ],
+
             [
                 'label' => 'Data cabang',
                 'description' => 'Kelola konfigurasi lokasi dan geofence.',

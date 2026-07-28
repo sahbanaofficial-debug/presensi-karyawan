@@ -15,7 +15,7 @@
 
     <title>
         @yield('title', 'Sistem Presensi Karyawan')
-        · PT Gadai Ogan Baru
+        Ã‚Â· PT Gadai Ogan Baru
     </title>
 
     <link
@@ -47,7 +47,7 @@
     <style>
         :root {
             /*
-             * Brand palette — PT Gadai Ogan Baru
+             * Brand palette Ã¢â‚¬â€ PT Gadai Ogan Baru
              */
             --brand-50: #fff6ef;
             --brand-100: #fde8d7;
@@ -1044,6 +1044,14 @@
                         'icon' => 'bi-calendar-check',
                         'roles' => ['hrd'],
                     ],
+                        [
+                            'label' => 'Roster Mingguan',
+                            'route' => 'weekly-rosters.index',
+                            'patterns' => ['weekly-rosters.*'],
+                            'icon' => 'bi-calendar3-week',
+                            'roles' => ['hrd'],
+                        ],
+
                     [
                         'label' => 'Pertukaran Jadwal',
                         'route' => 'schedule-swap-requests.index',
@@ -1462,11 +1470,11 @@
 
             <footer class="app-footer">
                 <span>
-                    © {{ now()->year }} PT Gadai Ogan Baru
+                    Ã‚Â© {{ now()->year }} PT Gadai Ogan Baru
                 </span>
 
                 <span class="d-none d-sm-inline">
-                    · Sistem Presensi QR TOTP dan Geofencing
+                    Ã‚Â· Sistem Presensi QR TOTP dan Geofencing
                 </span>
             </footer>
         </div>

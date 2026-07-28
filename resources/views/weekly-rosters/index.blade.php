@@ -109,7 +109,7 @@
                                 )
                             >
                                 {{ $branch->code }}
-                                â€” {{ $branch->name }}
+                                ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â {{ $branch->name }}
                             </option>
                         @endforeach
                     </select>
@@ -411,8 +411,24 @@
                                 class="text-center
                                     text-secondary py-5"
                             >
-                                Belum ada roster mingguan
-                                yang sesuai dengan filter.
+
+                                <div class="fw-semibold mb-1">
+                                    Roster mingguan belum tersedia
+                                </div>
+
+                                <div class="small text-secondary">
+                                    Belum ada roster atau data tidak
+                                    sesuai dengan filter yang digunakan.
+                                </div>
+
+                                <a
+                                    href="{{ route('weekly-rosters.create') }}"
+                                    class="btn btn-sm
+                                        btn-outline-primary mt-3"
+                                >
+                                    Susun Roster Pertama
+                                </a>
+
                             </td>
                         </tr>
                     @endforelse
