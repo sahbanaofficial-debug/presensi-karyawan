@@ -370,6 +370,22 @@ Route::middleware([
     ->prefix('weekly-rosters')
     ->name('weekly-rosters.')
     ->group(function (): void {
+        Route::get(
+            '/',
+            [
+                WeeklyRosterController::class,
+                'index',
+            ]
+        )->name('index');
+
+        Route::get(
+            '/create',
+            [
+                WeeklyRosterController::class,
+                'create',
+            ]
+        )->name('create');
+
         Route::post(
             '/',
             [
@@ -387,4 +403,14 @@ Route::middleware([
         )
             ->whereNumber('weekly_schedule')
             ->name('publish');
+
+        Route::get(
+            '/{weekly_schedule}',
+            [
+                WeeklyRosterController::class,
+                'show',
+            ]
+        )
+            ->whereNumber('weekly_schedule')
+            ->name('show');
     });
