@@ -13,6 +13,8 @@ class EmployeeSchedule extends Model
 
     public const SOURCE_WEEKLY = 'weekly';
 
+    public const SOURCE_BRANCH_DEFAULT = 'branch_default';
+
     use HasFactory;
 
     /**
@@ -148,6 +150,16 @@ class EmployeeSchedule extends Model
     }
 
     /**
+     * Memeriksa apakah jadwal dibentuk dari
+     * pola kerja default cabang.
+     */
+    public function isFromBranchDefaultSchedule(): bool
+    {
+        return $this->schedule_source
+            === self::SOURCE_BRANCH_DEFAULT;
+    }
+
+    /**
      * Memeriksa kelengkapan snapshot pola kerja.
      */
     public function hasCompleteWorkSnapshot(): bool
@@ -198,6 +210,11 @@ class EmployeeSchedule extends Model
                     && $this->hasCompleteWorkSnapshot();
             }
 
+            if ($this->isFromBranchDefaultSchedule()) {
+                return $this->weekly_schedule_item_id === null
+                    && $this->hasCompleteWorkSnapshot();
+            }
+
             return true;
         }
 
@@ -208,6 +225,10 @@ class EmployeeSchedule extends Model
         if ($this->isFromWeeklySchedule()) {
             return $this->weekly_schedule_item_id !== null
                 && $this->hasEmptyWorkSnapshot();
+        }
+
+        if ($this->isFromBranchDefaultSchedule()) {
+            return false;
         }
 
         return true;
