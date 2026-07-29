@@ -7,6 +7,22 @@ use Illuminate\Support\Facades\Schedule;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+/*
+|--------------------------------------------------------------------------
+| Otomatisasi Jadwal Harian Default Cabang
+|--------------------------------------------------------------------------
+|
+| Jadwal harian karyawan aktif dibentuk dari pola kerja default cabang
+| sebelum generator sesi presensi otomatis dijalankan.
+|
+*/
+Schedule::command(
+    'employee-schedules:generate-branch-default'
+)
+    ->everyFiveMinutes()
+    ->withoutOverlapping(10);
+
 /*
 |--------------------------------------------------------------------------
 | Otomatisasi Sesi Presensi
@@ -22,6 +38,7 @@ Schedule::command(
 )
     ->everyFiveMinutes()
     ->withoutOverlapping(10);
+
 /*
 |--------------------------------------------------------------------------
 | Lifecycle Sesi Presensi Otomatis
