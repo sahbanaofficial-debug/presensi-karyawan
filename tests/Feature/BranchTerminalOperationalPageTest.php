@@ -336,6 +336,29 @@ final class BranchTerminalOperationalPageTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_terminal_page_accepts_laravel_uuid_v7_public_identifier(): void
+    {
+        $source = $this->operationalViewSource();
+
+        $uuidPattern =
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
+
+        $this->assertStringContainsString(
+            $uuidPattern,
+            $source
+        );
+
+        $this->assertStringNotContainsString(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i',
+            $source
+        );
+
+        $this->assertMatchesRegularExpression(
+            $uuidPattern,
+            '019fae40-cbbd-702d-bc28-1c019381e372'
+        );
+    }
+
     private function operationalViewSource(): string
     {
         $source = file_get_contents(
