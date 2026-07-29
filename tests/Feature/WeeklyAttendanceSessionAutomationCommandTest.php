@@ -222,7 +222,7 @@ final class WeeklyAttendanceSessionAutomationCommandTest extends TestCase
             ]
         )
             ->expectsOutputToContain(
-                'Tidak ada roster terpublikasi dengan jadwal kerja pada 2026-08-17.'
+                'Tidak ada jadwal harian kerja pada 2026-08-17.'
             )
             ->assertSuccessful();
 

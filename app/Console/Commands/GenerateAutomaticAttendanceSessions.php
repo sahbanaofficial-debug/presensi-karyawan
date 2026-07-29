@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Models\WeeklySchedule;
-use App\Services\WeeklyAttendanceSessionAutomationService;
+use App\Services\BranchDefaultEmployeeScheduleGeneratorService;
+use App\Services\DailyAttendanceSessionAutomationService;
 use Carbon\CarbonImmutable;
 use DateTimeImmutable;
 use DateTimeZone;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
-use Throwable;
 
 final class GenerateAutomaticAttendanceSessions extends Command
 {
@@ -20,16 +18,17 @@ final class GenerateAutomaticAttendanceSessions extends Command
      */
     protected $signature =
         'attendance-sessions:generate-automatic
-        {--date= : Tanggal acuan roster dalam format YYYY-MM-DD}';
+        {--date= : Tanggal jadwal harian dalam format YYYY-MM-DD}';
 
     /**
      * @var string
      */
     protected $description =
-        'Membentuk sesi presensi otomatis dari roster mingguan terpublikasi.';
+        'Membentuk sesi presensi otomatis dari jadwal harian karyawan.';
 
     public function handle(
-        WeeklyAttendanceSessionAutomationService $automationService
+        BranchDefaultEmployeeScheduleGeneratorService $scheduleGenerator,
+        DailyAttendanceSessionAutomationService $sessionGenerator
     ): int {
         $targetDate = $this->resolveTargetDate();
 
@@ -41,114 +40,54 @@ final class GenerateAutomaticAttendanceSessions extends Command
             'Y-m-d'
         );
 
-        $weeklySchedules = WeeklySchedule::query()
-            ->where(
-                'status',
-                'published'
-            )
-            ->whereDate(
-                'week_start_date',
-                '<=',
-                $dateString
-            )
-            ->whereDate(
-                'week_end_date',
-                '>=',
-                $dateString
-            )
-            ->whereHas(
-                'items',
-                static function (
-                    Builder $query
-                ) use (
-                    $dateString
-                ): void {
-                    $query
-                        ->whereDate(
-                            'schedule_date',
-                            $dateString
-                        )
-                        ->where(
-                            'schedule_status',
-                            'work'
-                        );
-                }
-            )
-            ->orderBy('branch_id')
-            ->orderBy('id')
-            ->get();
+        $scheduleSummary = $scheduleGenerator->generate(
+            $targetDate
+        );
 
-        if ($weeklySchedules->isEmpty()) {
+        $sessionSummary = $sessionGenerator->generate(
+            $targetDate
+        );
+
+        $this->table(
+            [
+                'Tanggal',
+                'Jadwal dibuat',
+                'Jadwal tersedia',
+                'Cabang sesi',
+                'Sesi dibuat',
+                'Sesi digunakan ulang',
+                'Cabang gagal',
+            ],
+            [
+                [
+                    $dateString,
+                    $scheduleSummary['created'],
+                    $scheduleSummary['existing'],
+                    $sessionSummary['branches'],
+                    $sessionSummary['created'],
+                    $sessionSummary['reused'],
+                    $sessionSummary['failed'],
+                ],
+            ]
+        );
+
+        foreach ($sessionSummary['failures'] as $failure) {
+            $this->error($failure);
+        }
+
+        if ($sessionSummary['failed'] > 0) {
+            return self::FAILURE;
+        }
+
+        if ($sessionSummary['branches'] === 0) {
             $this->info(
                 sprintf(
-                    'Tidak ada roster terpublikasi dengan jadwal kerja pada %s.',
+                    'Tidak ada jadwal harian kerja pada %s.',
                     $dateString
                 )
             );
 
             return self::SUCCESS;
-        }
-
-        $processedRosters = 0;
-        $createdSessions = 0;
-        $reusedSessions = 0;
-        $failedRosters = 0;
-
-        foreach ($weeklySchedules as $weeklySchedule) {
-            try {
-                $sessions = $automationService
-                    ->createForPublishedRoster(
-                        $weeklySchedule
-                    );
-
-                $processedRosters++;
-
-                foreach ($sessions as $session) {
-                    if ($session->wasRecentlyCreated) {
-                        $createdSessions++;
-
-                        continue;
-                    }
-
-                    $reusedSessions++;
-                }
-            } catch (Throwable $exception) {
-                $failedRosters++;
-
-                report($exception);
-
-                $this->error(
-                    sprintf(
-                        'Roster #%d cabang #%d gagal: %s',
-                        $weeklySchedule->getKey(),
-                        $weeklySchedule->branch_id,
-                        $exception->getMessage()
-                    )
-                );
-            }
-        }
-
-        $this->table(
-            [
-                'Tanggal acuan',
-                'Roster diproses',
-                'Sesi dibuat',
-                'Sesi digunakan ulang',
-                'Roster gagal',
-            ],
-            [
-                [
-                    $dateString,
-                    $processedRosters,
-                    $createdSessions,
-                    $reusedSessions,
-                    $failedRosters,
-                ],
-            ]
-        );
-
-        if ($failedRosters > 0) {
-            return self::FAILURE;
         }
 
         $this->info(
