@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Branch extends Model
@@ -16,6 +17,7 @@ class Branch extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'default_work_schedule_id',
         'code',
         'name',
         'address',
@@ -34,11 +36,31 @@ class Branch extends Model
     protected function casts(): array
     {
         return [
+            'default_work_schedule_id' => 'integer',
             'latitude' => 'float',
             'longitude' => 'float',
             'geofence_radius' => 'float',
             'maximum_accuracy' => 'float',
         ];
+    }
+
+    /**
+     * Pola jadwal kerja default cabang.
+     */
+    public function defaultWorkSchedule(): BelongsTo
+    {
+        return $this->belongsTo(
+            WorkSchedule::class,
+            'default_work_schedule_id'
+        );
+    }
+
+    /**
+     * Memeriksa apakah cabang telah memiliki jadwal default.
+     */
+    public function hasDefaultWorkSchedule(): bool
+    {
+        return $this->default_work_schedule_id !== null;
     }
 
     /**

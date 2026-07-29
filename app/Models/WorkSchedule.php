@@ -40,6 +40,17 @@ class WorkSchedule extends Model
     }
 
     /**
+     * Cabang yang menggunakan pola ini sebagai jadwal default.
+     */
+    public function defaultBranches(): HasMany
+    {
+        return $this->hasMany(
+            Branch::class,
+            'default_work_schedule_id'
+        );
+    }
+
+    /**
      * Jadwal harian karyawan yang menggunakan pola jadwal ini.
      */
     public function employeeSchedules(): HasMany
