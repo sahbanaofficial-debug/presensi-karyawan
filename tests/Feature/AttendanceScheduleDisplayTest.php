@@ -74,6 +74,7 @@ final class AttendanceScheduleDisplayTest extends TestCase
             'check_in_time' => '08:45:00',
             'check_out_time' => '17:00:00',
             'check_in_open_minutes' => 30,
+            'check_in_limit_minutes' => 30,
             'late_tolerance_minutes' => 5,
             'check_out_limit_minutes' => 60,
             'status' => 'active',
@@ -157,6 +158,9 @@ final class AttendanceScheduleDisplayTest extends TestCase
                             'late_limit_at'
                         ]->format('H:i') === '08:50'
                         && $timeWindow[
+                            'check_in_limit_at'
+                        ]->format('H:i') === '09:15'
+                        && $timeWindow[
                             'scheduled_check_out_at'
                         ]->format('H:i') === '17:00'
                         && $timeWindow[
@@ -167,6 +171,8 @@ final class AttendanceScheduleDisplayTest extends TestCase
             ->assertSeeText('08:15 WIB')
             ->assertSeeText('08:45 WIB')
             ->assertSeeText('08:50 WIB')
+            ->assertSeeText('Batas Presensi Masuk')
+            ->assertSeeText('09:15 WIB')
             ->assertSeeText('17:00 WIB')
             ->assertSeeText('18:00 WIB');
     }

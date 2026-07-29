@@ -63,6 +63,7 @@ final class AttendanceScheduleService
      *     check_in_opens_at: CarbonImmutable|null,
      *     scheduled_check_in_at: CarbonImmutable|null,
      *     late_limit_at: CarbonImmutable|null,
+     *     check_in_limit_at: CarbonImmutable|null,
      *     scheduled_check_out_at: CarbonImmutable|null,
      *     check_out_limit_at: CarbonImmutable|null
      * }
@@ -156,6 +157,7 @@ final class AttendanceScheduleService
      *     check_in_opens_at: CarbonImmutable,
      *     scheduled_check_in_at: CarbonImmutable,
      *     late_limit_at: CarbonImmutable,
+     *     check_in_limit_at: CarbonImmutable,
      *     scheduled_check_out_at: CarbonImmutable,
      *     check_out_limit_at: CarbonImmutable
      * }
@@ -206,6 +208,13 @@ final class AttendanceScheduleService
                 'check_in_open_minutes'
             );
 
+        $checkInLimitMinutes =
+            $this->nonNegativeMinutes(
+                $workSchedule
+                    ->check_in_limit_minutes,
+                'check_in_limit_minutes'
+            );
+
         $lateToleranceMinutes =
             $this->nonNegativeMinutes(
                 $workSchedule
@@ -238,6 +247,11 @@ final class AttendanceScheduleService
                     $lateToleranceMinutes
                 ),
 
+            'check_in_limit_at' => $scheduledCheckInAt
+                ->addMinutes(
+                    $checkInLimitMinutes
+                ),
+
             'scheduled_check_out_at' => $scheduledCheckOutAt,
 
             'check_out_limit_at' => $scheduledCheckOutAt
@@ -258,6 +272,7 @@ final class AttendanceScheduleService
      *     check_in_opens_at: CarbonImmutable,
      *     scheduled_check_in_at: CarbonImmutable,
      *     late_limit_at: CarbonImmutable,
+     *     check_in_limit_at: CarbonImmutable,
      *     scheduled_check_out_at: CarbonImmutable,
      *     check_out_limit_at: CarbonImmutable
      * } $timeWindow
@@ -281,6 +296,26 @@ final class AttendanceScheduleService
                     'Presensi masuk belum dibuka. Presensi dapat dilakukan mulai pukul %s WIB.',
                     $timeWindow[
                         'check_in_opens_at'
+                    ]->format('H:i')
+                ),
+                timeWindow: $timeWindow
+            );
+        }
+
+        if (
+            $currentMoment->greaterThan(
+                $timeWindow[
+                    'check_in_limit_at'
+                ]
+            )
+        ) {
+            return $this->result(
+                allowed: false,
+                code: 'check_in_limit_passed',
+                message: sprintf(
+                    'Batas akhir presensi masuk telah lewat pada pukul %s WIB.',
+                    $timeWindow[
+                        'check_in_limit_at'
                     ]->format('H:i')
                 ),
                 timeWindow: $timeWindow
@@ -316,6 +351,7 @@ final class AttendanceScheduleService
      *     check_in_opens_at: CarbonImmutable,
      *     scheduled_check_in_at: CarbonImmutable,
      *     late_limit_at: CarbonImmutable,
+     *     check_in_limit_at: CarbonImmutable,
      *     scheduled_check_out_at: CarbonImmutable,
      *     check_out_limit_at: CarbonImmutable
      * } $timeWindow
@@ -382,6 +418,7 @@ final class AttendanceScheduleService
      *     check_in_opens_at: CarbonImmutable,
      *     scheduled_check_in_at: CarbonImmutable,
      *     late_limit_at: CarbonImmutable,
+     *     check_in_limit_at: CarbonImmutable,
      *     scheduled_check_out_at: CarbonImmutable,
      *     check_out_limit_at: CarbonImmutable
      * }|null $timeWindow
@@ -394,6 +431,7 @@ final class AttendanceScheduleService
      *     check_in_opens_at: CarbonImmutable|null,
      *     scheduled_check_in_at: CarbonImmutable|null,
      *     late_limit_at: CarbonImmutable|null,
+     *     check_in_limit_at: CarbonImmutable|null,
      *     scheduled_check_out_at: CarbonImmutable|null,
      *     check_out_limit_at: CarbonImmutable|null
      * }
@@ -428,6 +466,10 @@ final class AttendanceScheduleService
 
             'late_limit_at' => $timeWindow[
                     'late_limit_at'
+                ] ?? null,
+
+            'check_in_limit_at' => $timeWindow[
+                    'check_in_limit_at'
                 ] ?? null,
 
             'scheduled_check_out_at' => $timeWindow[

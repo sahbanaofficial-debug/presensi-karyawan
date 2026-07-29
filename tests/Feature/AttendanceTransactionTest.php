@@ -254,6 +254,154 @@ final class AttendanceTransactionTest extends TestCase
         );
     }
 
+    public function test_check_in_after_final_limit_is_rejected_and_logged(): void
+    {
+        $this->travelTo(
+            CarbonImmutable::parse(
+                '2026-10-04 09:15:01',
+                'Asia/Jakarta'
+            )
+        );
+
+        $branch = $this->createBranch();
+
+        [$user, $employee] =
+            $this->createEmployee($branch);
+
+        $approver = $this->createUser('hrd');
+
+        $this->createEmployeeSchedule(
+            employee: $employee,
+            approver: $approver,
+            scheduleDate: '2026-10-04'
+        );
+
+        $attendanceSession =
+            $this->createAttendanceSession(
+                branch: $branch,
+                creator: $approver,
+                sessionDate: '2026-10-04',
+                attendanceType: 'check_in',
+                startTime: '08:15:00',
+                endTime: '10:00:00'
+            );
+
+        $this->actingAs($user)
+            ->postJson(
+                route('attendance.store'),
+                $this->attendancePayload(
+                    $attendanceSession,
+                    (float) $branch->latitude,
+                    (float) $branch->longitude,
+                    5.0
+                )
+            )
+            ->assertUnprocessable()
+            ->assertJsonPath(
+                'code',
+                'check_in_limit_passed'
+            )
+            ->assertJsonPath(
+                'message',
+                'Batas akhir presensi masuk telah lewat pada pukul 09:15 WIB.'
+            );
+
+        $this->assertDatabaseCount(
+            'attendances',
+            0
+        );
+
+        $this->assertDatabaseHas(
+            'validation_logs',
+            [
+                'user_id' => $user->id,
+
+                'attendance_session_id' => $attendanceSession->id,
+
+                'validation_type' => 'check_in_limit_passed',
+
+                'status' => 'rejected',
+            ]
+        );
+    }
+
+    public function test_auto_session_rejects_first_scan_after_final_check_in_limit(): void
+    {
+        $this->travelTo(
+            CarbonImmutable::parse(
+                '2026-10-04 21:44:00',
+                'Asia/Jakarta'
+            )
+        );
+
+        $branch = $this->createBranch();
+
+        [$user, $employee] =
+            $this->createEmployee($branch);
+
+        $approver = $this->createUser('hrd');
+
+        $this->createEmployeeSchedule(
+            employee: $employee,
+            approver: $approver,
+            scheduleDate: '2026-10-04'
+        );
+
+        $attendanceSession =
+            $this->createAttendanceSession(
+                branch: $branch,
+                creator: $approver,
+                sessionDate: '2026-10-04',
+                attendanceType: 'check_in',
+                startTime: '08:15:00',
+                endTime: '22:30:00'
+            );
+
+        $attendanceSession->update([
+            'attendance_type' => AttendanceSession::TYPE_AUTO,
+
+            'session_source' => AttendanceSession::SOURCE_AUTOMATIC,
+
+            'automation_key' => 'AUTO:'.$branch->id.':2026-10-04',
+
+            'created_by' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->postJson(
+                route('attendance.store'),
+                $this->attendancePayload(
+                    $attendanceSession->fresh(),
+                    (float) $branch->latitude,
+                    (float) $branch->longitude,
+                    5.0
+                )
+            )
+            ->assertUnprocessable()
+            ->assertJsonPath(
+                'code',
+                'check_in_limit_passed'
+            );
+
+        $this->assertDatabaseCount(
+            'attendances',
+            0
+        );
+
+        $this->assertDatabaseHas(
+            'validation_logs',
+            [
+                'user_id' => $user->id,
+
+                'attendance_session_id' => $attendanceSession->id,
+
+                'validation_type' => 'check_in_limit_passed',
+
+                'status' => 'rejected',
+            ]
+        );
+    }
+
     public function test_unknown_public_session_id_is_rejected_and_logged(): void
     {
         $this->travelTo(
@@ -1264,6 +1412,8 @@ final class AttendanceTransactionTest extends TestCase
                     'check_out_time' => '17:00:00',
 
                     'check_in_open_minutes' => 30,
+
+                    'check_in_limit_minutes' => 30,
 
                     'late_tolerance_minutes' => 5,
 

@@ -100,6 +100,8 @@ final class AttendanceScheduleServiceTest extends TestCase
 
                     'check_in_open_minutes' => 30,
 
+                    'check_in_limit_minutes' => 30,
+
                     'late_tolerance_minutes' => 5,
 
                     'check_out_limit_minutes' => 60,
@@ -140,6 +142,13 @@ final class AttendanceScheduleServiceTest extends TestCase
             '2026-09-03 08:50:00',
             $timeWindow[
                 'late_limit_at'
+            ]->format('Y-m-d H:i:s')
+        );
+
+        $this->assertSame(
+            '2026-09-03 09:15:00',
+            $timeWindow[
+                'check_in_limit_at'
             ]->format('Y-m-d H:i:s')
         );
 
@@ -299,6 +308,85 @@ final class AttendanceScheduleServiceTest extends TestCase
 
         $this->assertSame(
             'Presensi masuk diterima dengan status terlambat.',
+            $result['message']
+        );
+    }
+
+    public function test_check_in_at_final_limit_is_still_accepted_as_late(): void
+    {
+        $employeeSchedule =
+            $this->createWorkingSchedule(
+                scheduleOverrides: [
+                    'schedule_date' => '2026-09-08',
+                ]
+            );
+
+        $result =
+            $this->attendanceScheduleService
+                ->evaluate(
+                    $employeeSchedule,
+                    'check_in',
+                    '2026-09-08 09:15:00'
+                );
+
+        $this->assertTrue(
+            $result['allowed']
+        );
+
+        $this->assertSame(
+            'accepted',
+            $result['code']
+        );
+
+        $this->assertSame(
+            'late',
+            $result[
+                'punctuality_status'
+            ]
+        );
+
+        $this->assertSame(
+            '2026-09-08 09:15:00',
+            $result[
+                'check_in_limit_at'
+            ]->format('Y-m-d H:i:s')
+        );
+    }
+
+    public function test_check_in_after_final_limit_is_rejected(): void
+    {
+        $employeeSchedule =
+            $this->createWorkingSchedule(
+                scheduleOverrides: [
+                    'schedule_date' => '2026-09-08',
+                ]
+            );
+
+        $result =
+            $this->attendanceScheduleService
+                ->evaluate(
+                    $employeeSchedule,
+                    'check_in',
+                    '2026-09-08 09:15:01'
+                );
+
+        $this->assertFalse(
+            $result['allowed']
+        );
+
+        $this->assertSame(
+            'check_in_limit_passed',
+            $result['code']
+        );
+
+        $this->assertNull(
+            $result[
+                'punctuality_status'
+            ]
+        );
+
+        $this->assertSame(
+            'Batas akhir presensi masuk telah lewat pada pukul 09:15 WIB.',
             $result['message']
         );
     }
@@ -821,6 +909,8 @@ final class AttendanceScheduleServiceTest extends TestCase
                     'check_out_time' => '17:00:00',
 
                     'check_in_open_minutes' => 30,
+
+                    'check_in_limit_minutes' => 30,
 
                     'late_tolerance_minutes' => 5,
 

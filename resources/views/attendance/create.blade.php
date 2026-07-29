@@ -911,6 +911,23 @@
                         </dd>
 
                         <dt class="col-sm-5 mb-2">
+                            Batas Presensi Masuk
+                        </dt>
+
+                        <dd class="col-sm-7 mb-3">
+                            {{
+                                $formatTime(
+                                    $scheduleTimeWindow[
+                                        'check_in_limit_at'
+                                    ] ?? null
+                                )
+                            }}
+                            @if ($scheduleTimeWindow !== null)
+                                WIB
+                            @endif
+                        </dd>
+
+                        <dt class="col-sm-5 mb-2">
                             Jadwal Pulang
                         </dt>
 
