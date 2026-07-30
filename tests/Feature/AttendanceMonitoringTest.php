@@ -63,7 +63,13 @@ final class AttendanceMonitoringTest extends TestCase
 
     public function test_admin_can_access_attendance_monitoring(): void
     {
+        $branch = $this->createBranch();
+
         $admin = $this->createUser('admin');
+
+        $admin->update([
+            'branch_id' => $branch->id,
+        ]);
 
         $this->actingAs($admin)
             ->get(

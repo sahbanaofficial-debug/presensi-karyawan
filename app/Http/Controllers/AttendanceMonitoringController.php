@@ -38,6 +38,27 @@ final class AttendanceMonitoringController extends Controller
             403
         );
 
+        $adminBranchId = null;
+
+        if ($user->role === 'admin') {
+            abort_if(
+                $user->branch_id === null,
+                403
+            );
+
+            $adminBranchId = (int) $user->branch_id;
+
+            $adminBranchIsActive = Branch::query()
+                ->whereKey($adminBranchId)
+                ->where('status', 'active')
+                ->exists();
+
+            abort_unless(
+                $adminBranchIsActive,
+                403
+            );
+        }
+
         $attendanceDate = $this->validDateOrNull(
             (string) $request->query(
                 'attendance_date',
@@ -45,13 +66,33 @@ final class AttendanceMonitoringController extends Controller
             )
         );
 
-        $branchId = $this->positiveIntegerOrNull(
+        $requestedBranchId = $this->positiveIntegerOrNull(
             $request->query('branch_id')
         );
+
+        $branchId = $adminBranchId
+            ?? $requestedBranchId;
 
         $employeeId = $this->positiveIntegerOrNull(
             $request->query('employee_id')
         );
+
+        if (
+            $adminBranchId !== null
+            && $employeeId !== null
+        ) {
+            $employeeBelongsToAdminBranch = Employee::query()
+                ->whereKey($employeeId)
+                ->where(
+                    'branch_id',
+                    $adminBranchId
+                )
+                ->exists();
+
+            if (! $employeeBelongsToAdminBranch) {
+                $employeeId = null;
+            }
+        }
 
         $attendanceType = $this->validEnumOrEmpty(
             value: (string) $request->query(
@@ -163,6 +204,12 @@ final class AttendanceMonitoringController extends Controller
             ->withQueryString();
 
         $branches = Branch::query()
+            ->when(
+                $adminBranchId !== null,
+                static fn (Builder $query) => $query->whereKey(
+                    $adminBranchId
+                )
+            )
             ->orderBy('name')
             ->get();
 
