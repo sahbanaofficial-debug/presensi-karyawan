@@ -109,7 +109,7 @@
                                 )
                             >
                                 {{ $branch->code }}
-                                ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â {{ $branch->name }}
+                                - {{ $branch->name }}
                             </option>
                         @endforeach
                     </select>

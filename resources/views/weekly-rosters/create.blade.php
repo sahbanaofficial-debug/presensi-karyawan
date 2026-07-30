@@ -135,7 +135,7 @@
                                 value="{{ $branch->id }}"
                             >
                                 {{ $branch->code }}
-                                ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â {{ $branch->name }}
+                                - {{ $branch->name }}
                             </option>
                         @endforeach
                     </select>
@@ -274,7 +274,7 @@
                                         $employee
                                             ->employee_number
                                     }}
-                                    ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â {{ $employee->full_name }}
+                                    - {{ $employee->full_name }}
                                     ({{ $employee->position }})
                                 </option>
                             @endforeach
@@ -347,7 +347,7 @@
                                 value="{{ $workSchedule->id }}"
                             >
                                 {{ $workSchedule->name }}
-                                ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â
+                                -
                                 {{
                                     substr(
                                         (string) $workSchedule
