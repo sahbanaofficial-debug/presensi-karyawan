@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DecideScheduleSwapRequest;
 use App\Http\Requests\StoreScheduleSwapRequest;
+use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use App\Models\ScheduleSwapRequest;
@@ -26,6 +27,10 @@ final class ScheduleSwapRequestController extends Controller
      */
     public function index(Request $request): View
     {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
         $search = trim(
             (string) $request->query('search', '')
         );
@@ -66,6 +71,40 @@ final class ScheduleSwapRequestController extends Controller
                 'partnerEmployee.branch:id,code,name,status',
                 'approver:id,name,email,role,status',
             ])
+            ->when(
+                $adminBranchId !== null,
+                function (
+                    Builder $query
+                ) use ($adminBranchId): void {
+                    $query
+                        ->whereHas(
+                            'requesterEmployee',
+                            static function (
+                                Builder $employeeQuery
+                            ) use (
+                                $adminBranchId
+                            ): void {
+                                $employeeQuery->where(
+                                    'branch_id',
+                                    $adminBranchId
+                                );
+                            }
+                        )
+                        ->whereHas(
+                            'partnerEmployee',
+                            static function (
+                                Builder $employeeQuery
+                            ) use (
+                                $adminBranchId
+                            ): void {
+                                $employeeQuery->where(
+                                    'branch_id',
+                                    $adminBranchId
+                                );
+                            }
+                        );
+                }
+            )
             ->when(
                 $search !== '',
                 function (Builder $query) use (
@@ -221,11 +260,22 @@ final class ScheduleSwapRequestController extends Controller
     /**
      * Menampilkan formulir pencatatan permohonan.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
         $employees = Employee::query()
             ->with(
                 'branch:id,code,name,status'
+            )
+            ->when(
+                $adminBranchId !== null,
+                static fn (Builder $query) => $query->where(
+                    'branch_id',
+                    $adminBranchId
+                )
             )
             ->where(
                 'employment_status',
@@ -255,7 +305,43 @@ final class ScheduleSwapRequestController extends Controller
     public function store(
         StoreScheduleSwapRequest $request
     ): RedirectResponse {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
         $validated = $request->validated();
+
+        if ($adminBranchId !== null) {
+            $employeeIds = [
+                (int) $validated[
+                    'requester_employee_id'
+                ],
+                (int) $validated[
+                    'partner_employee_id'
+                ],
+            ];
+
+            $ownedEmployeeCount =
+                Employee::query()
+                    ->whereIn(
+                        'id',
+                        $employeeIds
+                    )
+                    ->where(
+                        'branch_id',
+                        $adminBranchId
+                    )
+                    ->where(
+                        'employment_status',
+                        'active'
+                    )
+                    ->count();
+
+            abort_unless(
+                $ownedEmployeeCount === 2,
+                403
+            );
+        }
 
         if (
             $this->pendingDuplicateExists(
@@ -305,8 +391,14 @@ final class ScheduleSwapRequestController extends Controller
      * Menampilkan detail permohonan.
      */
     public function show(
+        Request $request,
         ScheduleSwapRequest $scheduleSwapRequest
     ): View {
+        $this->authorizeSwapRequestAccess(
+            $request,
+            $scheduleSwapRequest
+        );
+
         $scheduleSwapRequest->load([
             'requesterEmployee:id,branch_id,employee_number,full_name,position,employment_status',
             'requesterEmployee.branch:id,code,name,address,status',
@@ -542,6 +634,89 @@ final class ScheduleSwapRequestController extends Controller
                 'success',
                 $message
             );
+    }
+
+    /**
+     * Menentukan cabang yang dapat dikelola admin.
+     *
+     * HRD tetap memiliki akses lintas cabang.
+     */
+    private function resolveAdminBranchId(
+        Request $request
+    ): ?int {
+        $user = $request->user();
+
+        abort_unless(
+            $user !== null
+            && (
+                $user->hasRole('hrd')
+                || $user->hasRole('admin')
+            ),
+            403
+        );
+
+        if ($user->hasRole('hrd')) {
+            return null;
+        }
+
+        abort_if(
+            $user->branch_id === null,
+            403
+        );
+
+        $branchId = (int) $user->branch_id;
+
+        $branchIsActive = Branch::query()
+            ->whereKey($branchId)
+            ->where('status', 'active')
+            ->exists();
+
+        abort_unless(
+            $branchIsActive,
+            403
+        );
+
+        return $branchId;
+    }
+
+    /**
+     * Memastikan kedua karyawan permohonan berada
+     * pada cabang admin.
+     */
+    private function authorizeSwapRequestAccess(
+        Request $request,
+        ScheduleSwapRequest $scheduleSwapRequest
+    ): void {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
+        if ($adminBranchId === null) {
+            return;
+        }
+
+        $employeeIds = [
+            (int) $scheduleSwapRequest
+                ->requester_employee_id,
+            (int) $scheduleSwapRequest
+                ->partner_employee_id,
+        ];
+
+        $ownedEmployeeCount = Employee::query()
+            ->whereIn(
+                'id',
+                $employeeIds
+            )
+            ->where(
+                'branch_id',
+                $adminBranchId
+            )
+            ->count();
+
+        abort_unless(
+            $ownedEmployeeCount === 2,
+            403
+        );
     }
 
     /**

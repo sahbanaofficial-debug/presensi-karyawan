@@ -64,11 +64,14 @@ final class ScheduleSwapRequestManagementTest extends TestCase
     public function test_hrd_and_admin_can_open_index_and_create_pages(): void
     {
         $hrd = $this->createHrd();
-        $admin = $this->createAdmin();
 
         $branch = Branch::factory()->create([
             'code' => 'SWAP-ACCESS',
         ]);
+
+        $admin = $this->createAdmin(
+            $branch
+        );
 
         $this->createEmployee(
             $branch,
@@ -182,8 +185,12 @@ final class ScheduleSwapRequestManagementTest extends TestCase
     public function test_admin_can_store_valid_schedule_swap_request(): void
     {
         $hrd = $this->createHrd();
-        $admin = $this->createAdmin();
         $branch = Branch::factory()->create();
+
+        $admin = $this->createAdmin(
+            $branch
+        );
+
         $requester = $this->createEmployee($branch);
         $partner = $this->createEmployee($branch);
         $workSchedule = $this->createWorkSchedule();
@@ -400,12 +407,15 @@ final class ScheduleSwapRequestManagementTest extends TestCase
     public function test_hrd_and_admin_can_open_detail_page(): void
     {
         $hrd = $this->createHrd();
-        $admin = $this->createAdmin();
 
         $branch = Branch::factory()->create([
             'code' => 'SWAP-DETAIL',
             'name' => 'Cabang Detail Pertukaran',
         ]);
+
+        $admin = $this->createAdmin(
+            $branch
+        );
 
         $requester = $this->createEmployee(
             $branch,
@@ -619,8 +629,12 @@ final class ScheduleSwapRequestManagementTest extends TestCase
 
     public function test_admin_cannot_decide_schedule_swap_request(): void
     {
-        $admin = $this->createAdmin();
         $branch = Branch::factory()->create();
+
+        $admin = $this->createAdmin(
+            $branch
+        );
+
         $requester = $this->createEmployee($branch);
         $partner = $this->createEmployee($branch);
         $scheduleSwapRequest = $this->createSwapRequest($requester, $partner);
@@ -910,9 +924,11 @@ final class ScheduleSwapRequestManagementTest extends TestCase
         ]);
     }
 
-    private function createAdmin(): User
-    {
+    private function createAdmin(
+        Branch $branch
+    ): User {
         return User::factory()->create([
+            'branch_id' => $branch->id,
             'role' => 'admin',
             'status' => 'active',
         ]);

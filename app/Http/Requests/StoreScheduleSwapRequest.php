@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Branch;
+use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
@@ -23,8 +25,66 @@ final class StoreScheduleSwapRequest extends FormRequest
             return false;
         }
 
-        return $user->hasRole('hrd')
-            || $user->hasRole('admin');
+        if ($user->hasRole('hrd')) {
+            return true;
+        }
+
+        if (
+            ! $user->hasRole('admin')
+            || $user->branch_id === null
+        ) {
+            return false;
+        }
+
+        $branchId = (int) $user->branch_id;
+
+        $branchIsActive = Branch::query()
+            ->whereKey($branchId)
+            ->where('status', 'active')
+            ->exists();
+
+        if (! $branchIsActive) {
+            return false;
+        }
+
+        foreach (
+            [
+                'requester_employee_id',
+                'partner_employee_id',
+            ] as $employeeField
+        ) {
+            $employeeId = $this->input(
+                $employeeField
+            );
+
+            if (
+                ! is_numeric($employeeId)
+                || (int) $employeeId <= 0
+            ) {
+                continue;
+            }
+
+            $employeeIsOwned =
+                Employee::query()
+                    ->whereKey(
+                        (int) $employeeId
+                    )
+                    ->where(
+                        'branch_id',
+                        $branchId
+                    )
+                    ->where(
+                        'employment_status',
+                        'active'
+                    )
+                    ->exists();
+
+            if (! $employeeIsOwned) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
