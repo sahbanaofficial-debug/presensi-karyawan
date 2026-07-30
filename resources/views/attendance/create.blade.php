@@ -1185,6 +1185,7 @@
                                 type="button"
                                 id="check-location-button"
                                 class="btn btn-primary"
+                                @disabled(! $canScan)
                             >
                                 <i
                                     class="bi bi-crosshair me-2"
@@ -1580,6 +1581,10 @@
         document.addEventListener('DOMContentLoaded', function () {
             const canScan = @json($canScan);
 
+            const scanBlockReason = @json(
+                $scanBlockReason
+            );
+
             const attendanceEndpoint = @json(
                 route('attendance.store', [], false)
             );
@@ -1799,7 +1804,8 @@
 
                 if (checkLocationButton !== null) {
                     checkLocationButton.disabled =
-                        ! hasMapConfiguration
+                        ! canScan
+                        || ! hasMapConfiguration
                         || scannerRunning
                         || requestInProgress
                         || locationCheckInProgress
@@ -1998,6 +2004,18 @@
                                 + maximumAccuracy.toFixed(2)
                                 + ' meter'
                             : 'Batas: -';
+                }
+
+                if (! canScan) {
+                    setGeofenceVisualStatus(
+                        'Pemeriksaan Lokasi Tidak Tersedia',
+                        scanBlockReason
+                            ?? 'Pemeriksaan lokasi tidak tersedia saat ini.',
+                        'text-bg-secondary',
+                        'alert-warning'
+                    );
+
+                    return;
                 }
 
                 setGeofenceVisualStatus(
@@ -2339,7 +2357,8 @@
 
             const checkCurrentLocation = async function () {
                 if (
-                    ! hasMapConfiguration
+                    ! canScan
+                    || ! hasMapConfiguration
                     || locationCheckInProgress
                     || requestInProgress
                     || attendanceAccepted
@@ -2998,7 +3017,10 @@
                 updateButtons();
             };
 
-            if (checkLocationButton !== null) {
+            if (
+                canScan
+                && checkLocationButton !== null
+            ) {
                 checkLocationButton.addEventListener(
                     'click',
                     checkCurrentLocation

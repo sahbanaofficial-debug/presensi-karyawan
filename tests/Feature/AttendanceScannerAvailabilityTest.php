@@ -140,6 +140,84 @@ final class AttendanceScannerAvailabilityTest extends TestCase
             ->assertSeeText($message);
     }
 
+    public function test_location_control_is_disabled_when_scanner_is_blocked(): void
+    {
+        $response = $this->openScannerAt(
+            '2026-11-01 09:15:01'
+        );
+
+        $response->assertOk();
+
+        $this->assertLocationButtonDisabled(
+            $response,
+            true
+        );
+
+        $html = (string) $response->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '/checkLocationButton\.disabled\s*=\s*'
+                .'! canScan\s*\|\|\s*'
+                .'! hasMapConfiguration/s',
+            $html
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/const checkCurrentLocation = async function \(\) '
+                .'\{\s*if \(\s*! canScan\s*\|\|/s',
+            $html
+        );
+
+        $this->assertStringContainsString(
+            'Pemeriksaan Lokasi Tidak Tersedia',
+            $html
+        );
+    }
+
+    public function test_location_control_is_enabled_when_scanner_is_available(): void
+    {
+        $response = $this->openScannerAt(
+            '2026-11-01 09:15:00'
+        );
+
+        $response->assertOk();
+
+        $this->assertLocationButtonDisabled(
+            $response,
+            false
+        );
+    }
+
+    private function assertLocationButtonDisabled(
+        TestResponse $response,
+        bool $expectedDisabled
+    ): void {
+        $html = (string) $response->getContent();
+
+        $matched = preg_match(
+            '/<button\b(?=[^>]*\bid="check-location-button")'
+                .'[^>]*>/is',
+            $html,
+            $matches
+        );
+
+        $this->assertSame(
+            1,
+            $matched,
+            'Tombol Periksa Lokasi tidak ditemukan.'
+        );
+
+        $isDisabled = preg_match(
+            '/\sdisabled(?:\s|=|>)/i',
+            $matches[0]
+        ) === 1;
+
+        $this->assertSame(
+            $expectedDisabled,
+            $isDisabled
+        );
+    }
+
     private function openScannerAt(
         string $moment,
         bool $withCheckIn = false
