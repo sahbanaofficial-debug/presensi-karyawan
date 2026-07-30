@@ -188,6 +188,25 @@ class User extends Authenticatable
     }
 
     /**
+     * Memeriksa apakah pengguna dapat mengelola roster cabang tertentu.
+     */
+    public function canManageWeeklyRosterForBranch(
+        int $branchId
+    ): bool {
+        if (! $this->isActive()) {
+            return false;
+        }
+
+        if ($this->hasRole('hrd')) {
+            return true;
+        }
+
+        return $this->hasRole('admin')
+            && $this->branch_id !== null
+            && (int) $this->branch_id === $branchId;
+    }
+
+    /**
      * Memeriksa apakah akun masih aktif.
      */
     public function isActive(): bool

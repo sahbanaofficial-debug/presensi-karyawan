@@ -33,7 +33,12 @@ final class WeeklyRosterService
         array $validated,
         User $creator
     ): WeeklySchedule {
-        $this->ensureActiveHrd($creator);
+        $branchId = (int) $validated['branch_id'];
+
+        $this->ensureCanManageBranch(
+            $creator,
+            $branchId
+        );
 
         return DB::transaction(
             function () use (
@@ -188,8 +193,6 @@ final class WeeklyRosterService
         WeeklySchedule $weeklySchedule,
         User $publisher
     ): WeeklySchedule {
-        $this->ensureActiveHrd($publisher);
-
         return DB::transaction(
             function () use (
                 $weeklySchedule,
@@ -202,6 +205,11 @@ final class WeeklyRosterService
                         )
                         ->lockForUpdate()
                         ->firstOrFail();
+
+                $this->ensureCanManageBranch(
+                    $publisher,
+                    (int) $lockedRoster->branch_id
+                );
 
                 if (! $lockedRoster->isDraft()) {
                     throw ValidationException::withMessages([
@@ -377,17 +385,20 @@ final class WeeklyRosterService
     }
 
     /**
-     * Menjamin mutasi roster hanya dilakukan HRD aktif.
+     * Menjamin mutasi roster dilakukan oleh HRD aktif
+     * atau Admin Cabang aktif pada cabang penugasannya.
      */
-    private function ensureActiveHrd(
-        User $user
+    private function ensureCanManageBranch(
+        User $user,
+        int $branchId
     ): void {
         if (
-            ! $user->hasRole('hrd')
-            || ! $user->isActive()
+            ! $user->canManageWeeklyRosterForBranch(
+                $branchId
+            )
         ) {
             throw ValidationException::withMessages([
-                'authorization' => 'Hanya HRD aktif yang dapat mengelola roster mingguan.',
+                'authorization' => 'Pengguna tidak berwenang mengelola roster cabang tersebut.',
             ]);
         }
     }

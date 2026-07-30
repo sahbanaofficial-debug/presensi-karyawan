@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Models\Employee;
+use App\Models\User;
 use App\Models\WorkSchedule;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -15,15 +16,20 @@ use Illuminate\Validation\Validator;
 final class StoreWeeklyScheduleRequest extends FormRequest
 {
     /**
-     * Hanya HRD aktif yang boleh menyusun roster mingguan.
+     * HRD aktif dapat mengelola seluruh cabang.
+     * Admin aktif hanya dapat mengelola cabang penugasannya.
      */
     public function authorize(): bool
     {
         $user = $this->user();
+        $branchId = $this->input('branch_id');
 
-        return $user !== null
-            && $user->hasRole('hrd')
-            && $user->isActive();
+        return $user instanceof User
+            && is_int($branchId)
+            && $branchId > 0
+            && $user->canManageWeeklyRosterForBranch(
+                $branchId
+            );
     }
 
     /**
