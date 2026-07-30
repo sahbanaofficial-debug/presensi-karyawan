@@ -15,7 +15,7 @@
 
     <title>
         @yield('title', 'Sistem Presensi Karyawan')
-        Ã‚Â· PT Gadai Ogan Baru
+        · PT Gadai Ogan Baru
     </title>
 
     <link
@@ -47,7 +47,7 @@
     <style>
         :root {
             /*
-             * Brand palette Ã¢â‚¬â€ PT Gadai Ogan Baru
+             * Brand palette — PT Gadai Ogan Baru
              */
             --brand-50: #fff6ef;
             --brand-100: #fde8d7;
@@ -1476,11 +1476,11 @@
 
             <footer class="app-footer">
                 <span>
-                    Ã‚Â© {{ now()->year }} PT Gadai Ogan Baru
+                    © {{ now()->year }} PT Gadai Ogan Baru
                 </span>
 
                 <span class="d-none d-sm-inline">
-                    Ã‚Â· Sistem Presensi QR TOTP dan Geofencing
+                    · Sistem Presensi QR TOTP dan Geofencing
                 </span>
             </footer>
         </div>
