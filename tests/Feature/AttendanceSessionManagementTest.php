@@ -70,12 +70,13 @@ final class AttendanceSessionManagementTest extends TestCase
     public function test_hrd_and_admin_can_open_index_and_create_pages(): void
     {
         $hrd = $this->createHrd();
-        $admin = $this->createAdmin();
 
         $branch = $this->createValidBranch([
             'code' => 'SESSION-ACCESS',
             'name' => 'Cabang Akses Sesi',
         ]);
+
+        $admin = $this->createAdmin($branch);
 
         foreach ([$hrd, $admin] as $user) {
             $this->actingAs($user)
@@ -248,9 +249,9 @@ final class AttendanceSessionManagementTest extends TestCase
             )
         );
 
-        $admin = $this->createAdmin();
-
         $branch = $this->createValidBranch();
+
+        $admin = $this->createAdmin($branch);
 
         $response = $this->actingAs($admin)
             ->post(
@@ -471,12 +472,13 @@ final class AttendanceSessionManagementTest extends TestCase
         );
 
         $hrd = $this->createHrd();
-        $admin = $this->createAdmin();
 
         $branch = $this->createValidBranch([
             'code' => 'SESSION-DETAIL',
             'name' => 'Cabang Detail Sesi',
         ]);
+
+        $admin = $this->createAdmin($branch);
 
         $attendanceSession =
             $this->createAttendanceSession(
@@ -780,9 +782,9 @@ final class AttendanceSessionManagementTest extends TestCase
             )
         );
 
-        $admin = $this->createAdmin();
-
         $branch = $this->createValidBranch();
+
+        $admin = $this->createAdmin($branch);
 
         $attendanceSession =
             $this->createAttendanceSession(
@@ -1110,9 +1112,11 @@ final class AttendanceSessionManagementTest extends TestCase
         ]);
     }
 
-    private function createAdmin(): User
-    {
+    private function createAdmin(
+        Branch $branch
+    ): User {
         return User::factory()->create([
+            'branch_id' => $branch->id,
             'role' => 'admin',
             'status' => 'active',
         ]);

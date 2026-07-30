@@ -28,7 +28,13 @@ final class AttendanceSessionController extends Controller
      */
     public function index(Request $request): View
     {
-        $this->expireElapsedSessions();
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
+        $this->expireElapsedSessions(
+            $adminBranchId
+        );
 
         $search = trim(
             (string) $request->query('search', '')
@@ -93,6 +99,13 @@ final class AttendanceSessionController extends Controller
                     'creator:id,name,email,role,status',
                 ])
                 ->withCount('attendances')
+                ->when(
+                    $adminBranchId !== null,
+                    static fn (Builder $query) => $query->where(
+                        'branch_id',
+                        $adminBranchId
+                    )
+                )
                 ->when(
                     $search !== '',
                     function (
@@ -188,11 +201,23 @@ final class AttendanceSessionController extends Controller
     /**
      * Menampilkan formulir pembukaan sesi.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
-        $this->expireElapsedSessions();
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
+        $this->expireElapsedSessions(
+            $adminBranchId
+        );
 
         $branches = Branch::query()
+            ->when(
+                $adminBranchId !== null,
+                static fn (Builder $query) => $query->whereKey(
+                    $adminBranchId
+                )
+            )
             ->where('status', 'active')
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
@@ -226,7 +251,19 @@ final class AttendanceSessionController extends Controller
         StoreAttendanceSessionRequest $request,
         TotpService $totpService
     ): RedirectResponse {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
         $validated = $request->validated();
+
+        if ($adminBranchId !== null) {
+            abort_unless(
+                (int) $validated['branch_id']
+                    === $adminBranchId,
+                403
+            );
+        }
 
         $startTime = $this->combineDateAndTime(
             (string) $validated['session_date'],
@@ -369,9 +406,15 @@ final class AttendanceSessionController extends Controller
      * Menampilkan detail sesi presensi.
      */
     public function show(
+        Request $request,
         AttendanceSession $attendanceSession,
         TotpService $totpService
     ): View {
+        $this->authorizeSessionAccess(
+            $request,
+            $attendanceSession
+        );
+
         $this->expireSessionIfElapsed(
             $attendanceSession
         );
@@ -438,9 +481,15 @@ final class AttendanceSessionController extends Controller
      * Secret TOTP tidak pernah dimasukkan ke respons.
      */
     public function payload(
+        Request $request,
         AttendanceSession $attendanceSession,
         TotpService $totpService
     ): JsonResponse {
+        $this->authorizeSessionAccess(
+            $request,
+            $attendanceSession
+        );
+
         $this->expireSessionIfElapsed(
             $attendanceSession
         );
@@ -568,6 +617,11 @@ final class AttendanceSessionController extends Controller
         CloseAttendanceSessionRequest $request,
         AttendanceSession $attendanceSession
     ): RedirectResponse {
+        $this->authorizeSessionAccess(
+            $request,
+            $attendanceSession
+        );
+
         $this->expireSessionIfElapsed(
             $attendanceSession
         );
@@ -627,11 +681,88 @@ final class AttendanceSessionController extends Controller
     }
 
     /**
+     * Menentukan cabang yang dapat dikelola admin.
+     *
+     * HRD tetap memiliki akses lintas cabang.
+     */
+    private function resolveAdminBranchId(
+        Request $request
+    ): ?int {
+        $user = $request->user();
+
+        abort_unless(
+            $user !== null
+            && in_array(
+                $user->role,
+                [
+                    'hrd',
+                    'admin',
+                ],
+                true
+            ),
+            403
+        );
+
+        if ($user->role === 'hrd') {
+            return null;
+        }
+
+        abort_if(
+            $user->branch_id === null,
+            403
+        );
+
+        $branchId = (int) $user->branch_id;
+
+        $branchIsActive = Branch::query()
+            ->whereKey($branchId)
+            ->where('status', 'active')
+            ->exists();
+
+        abort_unless(
+            $branchIsActive,
+            403
+        );
+
+        return $branchId;
+    }
+
+    /**
+     * Memastikan sesi berada pada cabang admin.
+     */
+    private function authorizeSessionAccess(
+        Request $request,
+        AttendanceSession $attendanceSession
+    ): void {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
+        if ($adminBranchId === null) {
+            return;
+        }
+
+        abort_unless(
+            (int) $attendanceSession->branch_id
+                === $adminBranchId,
+            403
+        );
+    }
+
+    /**
      * Menandai seluruh sesi aktif yang waktunya telah lewat.
      */
-    private function expireElapsedSessions(): void
-    {
+    private function expireElapsedSessions(
+        ?int $branchId = null
+    ): void {
         AttendanceSession::query()
+            ->when(
+                $branchId !== null,
+                static fn (Builder $query) => $query->where(
+                    'branch_id',
+                    $branchId
+                )
+            )
             ->where('status', 'active')
             ->where(
                 'end_time',

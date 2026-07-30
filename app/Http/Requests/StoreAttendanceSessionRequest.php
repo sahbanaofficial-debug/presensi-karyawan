@@ -26,14 +26,23 @@ final class StoreAttendanceSessionRequest extends FormRequest
             return false;
         }
 
-        return in_array(
-            $user->role,
-            [
-                'hrd',
-                'admin',
-            ],
-            true
-        );
+        if ($user->role === 'hrd') {
+            return true;
+        }
+
+        if (
+            $user->role !== 'admin'
+            || $user->branch_id === null
+        ) {
+            return false;
+        }
+
+        $branchId = (int) $user->branch_id;
+
+        return Branch::query()
+            ->whereKey($branchId)
+            ->where('status', 'active')
+            ->exists();
     }
 
     /**

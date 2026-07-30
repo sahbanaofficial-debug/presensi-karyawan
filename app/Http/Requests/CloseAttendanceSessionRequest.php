@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Models\AttendanceSession;
+use App\Models\Branch;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -21,14 +22,32 @@ final class CloseAttendanceSessionRequest extends FormRequest
             return false;
         }
 
-        return in_array(
-            $user->role,
-            [
-                'hrd',
-                'admin',
-            ],
-            true
-        );
+        if ($user->role === 'hrd') {
+            return true;
+        }
+
+        if (
+            $user->role !== 'admin'
+            || $user->branch_id === null
+        ) {
+            return false;
+        }
+
+        $attendanceSession =
+            $this->routeAttendanceSession();
+
+        if ($attendanceSession === null) {
+            return false;
+        }
+
+        $branchId = (int) $user->branch_id;
+
+        return (int) $attendanceSession->branch_id
+                === $branchId
+            && Branch::query()
+                ->whereKey($branchId)
+                ->where('status', 'active')
+                ->exists();
     }
 
     /**
