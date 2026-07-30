@@ -1050,13 +1050,14 @@
                         'icon' => 'bi-calendar-check',
                         'roles' => ['hrd'],
                     ],
-                        [
-                            'label' => 'Roster Mingguan',
-                            'route' => 'weekly-rosters.index',
-                            'patterns' => ['weekly-rosters.*'],
-                            'icon' => 'bi-calendar3-week',
-                            'roles' => ['hrd'],
-                        ],
+                    [
+                        'label' => 'Roster Mingguan',
+                        'route' => 'weekly-rosters.index',
+                        'patterns' => ['weekly-rosters.*'],
+                        'icon' => 'bi-calendar3-week',
+                        'roles' => ['hrd', 'admin'],
+                        'requires_branch_assignment' => true,
+                    ],
 
                     [
                         'label' => 'Pertukaran Jadwal',
@@ -1128,6 +1129,11 @@
                                 )
                                 && \Illuminate\Support\Facades\Route::has(
                                     $item['route']
+                                )
+                                && (
+                                    ! ($item['requires_branch_assignment'] ?? false)
+                                    || $authenticatedUser->hasRole('hrd')
+                                    || $authenticatedUser->branch_id !== null
                                 )
                         )
                         ->values()

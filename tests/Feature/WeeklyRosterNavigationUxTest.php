@@ -54,13 +54,19 @@ final class WeeklyRosterNavigationUxTest extends TestCase
             );
     }
 
-    public function test_admin_and_employee_dashboard_hide_weekly_roster_navigation(): void
+    public function test_assigned_admin_sees_roster_navigation_while_unassigned_admin_and_employee_do_not(): void
     {
-        $admin = $this->createUser('admin');
-
         $branch = Branch::factory()->create([
             'status' => 'active',
         ]);
+
+        $assignedAdmin = User::factory()->create([
+            'branch_id' => $branch->getKey(),
+            'role' => 'admin',
+            'status' => 'active',
+        ]);
+
+        $unassignedAdmin = $this->createUser('admin');
 
         $employee = $this->createEmployee(
             $branch
@@ -69,12 +75,39 @@ final class WeeklyRosterNavigationUxTest extends TestCase
         $employeeUser =
             $employee->user()->firstOrFail();
 
-        foreach ([$admin, $employeeUser] as $user) {
+        $this->actingAs($assignedAdmin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Roster Mingguan')
+            ->assertSee('Roster mingguan')
+            ->assertSee(
+                route('weekly-rosters.index'),
+                false
+            );
+
+        $this->actingAs($assignedAdmin)
+            ->get(route('weekly-rosters.index'))
+            ->assertOk()
+            ->assertSee('Roster Mingguan')
+            ->assertSee(
+                'aria-current="page"',
+                false
+            );
+
+        foreach (
+            [
+                $unassignedAdmin,
+                $employeeUser,
+            ] as $user
+        ) {
             $this->actingAs($user)
                 ->get(route('dashboard'))
                 ->assertOk()
                 ->assertDontSee(
                     'Roster Mingguan'
+                )
+                ->assertDontSee(
+                    'Roster mingguan'
                 )
                 ->assertDontSee(
                     route(

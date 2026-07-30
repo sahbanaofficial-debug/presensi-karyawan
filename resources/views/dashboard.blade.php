@@ -103,6 +103,13 @@
                 'route' => 'employees.index',
                 'icon' => 'bi-people',
             ],
+            [
+                'label' => 'Roster mingguan',
+                'description' => 'Susun dan publikasikan jadwal cabang satu minggu.',
+                'route' => 'weekly-rosters.index',
+                'icon' => 'bi-calendar3-week',
+                'requires_branch_assignment' => true,
+            ],
         ],
         'employee' => [
             [
@@ -123,8 +130,18 @@
 
     $quickActions = collect($quickActions)
         ->filter(
-            static fn (array $action): bool =>
-                \Illuminate\Support\Facades\Route::has($action['route'])
+            static function (array $action) use ($user): bool {
+                if (! \Illuminate\Support\Facades\Route::has($action['route'])) {
+                    return false;
+                }
+
+                if (! ($action['requires_branch_assignment'] ?? false)) {
+                    return true;
+                }
+
+                return $user?->hasRole('hrd') === true
+                    || $user?->branch_id !== null;
+            }
         )
         ->values();
 
