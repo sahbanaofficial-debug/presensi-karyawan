@@ -301,11 +301,11 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     | Manajemen Terminal Cabang
     |--------------------------------------------------------------------------
     |
-    | HRD dapat mendaftarkan terminal, memperbarui kode aktivasi,
+    | HRD dan admin cabang dapat mendaftarkan terminal, memperbarui kode aktivasi,
     | melihat status penggunaan, dan mencabut akses perangkat.
     |
     */
-    Route::middleware('role:hrd')
+    Route::middleware('role:hrd,admin')
         ->prefix('branch-terminals')
         ->name('branch-terminals.')
         ->group(function (): void {

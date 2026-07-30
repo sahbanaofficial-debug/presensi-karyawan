@@ -1034,7 +1034,7 @@
                         'route' => 'branch-terminals.index',
                         'patterns' => ['branch-terminals.*'],
                         'icon' => 'bi-display',
-                        'roles' => ['hrd'],
+                        'roles' => ['hrd', 'admin'],
                     ],
                     [
                         'label' => 'Pola Jadwal Kerja',

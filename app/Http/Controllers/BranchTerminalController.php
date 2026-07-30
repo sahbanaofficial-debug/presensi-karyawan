@@ -24,6 +24,10 @@ final class BranchTerminalController extends Controller
     public function index(
         Request $request
     ): View {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
         $search = trim(
             (string) $request->query(
                 'search',
@@ -54,11 +58,12 @@ final class BranchTerminalController extends Controller
             $status = '';
         }
 
-        $branchId = $this->validBranchIdOrNull(
-            $request->query(
-                'branch_id'
-            )
-        );
+        $branchId = $adminBranchId
+            ?? $this->validBranchIdOrNull(
+                $request->query(
+                    'branch_id'
+                )
+            );
 
         $terminals = BranchTerminal::query()
             ->with('branch')
@@ -138,7 +143,7 @@ final class BranchTerminalController extends Controller
             [
                 'terminals' => $terminals,
 
-                'branches' => $this->allBranches(),
+                'branches' => $this->allBranches($adminBranchId),
 
                 'search' => $search,
                 'status' => $status,
@@ -147,12 +152,19 @@ final class BranchTerminalController extends Controller
         );
     }
 
-    public function create(): View
-    {
+    public function create(
+        Request $request
+    ): View {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
         return view(
             'branch-terminals.create',
             [
-                'branches' => $this->registrableBranches(),
+                'branches' => $this->registrableBranches(
+                    $adminBranchId
+                ),
             ]
         );
     }
@@ -217,8 +229,14 @@ final class BranchTerminalController extends Controller
     }
 
     public function show(
+        Request $request,
         BranchTerminal $branchTerminal
     ): View {
+        $this->authorizeTerminalAccess(
+            $request,
+            $branchTerminal
+        );
+
         $branchTerminal->load('branch');
 
         return view(
@@ -263,8 +281,9 @@ final class BranchTerminalController extends Controller
         BranchTerminal $branchTerminal,
         BranchTerminalLifecycleService $lifecycleService
     ): RedirectResponse {
-        $this->authenticatedUser(
-            $request
+        $this->authorizeTerminalAccess(
+            $request,
+            $branchTerminal
         );
 
         try {
@@ -321,6 +340,11 @@ final class BranchTerminalController extends Controller
             $request
         );
 
+        $this->authorizeTerminalAccess(
+            $request,
+            $branchTerminal
+        );
+
         try {
             $terminal = $lifecycleService
                 ->revoke(
@@ -356,9 +380,20 @@ final class BranchTerminalController extends Controller
     /**
      * @return Collection<int, Branch>
      */
-    private function allBranches()
-    {
+    private function allBranches(
+        ?int $branchId = null
+    ) {
         return Branch::query()
+            ->when(
+                $branchId !== null,
+                function (
+                    Builder $query
+                ) use ($branchId): void {
+                    $query->whereKey(
+                        $branchId
+                    );
+                }
+            )
             ->orderBy('code')
             ->get();
     }
@@ -366,9 +401,20 @@ final class BranchTerminalController extends Controller
     /**
      * @return Collection<int, Branch>
      */
-    private function registrableBranches()
-    {
+    private function registrableBranches(
+        ?int $branchId = null
+    ) {
         return Branch::query()
+            ->when(
+                $branchId !== null,
+                function (
+                    Builder $query
+                ) use ($branchId): void {
+                    $query->whereKey(
+                        $branchId
+                    );
+                }
+            )
             ->where(
                 'status',
                 'active'
@@ -387,6 +433,59 @@ final class BranchTerminalController extends Controller
             )
             ->orderBy('code')
             ->get();
+    }
+
+    private function resolveAdminBranchId(
+        Request $request
+    ): ?int {
+        $user = $this->authenticatedUser(
+            $request
+        );
+
+        if ($user->hasRole('hrd')) {
+            return null;
+        }
+
+        abort_unless(
+            $user->hasRole('admin'),
+            403
+        );
+
+        $branchId = (int) $user->branch_id;
+
+        abort_unless(
+            $branchId > 0
+                && Branch::query()
+                    ->whereKey($branchId)
+                    ->where(
+                        'status',
+                        'active'
+                    )
+                    ->exists(),
+            403
+        );
+
+        return $branchId;
+    }
+
+    private function authorizeTerminalAccess(
+        Request $request,
+        BranchTerminal $branchTerminal
+    ): void {
+        $adminBranchId =
+            $this->resolveAdminBranchId(
+                $request
+            );
+
+        if ($adminBranchId === null) {
+            return;
+        }
+
+        abort_unless(
+            (int) $branchTerminal->branch_id
+                === $adminBranchId,
+            403
+        );
     }
 
     private function validBranchIdOrNull(
