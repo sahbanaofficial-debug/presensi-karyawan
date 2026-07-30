@@ -227,7 +227,7 @@ final class WeeklyAutomationDatabaseStructureTest extends TestCase
         );
     }
 
-        public function test_weekly_item_keeps_snapshot_after_work_schedule_master_changes(): void
+    public function test_weekly_item_keeps_snapshot_after_work_schedule_master_changes(): void
     {
         $branch = Branch::factory()->create();
         $hrd = $this->createHrd();
@@ -324,7 +324,8 @@ final class WeeklyAutomationDatabaseStructureTest extends TestCase
                 ->check_out_limit_minutes_snapshot
         );
     }
-public function test_published_daily_schedule_can_store_leave_and_historical_source(): void
+
+    public function test_published_daily_schedule_can_store_leave_and_historical_source(): void
     {
         $branch = Branch::factory()->create();
         $hrd = $this->createHrd();
@@ -523,8 +524,7 @@ public function test_published_daily_schedule_can_store_leave_and_historical_sou
             'weekly_schedule_id' => $weeklyScheduleId,
             'attendance_type' => 'auto',
             'session_source' => 'automatic',
-            'automation_key' =>
-                'AUTO:'.$branch->id.':2026-08-31',
+            'automation_key' => 'AUTO:'.$branch->id.':2026-08-31',
             'session_date' => '2026-08-31',
             'start_time' => '2026-08-31 08:15:00',
             'end_time' => '2026-08-31 18:00:00',

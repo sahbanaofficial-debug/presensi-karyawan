@@ -199,9 +199,9 @@ final class WeeklyAttendanceRuntimeModelTest extends TestCase
 
     public function test_inverse_automation_relationships_are_available(): void
     {
-        $user = new User();
-        $branch = new Branch();
-        $employee = new Employee();
+        $user = new User;
+        $branch = new Branch;
+        $employee = new Employee;
 
         $this->assertInstanceOf(
             HasMany::class,
@@ -329,8 +329,7 @@ final class WeeklyAttendanceRuntimeModelTest extends TestCase
             'weekly_schedule_id' => $weeklySchedule->id,
             'attendance_type' => AttendanceSession::TYPE_AUTO,
             'session_source' => AttendanceSession::SOURCE_AUTOMATIC,
-            'automation_key' =>
-                'AUTO:'.$branch->id.':2026-09-21',
+            'automation_key' => 'AUTO:'.$branch->id.':2026-09-21',
             'session_date' => '2026-09-21',
             'start_time' => '2026-09-21 08:15:00',
             'end_time' => '2026-09-21 18:00:00',

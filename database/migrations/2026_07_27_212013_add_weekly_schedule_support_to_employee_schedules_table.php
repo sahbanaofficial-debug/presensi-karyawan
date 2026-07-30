@@ -217,30 +217,23 @@ return new class extends Migration
                                 $employeeSchedule->id
                             )
                             ->update([
-                                'work_schedule_name_snapshot' =>
-                                    $workSchedule->name,
+                                'work_schedule_name_snapshot' => $workSchedule->name,
 
-                                'check_in_time_snapshot' =>
-                                    $workSchedule->check_in_time,
+                                'check_in_time_snapshot' => $workSchedule->check_in_time,
 
-                                'check_out_time_snapshot' =>
-                                    $workSchedule->check_out_time,
+                                'check_out_time_snapshot' => $workSchedule->check_out_time,
 
-                                'check_in_open_minutes_snapshot' =>
-                                    $workSchedule
-                                        ->check_in_open_minutes,
+                                'check_in_open_minutes_snapshot' => $workSchedule
+                                    ->check_in_open_minutes,
 
-                                'check_in_limit_minutes_snapshot' =>
-                                    $workSchedule
-                                        ->check_in_limit_minutes,
+                                'check_in_limit_minutes_snapshot' => $workSchedule
+                                    ->check_in_limit_minutes,
 
-                                'late_tolerance_minutes_snapshot' =>
-                                    $workSchedule
-                                        ->late_tolerance_minutes,
+                                'late_tolerance_minutes_snapshot' => $workSchedule
+                                    ->late_tolerance_minutes,
 
-                                'check_out_limit_minutes_snapshot' =>
-                                    $workSchedule
-                                        ->check_out_limit_minutes,
+                                'check_out_limit_minutes_snapshot' => $workSchedule
+                                    ->check_out_limit_minutes,
                             ]);
                     }
                 }
@@ -251,7 +244,7 @@ return new class extends Migration
      * Mengubah daftar nilai enum schedule_status.
      * Proyek menggunakan MySQL sebagai basis data utama.
      *
-     * @param list<string> $values
+     * @param  list<string>  $values
      */
     private function changeScheduleStatusEnum(
         array $values

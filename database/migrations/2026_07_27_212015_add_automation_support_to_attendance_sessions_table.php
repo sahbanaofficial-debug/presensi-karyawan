@@ -121,7 +121,7 @@ return new class extends Migration
             ->exists();
 
         if ($hasAutomaticSessions) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Rollback tidak dapat dilakukan karena '
                 .'terdapat sesi presensi otomatis.'
             );
@@ -186,7 +186,7 @@ return new class extends Migration
      * Mengubah daftar nilai enum attendance_type.
      * Proyek menggunakan MySQL sebagai basis data utama.
      *
-     * @param list<string> $values
+     * @param  list<string>  $values
      */
     private function changeAttendanceTypeEnum(
         array $values

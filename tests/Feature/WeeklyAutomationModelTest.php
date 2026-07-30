@@ -211,9 +211,9 @@ final class WeeklyAutomationModelTest extends TestCase
 
     public function test_new_models_define_expected_relationship_types(): void
     {
-        $weeklySchedule = new WeeklySchedule();
-        $weeklyItem = new WeeklyScheduleItem();
-        $terminal = new BranchTerminal();
+        $weeklySchedule = new WeeklySchedule;
+        $weeklyItem = new WeeklyScheduleItem;
+        $terminal = new BranchTerminal;
 
         $this->assertInstanceOf(
             BelongsTo::class,

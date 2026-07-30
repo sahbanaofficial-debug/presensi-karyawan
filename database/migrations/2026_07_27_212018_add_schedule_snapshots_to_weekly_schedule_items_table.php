@@ -126,30 +126,23 @@ return new class extends Migration
                         DB::table('weekly_schedule_items')
                             ->where('id', $item->id)
                             ->update([
-                                'work_schedule_name_snapshot' =>
-                                    $workSchedule->name,
+                                'work_schedule_name_snapshot' => $workSchedule->name,
 
-                                'check_in_time_snapshot' =>
-                                    $workSchedule->check_in_time,
+                                'check_in_time_snapshot' => $workSchedule->check_in_time,
 
-                                'check_out_time_snapshot' =>
-                                    $workSchedule->check_out_time,
+                                'check_out_time_snapshot' => $workSchedule->check_out_time,
 
-                                'check_in_open_minutes_snapshot' =>
-                                    $workSchedule
-                                        ->check_in_open_minutes,
+                                'check_in_open_minutes_snapshot' => $workSchedule
+                                    ->check_in_open_minutes,
 
-                                'check_in_limit_minutes_snapshot' =>
-                                    $workSchedule
-                                        ->check_in_limit_minutes,
+                                'check_in_limit_minutes_snapshot' => $workSchedule
+                                    ->check_in_limit_minutes,
 
-                                'late_tolerance_minutes_snapshot' =>
-                                    $workSchedule
-                                        ->late_tolerance_minutes,
+                                'late_tolerance_minutes_snapshot' => $workSchedule
+                                    ->late_tolerance_minutes,
 
-                                'check_out_limit_minutes_snapshot' =>
-                                    $workSchedule
-                                        ->check_out_limit_minutes,
+                                'check_out_limit_minutes_snapshot' => $workSchedule
+                                    ->check_out_limit_minutes,
                             ]);
                     }
                 }
