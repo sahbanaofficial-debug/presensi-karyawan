@@ -64,6 +64,15 @@ class Branch extends Model
     }
 
     /**
+     * Akun admin operasional yang ditugaskan pada cabang.
+     */
+    public function administrators(): HasMany
+    {
+        return $this->hasMany(User::class)
+            ->where('role', 'admin');
+    }
+
+    /**
      * Karyawan yang ditempatkan pada cabang.
      */
     public function employees(): HasMany
