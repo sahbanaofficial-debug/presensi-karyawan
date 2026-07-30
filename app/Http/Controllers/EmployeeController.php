@@ -24,16 +24,24 @@ final class EmployeeController extends Controller
      */
     public function index(Request $request): View
     {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
         $search = trim(
             (string) $request->query('search', '')
         );
 
-        $branchIdInput = $request->query('branch_id');
+        $branchId = $adminBranchId;
 
-        $branchId = is_numeric($branchIdInput)
-            && (int) $branchIdInput > 0
-                ? (int) $branchIdInput
-                : null;
+        if ($branchId === null) {
+            $branchIdInput = $request->query('branch_id');
+
+            $branchId = is_numeric($branchIdInput)
+                && (int) $branchIdInput > 0
+                    ? (int) $branchIdInput
+                    : null;
+        }
 
         $status = strtolower(
             trim((string) $request->query('status', ''))
@@ -87,6 +95,12 @@ final class EmployeeController extends Controller
             ->withQueryString();
 
         $branches = Branch::query()
+            ->when(
+                $adminBranchId !== null,
+                fn ($query) => $query->whereKey(
+                    $adminBranchId
+                )
+            )
             ->orderBy('code')
             ->get([
                 'id',
@@ -169,8 +183,21 @@ final class EmployeeController extends Controller
     /**
      * Menampilkan detail karyawan.
      */
-    public function show(Employee $employee): View
-    {
+    public function show(
+        Request $request,
+        Employee $employee
+    ): View {
+        $adminBranchId = $this->resolveAdminBranchId(
+            $request
+        );
+
+        if ($adminBranchId !== null) {
+            abort_unless(
+                (int) $employee->branch_id === $adminBranchId,
+                403
+            );
+        }
+
         $employee
             ->load([
                 'user:id,name,email,role,status,last_login_at',
@@ -269,5 +296,35 @@ final class EmployeeController extends Controller
                 'success',
                 'Data karyawan dan akun berhasil diperbarui.'
             );
+    }
+
+    /**
+     * Mendapatkan cabang yang boleh dilihat admin.
+     *
+     * HRD tetap memiliki akses lintas cabang.
+     */
+    private function resolveAdminBranchId(
+        Request $request
+    ): ?int {
+        $user = $request->user();
+
+        abort_unless($user instanceof User, 403);
+
+        if (! $user->hasRole('admin')) {
+            return null;
+        }
+
+        abort_if($user->branch_id === null, 403);
+
+        $branchId = (int) $user->branch_id;
+
+        $branchIsActive = Branch::query()
+            ->whereKey($branchId)
+            ->where('status', 'active')
+            ->exists();
+
+        abort_unless($branchIsActive, 403);
+
+        return $branchId;
     }
 }

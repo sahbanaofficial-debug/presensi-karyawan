@@ -52,6 +52,10 @@ final class EmployeeManagementTest extends TestCase
             role: 'admin'
         );
 
+        $admin->update([
+            'branch_id' => $branch->id,
+        ]);
+
         $this->actingAs($hrd)
             ->get(route('employees.index'))
             ->assertOk()
