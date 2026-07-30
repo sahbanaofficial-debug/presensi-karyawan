@@ -440,14 +440,14 @@ Route::post(
 | Backend Roster Mingguan
 |--------------------------------------------------------------------------
 |
-| HRD dapat menyimpan roster sebagai draft dan memublikasikannya
-| menjadi jadwal harian karyawan.
+| HRD dan Admin Cabang dapat menyimpan roster sebagai draft
+| dan memublikasikannya menjadi jadwal harian karyawan.
 |
 */
 Route::middleware([
     'auth',
     'active',
-    'role:hrd',
+    'role:hrd,admin',
 ])
     ->prefix('weekly-rosters')
     ->name('weekly-rosters.')

@@ -24,12 +24,19 @@ final class WeeklyRosterController extends Controller
     private const ITEMS_PER_PAGE = 15;
 
     /**
-     * Menampilkan daftar roster mingguan.
+     * Menampilkan daftar roster sesuai cakupan pengguna.
      */
     public function index(Request $request): View
     {
-        $branchId = $this->positiveIntegerOrNull(
+        $user = $this->authenticatedUser($request);
+
+        $requestedBranchId = $this->positiveIntegerOrNull(
             $request->query('branch_id')
+        );
+
+        $branchId = $this->scopedBranchId(
+            $user,
+            $requestedBranchId
         );
 
         $status = strtolower(
@@ -96,6 +103,12 @@ final class WeeklyRosterController extends Controller
                 ->withQueryString();
 
         $branches = Branch::query()
+            ->when(
+                $user->hasRole('admin'),
+                fn ($query) => $query->whereKey(
+                    $branchId
+                )
+            )
             ->orderBy('code')
             ->get([
                 'id',
@@ -118,12 +131,25 @@ final class WeeklyRosterController extends Controller
     }
 
     /**
-     * Menampilkan form penyusunan roster.
+     * Menampilkan form penyusunan roster sesuai cakupan pengguna.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        $user = $this->authenticatedUser($request);
+
+        $branchId = $this->scopedBranchId(
+            $user,
+            null
+        );
+
         $branches = Branch::query()
             ->where('status', 'active')
+            ->when(
+                $user->hasRole('admin'),
+                fn ($query) => $query->whereKey(
+                    $branchId
+                )
+            )
             ->with([
                 'employees' => static function (
                     $query
@@ -187,11 +213,7 @@ final class WeeklyRosterController extends Controller
         StoreWeeklyScheduleRequest $request,
         WeeklyRosterService $weeklyRosterService
     ): JsonResponse {
-        $user = $request->user();
-
-        if (! $user instanceof User) {
-            abort(401);
-        }
+        $user = $this->authenticatedUser($request);
 
         $weeklySchedule =
             $weeklyRosterService->createDraft(
@@ -210,11 +232,21 @@ final class WeeklyRosterController extends Controller
     }
 
     /**
-     * Menampilkan detail roster mingguan.
+     * Menampilkan detail roster sesuai cakupan pengguna.
      */
     public function show(
+        Request $request,
         WeeklySchedule $weeklySchedule
     ): View {
+        $user = $this->authenticatedUser($request);
+
+        abort_unless(
+            $user->canManageWeeklyRosterForBranch(
+                (int) $weeklySchedule->branch_id
+            ),
+            403
+        );
+
         $weeklySchedule->load([
             'branch:id,code,name,status',
 
@@ -250,11 +282,14 @@ final class WeeklyRosterController extends Controller
         WeeklySchedule $weeklySchedule,
         WeeklyRosterService $weeklyRosterService
     ): JsonResponse {
-        $user = $request->user();
+        $user = $this->authenticatedUser($request);
 
-        if (! $user instanceof User) {
-            abort(401);
-        }
+        abort_unless(
+            $user->canManageWeeklyRosterForBranch(
+                (int) $weeklySchedule->branch_id
+            ),
+            403
+        );
 
         $publishedSchedule =
             $weeklyRosterService->publish(
@@ -307,6 +342,42 @@ final class WeeklyRosterController extends Controller
 
             'items_count' => $itemsCount,
         ];
+    }
+
+    /**
+     * Mengambil akun terautentikasi.
+     */
+    private function authenticatedUser(
+        Request $request
+    ): User {
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            abort(401);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Menentukan cabang yang boleh diakses pengguna.
+     */
+    private function scopedBranchId(
+        User $user,
+        ?int $requestedBranchId
+    ): ?int {
+        if ($user->hasRole('hrd')) {
+            return $requestedBranchId;
+        }
+
+        if (
+            ! $user->hasRole('admin')
+            || $user->branch_id === null
+        ) {
+            abort(403);
+        }
+
+        return (int) $user->branch_id;
     }
 
     /**
