@@ -179,6 +179,43 @@ final class AttendanceController extends Controller
             }
         }
 
+        if (
+            $canScan
+            && $scheduleTimeWindow !== null
+        ) {
+            if (
+                $checkInAttendance === null
+                && $checkOutAttendance !== null
+            ) {
+                $canScan = false;
+
+                $scanBlockReason =
+                    'Data presensi hari ini tidak konsisten. Hubungi HRD.';
+            } else {
+                $nextAttendanceType =
+                    $checkInAttendance === null
+                        ? 'check_in'
+                        : 'check_out';
+
+                $scheduleResult =
+                    $attendanceScheduleService
+                        ->evaluate(
+                            $employeeSchedule,
+                            $nextAttendanceType,
+                            $now
+                        );
+
+                if (! $scheduleResult['allowed']) {
+                    $canScan = false;
+
+                    $scanBlockReason =
+                        (string) $scheduleResult[
+                            'message'
+                        ];
+                }
+            }
+        }
+
         return view(
             'attendance.create',
             [
