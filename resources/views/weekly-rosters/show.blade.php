@@ -17,13 +17,15 @@
         $itemStatusLabels = [
             'work' => 'Kerja',
             'off' => 'Libur',
+            'leave' => 'Cuti',
             'permit' => 'Izin',
             'sick' => 'Sakit',
         ];
 
         $itemStatusClasses = [
             'work' => 'text-bg-success',
-            'off' => 'text-bg-secondary',
+            'off' => 'text-bg-danger',
+            'leave' => 'text-bg-danger',
             'permit' => 'text-bg-warning',
             'sick' => 'text-bg-danger',
         ];

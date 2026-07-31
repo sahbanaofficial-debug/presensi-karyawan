@@ -168,6 +168,7 @@ final class StoreWeeklyScheduleRequest extends FormRequest
                 Rule::in([
                     'work',
                     'off',
+                    'leave',
                     'permit',
                     'sick',
                 ]),
@@ -406,6 +407,7 @@ final class StoreWeeklyScheduleRequest extends FormRequest
                             [
                                 'work',
                                 'off',
+                                'leave',
                                 'permit',
                                 'sick',
                             ],
