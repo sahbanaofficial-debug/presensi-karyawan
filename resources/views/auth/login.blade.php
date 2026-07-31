@@ -194,6 +194,18 @@
             letter-spacing: -0.03em;
         }
 
+        .brand-mark {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .brand-mark img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
         .brand-copy {
             min-width: 0;
         }
@@ -666,7 +678,10 @@
                     aria-label="Sistem Presensi PT Gadai Ogan Baru"
                 >
                     <span class="brand-mark">
-                        GO
+                        <img
+                            src="{{ asset('images/logo-pt-gadai-ogan-baru.png') }}"
+                            alt="Logo PT Gadai Ogan Baru"
+                        >
                     </span>
 
                     <span class="brand-copy">

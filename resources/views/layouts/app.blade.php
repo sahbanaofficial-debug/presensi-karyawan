@@ -245,6 +245,18 @@
             letter-spacing: -0.03em;
         }
 
+        .app-brand-mark {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .app-brand-mark img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
         .app-brand-copy {
             min-width: 0;
         }
@@ -1160,7 +1172,10 @@
                 class="app-brand"
             >
                 <span class="app-brand-mark">
-                    GO
+                    <img
+                        src="{{ asset('images/logo-pt-gadai-ogan-baru.png') }}"
+                        alt="Logo PT Gadai Ogan Baru"
+                    >
                 </span>
 
                 <span class="app-brand-copy">
@@ -1284,7 +1299,10 @@
                             class="app-mobile-brand d-lg-none"
                         >
                             <span class="app-brand-mark">
-                                GO
+                                <img
+                                    src="{{ asset('images/logo-pt-gadai-ogan-baru.png') }}"
+                                    alt="Logo PT Gadai Ogan Baru"
+                                >
                             </span>
 
                             <span class="app-topbar-title">
@@ -1505,7 +1523,10 @@
                 class="d-flex align-items-center gap-2"
             >
                 <span class="app-brand-mark">
-                    GO
+                    <img
+                        src="{{ asset('images/logo-pt-gadai-ogan-baru.png') }}"
+                        alt="Logo PT Gadai Ogan Baru"
+                    >
                 </span>
 
                 <span class="app-brand-copy">
