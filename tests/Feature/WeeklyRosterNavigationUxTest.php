@@ -137,7 +137,7 @@ final class WeeklyRosterNavigationUxTest extends TestCase
 
         $content = $response->getContent();
 
-        $this->assertMatchesRegularExpression(
+        $this->assertDoesNotMatchRegularExpression(
             '/id="add-weekly-roster-item"[^>]*disabled/s',
             $content
         );
