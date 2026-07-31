@@ -27,24 +27,24 @@ class EmployeeSeeder extends Seeder
 
         $employees = [
             [
-                'email' => 'karyawan01@presensi.test',
-                'employee_number' => 'KRY-001',
-                'full_name' => 'Karyawan 01',
-                'position' => 'Karyawan Cabang 02',
+                'email' => 'sahbana@presensi.test',
+                'employee_number' => '02',
+                'full_name' => 'Sahbana',
+                'position' => 'Kepala Cabang',
                 'phone_number' => null,
             ],
             [
-                'email' => 'karyawan02@presensi.test',
-                'employee_number' => 'KRY-002',
-                'full_name' => 'Karyawan 02',
-                'position' => 'Karyawan Cabang 02',
+                'email' => 'dame@presensi.test',
+                'employee_number' => '022',
+                'full_name' => 'Dame',
+                'position' => 'Kepala Gudang',
                 'phone_number' => null,
             ],
             [
-                'email' => 'karyawan03@presensi.test',
-                'employee_number' => 'KRY-003',
-                'full_name' => 'Karyawan 03',
-                'position' => 'Karyawan Cabang 02',
+                'email' => 'nadya@presensi.test',
+                'employee_number' => '0222',
+                'full_name' => 'Nadya',
+                'position' => 'Kasir',
                 'phone_number' => null,
             ],
         ];

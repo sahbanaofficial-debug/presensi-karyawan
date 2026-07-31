@@ -14,7 +14,7 @@ class WorkScheduleSeeder extends Seeder
     {
         $schedules = [
             [
-                'name' => 'Jadwal penuh',
+                'name' => 'Jadwal Penuh',
                 'check_in_time' => '08:45:00',
                 'check_out_time' => '21:30:00',
                 'check_in_open_minutes' => 30,
@@ -23,7 +23,7 @@ class WorkScheduleSeeder extends Seeder
                 'status' => 'active',
             ],
             [
-                'name' => 'Jam pulang sore',
+                'name' => 'Pulang Sore',
                 'check_in_time' => '08:45:00',
                 'check_out_time' => '17:00:00',
                 'check_in_open_minutes' => 30,
@@ -32,7 +32,7 @@ class WorkScheduleSeeder extends Seeder
                 'status' => 'active',
             ],
             [
-                'name' => 'Jam masuk siang',
+                'name' => 'Masuk Siang',
                 'check_in_time' => '13:00:00',
                 'check_out_time' => '21:30:00',
                 'check_in_open_minutes' => 30,

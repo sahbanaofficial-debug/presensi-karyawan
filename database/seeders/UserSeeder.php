@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 class UserSeeder extends Seeder
 {
@@ -18,30 +20,45 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        $branch = Branch::query()
+            ->where('code', 'CB02')
+            ->first();
+
+        if ($branch === null) {
+            throw new RuntimeException(
+                'Cabang 02 belum tersedia. Jalankan BranchSeeder terlebih dahulu.'
+            );
+        }
+
         $users = [
             [
+                'branch_id' => null,
                 'name' => 'HRD',
                 'email' => 'hrd@presensi.test',
                 'role' => 'hrd',
             ],
             [
+                'branch_id' => $branch->id,
                 'name' => 'Admin Operasional',
                 'email' => 'admin@presensi.test',
                 'role' => 'admin',
             ],
             [
-                'name' => 'Karyawan 01',
-                'email' => 'karyawan01@presensi.test',
+                'branch_id' => null,
+                'name' => 'Sahbana',
+                'email' => 'sahbana@presensi.test',
                 'role' => 'employee',
             ],
             [
-                'name' => 'Karyawan 02',
-                'email' => 'karyawan02@presensi.test',
+                'branch_id' => null,
+                'name' => 'Dame',
+                'email' => 'dame@presensi.test',
                 'role' => 'employee',
             ],
             [
-                'name' => 'Karyawan 03',
-                'email' => 'karyawan03@presensi.test',
+                'branch_id' => null,
+                'name' => 'Nadya',
+                'email' => 'nadya@presensi.test',
                 'role' => 'employee',
             ],
         ];
@@ -52,6 +69,7 @@ class UserSeeder extends Seeder
                     'email' => $userData['email'],
                 ],
                 [
+                    'branch_id' => $userData['branch_id'],
                     'name' => $userData['name'],
                     'password' => Hash::make(self::DEFAULT_PASSWORD),
                     'role' => $userData['role'],
