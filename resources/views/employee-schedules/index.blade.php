@@ -8,66 +8,79 @@
             --schedule-surface: var(--neutral-0);
             --schedule-border: var(--neutral-200);
             --schedule-muted: var(--neutral-600);
-            --schedule-orange-soft: var(--brand-50);
+            --schedule-soft: var(--brand-50);
         }
 
-        .employee-schedule-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: var(--space-3);
-            margin-bottom: var(--space-5);
-        }
-
-        .employee-schedule-summary-card {
-            padding: var(--space-4);
+        .employee-schedule-filter,
+        .employee-schedule-list-card {
             border: 1px solid var(--schedule-border);
             border-radius: var(--radius-lg);
             background: var(--schedule-surface);
             box-shadow: var(--shadow-xs);
         }
 
-        .employee-schedule-summary-icon {
+        .employee-schedule-filter {
+            margin-bottom: var(--space-4);
+            overflow: hidden;
+        }
+
+        .employee-schedule-filter-summary {
+            display: flex;
+            min-height: 4rem;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            color: var(--neutral-900);
+            cursor: pointer;
+            list-style: none;
+        }
+
+        .employee-schedule-filter-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .employee-schedule-filter-summary:hover {
+            background: var(--neutral-25);
+        }
+
+        .employee-schedule-filter-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 0.875rem;
+            font-weight: 800;
+        }
+
+        .employee-schedule-filter-icon {
             display: inline-flex;
-            width: 2.5rem;
-            height: 2.5rem;
+            width: 2.25rem;
+            height: 2.25rem;
             align-items: center;
             justify-content: center;
-            margin-bottom: var(--space-3);
             border-radius: var(--radius-md);
             color: var(--brand-700);
-            background: var(--schedule-orange-soft);
-            font-size: 1rem;
+            background: var(--schedule-soft);
         }
 
-        .employee-schedule-summary-label {
-            color: var(--schedule-muted);
-            font-size: 0.6875rem;
-            font-weight: 800;
-            letter-spacing: 0.055em;
-            text-transform: uppercase;
-        }
-
-        .employee-schedule-summary-value {
-            margin-top: var(--space-1);
-            color: var(--neutral-900);
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: -0.035em;
-            line-height: 1.25;
-        }
-
-        .employee-schedule-summary-copy {
-            margin-top: var(--space-1);
+        .employee-schedule-filter-hint {
             color: var(--schedule-muted);
             font-size: 0.75rem;
-            line-height: 1.5;
+            font-weight: 700;
         }
 
-        .employee-schedule-toolbar {
-            border: 1px solid var(--schedule-border);
-            border-radius: var(--radius-lg);
-            background: var(--schedule-surface);
-            box-shadow: var(--shadow-xs);
+        .employee-schedule-filter[open]
+            .employee-schedule-filter-chevron {
+            transform: rotate(180deg);
+        }
+
+        .employee-schedule-filter-chevron {
+            transition: transform 150ms ease;
+        }
+
+        .employee-schedule-filter-body {
+            padding: var(--space-4);
+            border-top: 1px solid var(--schedule-border);
         }
 
         .employee-schedule-search-control {
@@ -90,10 +103,6 @@
 
         .employee-schedule-list-card {
             overflow: hidden;
-            border: 1px solid var(--schedule-border);
-            border-radius: var(--radius-lg);
-            background: var(--schedule-surface);
-            box-shadow: var(--shadow-xs);
         }
 
         .employee-schedule-list-header {
@@ -120,20 +129,60 @@
             font-size: 0.75rem;
         }
 
+        .employee-schedule-list-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: var(--space-2);
+        }
+
+        .employee-schedule-meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: 0.4rem 0.7rem;
+            border-radius: var(--radius-pill);
+            color: var(--neutral-700);
+            background: var(--neutral-100);
+            font-size: 0.6875rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .employee-schedule-meta-badge.primary {
+            color: var(--brand-700);
+            background: var(--brand-50);
+        }
+
+        .employee-schedule-table-wrap {
+            overflow-x: auto;
+        }
+
+        .employee-schedule-table {
+            min-width: 64rem;
+        }
+
+        .employee-schedule-table > :not(caption) > * > * {
+            padding: 0.8rem 0.9rem;
+        }
+
         .employee-schedule-date {
+            min-width: 10.5rem;
+        }
+
+        .employee-schedule-date-day {
+            display: block;
             color: var(--neutral-900);
             font-size: 0.8125rem;
             font-weight: 800;
-            line-height: 1.45;
         }
 
-        .employee-schedule-day {
+        .employee-schedule-date-value {
             display: block;
-            margin-top: var(--space-1);
+            margin-top: 0.125rem;
             color: var(--schedule-muted);
-            font-size: 0.6875rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            text-transform: capitalize;
         }
 
         .employee-schedule-person {
@@ -141,94 +190,69 @@
         }
 
         .employee-schedule-person-name {
+            display: block;
             color: var(--neutral-900);
             font-size: 0.8125rem;
             font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .employee-schedule-person-meta {
+            display: block;
+            margin-top: 0.2rem;
+            color: var(--schedule-muted);
+            font-size: 0.7rem;
             line-height: 1.45;
         }
 
         .employee-schedule-person-number {
-            display: block;
-            margin-top: var(--space-1);
             color: var(--brand-700);
-            font-size: 0.6875rem;
             font-weight: 800;
-            letter-spacing: 0.03em;
         }
 
-        .employee-schedule-person-position {
+        .employee-schedule-work {
+            min-width: 14rem;
+        }
+
+        .employee-schedule-work-name {
             display: block;
-            margin-top: var(--space-1);
-            color: var(--schedule-muted);
-            font-size: 0.75rem;
-            line-height: 1.45;
-        }
-
-        .employee-schedule-branch-code {
-            display: block;
-            color: var(--brand-700);
-            font-size: 0.6875rem;
-            font-weight: 800;
-            letter-spacing: 0.035em;
-            text-transform: uppercase;
-        }
-
-        .employee-schedule-branch-name {
-            display: block;
-            margin-top: var(--space-1);
-            color: var(--neutral-700);
-            font-size: 0.75rem;
-            font-weight: 600;
-            line-height: 1.45;
-        }
-
-        .employee-schedule-pattern-name {
             color: var(--neutral-900);
             font-size: 0.8125rem;
-            font-weight: 700;
-            line-height: 1.45;
+            font-weight: 800;
+            line-height: 1.4;
         }
 
-        .employee-schedule-time {
+        .employee-schedule-work-time {
             display: inline-flex;
             align-items: center;
             gap: var(--space-2);
-            color: var(--neutral-900);
-            font-size: 0.8125rem;
-            font-weight: 800;
+            margin-top: 0.25rem;
+            color: var(--schedule-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
             white-space: nowrap;
         }
 
-        .employee-schedule-time i {
+        .employee-schedule-work-time i {
             color: var(--brand-600);
-        }
-
-        .employee-schedule-timezone {
-            display: block;
-            margin-top: var(--space-1);
-            color: var(--schedule-muted);
-            font-size: 0.6875rem;
-            font-weight: 600;
         }
 
         .employee-schedule-attendance-badge {
             display: inline-flex;
             align-items: center;
             gap: var(--space-2);
-            padding: 0.4375rem 0.6875rem;
+            padding: 0.4rem 0.65rem;
             border: 1px solid var(--neutral-200);
             border-radius: var(--radius-pill);
             color: var(--neutral-700);
             background: var(--neutral-50);
             font-size: 0.6875rem;
             font-weight: 800;
+            white-space: nowrap;
         }
 
-        .employee-schedule-action-group {
-            display: inline-flex;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            gap: var(--space-2);
+        .employee-schedule-action-button {
+            min-width: 6rem;
         }
 
         .employee-schedule-mobile-list {
@@ -244,55 +268,38 @@
             border-bottom: 0;
         }
 
-        .employee-schedule-mobile-top {
+        .employee-schedule-mobile-top,
+        .employee-schedule-mobile-footer {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
             gap: var(--space-3);
         }
 
-        .employee-schedule-mobile-section {
-            margin-top: var(--space-4);
-            padding-top: var(--space-4);
-            border-top: 1px solid var(--neutral-100);
+        .employee-schedule-mobile-person {
+            margin-top: var(--space-3);
         }
 
-        .employee-schedule-mobile-label {
-            margin-bottom: var(--space-2);
-            color: var(--schedule-muted);
-            font-size: 0.625rem;
-            font-weight: 800;
-            letter-spacing: 0.055em;
-            text-transform: uppercase;
-        }
-
-        .employee-schedule-mobile-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: var(--space-3);
-        }
-
-        .employee-schedule-mobile-metric {
+        .employee-schedule-mobile-work {
+            margin-top: var(--space-3);
             padding: var(--space-3);
             border: 1px solid var(--neutral-200);
             border-radius: var(--radius-md);
             background: var(--neutral-25);
         }
 
-        .employee-schedule-mobile-metric-label {
+        .employee-schedule-mobile-branch {
+            margin-top: var(--space-3);
             color: var(--schedule-muted);
-            font-size: 0.625rem;
-            font-weight: 800;
-            letter-spacing: 0.045em;
-            text-transform: uppercase;
+            font-size: 0.7rem;
+            line-height: 1.5;
         }
 
-        .employee-schedule-mobile-metric-value {
-            margin-top: var(--space-1);
-            color: var(--neutral-900);
-            font-size: 0.8125rem;
-            font-weight: 700;
-            line-height: 1.5;
+        .employee-schedule-mobile-footer {
+            align-items: center;
+            margin-top: var(--space-3);
+            padding-top: var(--space-3);
+            border-top: 1px solid var(--neutral-100);
         }
 
         .employee-schedule-empty-state {
@@ -309,7 +316,7 @@
             margin-bottom: var(--space-4);
             border-radius: var(--radius-lg);
             color: var(--brand-700);
-            background: var(--schedule-orange-soft);
+            background: var(--schedule-soft);
             font-size: 1.5rem;
         }
 
@@ -345,11 +352,7 @@
             }
         }
 
-        @media (max-width: 1199.98px) {
-            .employee-schedule-summary-grid {
-                grid-template-columns: 1fr;
-            }
-
+        @media (max-width: 991.98px) {
             .employee-schedule-desktop-table {
                 display: none;
             }
@@ -361,19 +364,20 @@
 
         @media (max-width: 575.98px) {
             .employee-schedule-list-header {
+                flex-direction: column;
                 padding: var(--space-4);
             }
 
-            .employee-schedule-mobile-grid {
-                grid-template-columns: 1fr;
+            .employee-schedule-list-meta {
+                justify-content: flex-start;
             }
 
-            .employee-schedule-action-group {
-                width: 100%;
+            .employee-schedule-filter-summary {
+                align-items: flex-start;
             }
 
-            .employee-schedule-action-group .btn {
-                flex: 1;
+            .employee-schedule-filter-hint {
+                display: none;
             }
         }
     </style>
@@ -381,21 +385,7 @@
 
 @section('content')
     @php
-        $formatDate = static function ($value): string {
-            if ($value === null || $value === '') {
-                return '-';
-            }
-
-            try {
-                return \Illuminate\Support\Carbon::parse($value)
-                    ->locale('id')
-                    ->translatedFormat('d F Y');
-            } catch (\Throwable) {
-                return (string) $value;
-            }
-        };
-
-        $formatDay = static function ($value): string {
+        $formatDateDay = static function ($value): string {
             if ($value === null || $value === '') {
                 return '-';
             }
@@ -407,6 +397,29 @@
             } catch (\Throwable) {
                 return '-';
             }
+        };
+
+        $formatDateValue = static function ($value): string {
+            if ($value === null || $value === '') {
+                return '-';
+            }
+
+            try {
+                return \Illuminate\Support\Carbon::parse($value)
+                    ->locale('id')
+                    ->translatedFormat('d M Y');
+            } catch (\Throwable) {
+                return (string) $value;
+            }
+        };
+
+        $formatDateFull = static function ($value) use (
+            $formatDateDay,
+            $formatDateValue
+        ): string {
+            return $formatDateDay($value)
+                . ', '
+                . $formatDateValue($value);
         };
 
         $formatTime = static function ($value): string {
@@ -428,6 +441,7 @@
         $statusLabels = [
             'work' => 'Kerja',
             'off' => 'Libur',
+            'leave' => 'Cuti',
             'permit' => 'Izin',
             'sick' => 'Sakit',
         ];
@@ -435,6 +449,7 @@
         $statusClasses = [
             'work' => 'text-bg-success',
             'off' => 'text-bg-secondary',
+            'leave' => 'text-bg-primary',
             'permit' => 'text-bg-warning',
             'sick' => 'text-bg-danger',
         ];
@@ -445,6 +460,14 @@
             || $selectedStatus !== ''
             || $dateFrom !== null
             || $dateTo !== null;
+
+        $selectedBranch = $selectedBranchId !== null
+            ? $branches->firstWhere('id', $selectedBranchId)
+            : null;
+
+        $scopeLabel = $selectedBranch !== null
+            ? $selectedBranch->code . ' — ' . $selectedBranch->name
+            : 'Semua cabang';
     @endphp
 
     <div class="employee-schedule-page">
@@ -458,8 +481,8 @@
                 </h1>
 
                 <p class="page-description">
-                    Kelola penetapan hari kerja, libur, izin,
-                    sakit, pola jadwal, dan cabang penempatan.
+                    Tinjau jadwal secara kronologis, status kerja,
+                    pola jam, dan jumlah transaksi presensi.
                 </p>
             </div>
 
@@ -478,281 +501,205 @@
             </div>
         </header>
 
-        <section
-            class="employee-schedule-summary-grid"
-            aria-label="Ringkasan jadwal harian"
+        <details
+            class="employee-schedule-filter"
+            @if ($filterActive) open @endif
         >
-            <article class="employee-schedule-summary-card">
-                <span class="employee-schedule-summary-icon">
+            <summary class="employee-schedule-filter-summary">
+                <span class="employee-schedule-filter-title">
+                    <span class="employee-schedule-filter-icon">
+                        <i
+                            class="bi bi-funnel"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <span>
+                        Filter jadwal
+                    </span>
+                </span>
+
+                <span class="d-flex align-items-center gap-3">
+                    <span class="employee-schedule-filter-hint">
+                        {{
+                            $filterActive
+                                ? 'Filter sedang aktif'
+                                : 'Buka untuk menyaring data'
+                        }}
+                    </span>
+
                     <i
-                        class="bi bi-calendar2-week"
+                        class="bi bi-chevron-down
+                            employee-schedule-filter-chevron"
                         aria-hidden="true"
                     ></i>
                 </span>
+            </summary>
 
-                <div class="employee-schedule-summary-label">
-                    Total jadwal
-                </div>
-
-                <div class="employee-schedule-summary-value">
-                    {{ $employeeSchedules->total() }}
-                </div>
-
-                <div class="employee-schedule-summary-copy">
-                    Jadwal yang sesuai dengan filter aktif.
-                </div>
-            </article>
-
-            <article class="employee-schedule-summary-card">
-                <span class="employee-schedule-summary-icon">
-                    <i
-                        class="bi bi-list-check"
-                        aria-hidden="true"
-                    ></i>
-                </span>
-
-                <div class="employee-schedule-summary-label">
-                    Data pada halaman
-                </div>
-
-                <div class="employee-schedule-summary-value">
-                    {{ $employeeSchedules->count() }}
-                </div>
-
-                <div class="employee-schedule-summary-copy">
-                    Jumlah jadwal pada halaman saat ini.
-                </div>
-            </article>
-
-            <article class="employee-schedule-summary-card">
-                <span class="employee-schedule-summary-icon">
-                    <i
-                        class="bi bi-funnel"
-                        aria-hidden="true"
-                    ></i>
-                </span>
-
-                <div class="employee-schedule-summary-label">
-                    Status filter
-                </div>
-
-                <div class="employee-schedule-summary-value">
-                    {{ $filterActive ? 'Aktif' : 'Semua' }}
-                </div>
-
-                <div class="employee-schedule-summary-copy">
-                    {{
-                        $filterActive
-                            ? 'Daftar telah disaring.'
-                            : 'Menampilkan seluruh jadwal.'
-                    }}
-                </div>
-            </article>
-        </section>
-
-        <section
-            class="employee-schedule-toolbar
-                p-3 p-md-4 mb-4"
-        >
-            <div class="mb-3">
-                <h2 class="section-title">
-                    Filter jadwal harian
-                </h2>
-
-                <p class="section-description">
-                    Cari berdasarkan karyawan, cabang, status,
-                    atau rentang tanggal.
-                </p>
-            </div>
-
-            <form
-                method="GET"
-                action="{{ route('employee-schedules.index') }}"
-            >
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-6 col-xl-3">
-                        <label
-                            for="search"
-                            class="form-label"
-                        >
-                            Pencarian Karyawan
-                        </label>
-
-                        <div
-                            class="employee-schedule-search-control"
-                        >
-                            <i
-                                class="bi bi-search
-                                    employee-schedule-search-icon"
-                                aria-hidden="true"
-                            ></i>
-
-                            <input
-                                type="search"
-                                id="search"
-                                name="search"
-                                value="{{ $search }}"
-                                class="form-control"
-                                placeholder="Nama atau nomor karyawan"
+            <div class="employee-schedule-filter-body">
+                <form
+                    method="GET"
+                    action="{{ route('employee-schedules.index') }}"
+                >
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6 col-xl-3">
+                            <label
+                                for="search"
+                                class="form-label"
                             >
-                        </div>
-                    </div>
+                                Karyawan
+                            </label>
 
-                    <div class="col-md-6 col-xl-3">
-                        <label
-                            for="branch_id"
-                            class="form-label"
-                        >
-                            Cabang
-                        </label>
-
-                        <select
-                            id="branch_id"
-                            name="branch_id"
-                            class="form-select"
-                        >
-                            <option value="">
-                                Semua cabang
-                            </option>
-
-                            @foreach ($branches as $branch)
-                                <option
-                                    value="{{ $branch->id }}"
-                                    @selected(
-                                        (string) $selectedBranchId
-                                        === (string) $branch->id
-                                    )
-                                >
-                                    {{ $branch->code }}
-                                    — {{ $branch->name }}
-
-                                    @if (
-                                        $branch->status
-                                        === 'inactive'
-                                    )
-                                        (Tidak aktif)
-                                    @endif
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 col-xl-2">
-                        <label
-                            for="schedule_status"
-                            class="form-label"
-                        >
-                            Status Jadwal
-                        </label>
-
-                        <select
-                            id="schedule_status"
-                            name="schedule_status"
-                            class="form-select"
-                        >
-                            <option value="">
-                                Semua status
-                            </option>
-
-                            <option
-                                value="work"
-                                @selected(
-                                    $selectedStatus === 'work'
-                                )
-                            >
-                                Kerja
-                            </option>
-
-                            <option
-                                value="off"
-                                @selected(
-                                    $selectedStatus === 'off'
-                                )
-                            >
-                                Libur
-                            </option>
-
-                            <option
-                                value="permit"
-                                @selected(
-                                    $selectedStatus === 'permit'
-                                )
-                            >
-                                Izin
-                            </option>
-
-                            <option
-                                value="sick"
-                                @selected(
-                                    $selectedStatus === 'sick'
-                                )
-                            >
-                                Sakit
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 col-xl-2">
-                        <label
-                            for="date_from"
-                            class="form-label"
-                        >
-                            Tanggal Mulai
-                        </label>
-
-                        <input
-                            type="date"
-                            id="date_from"
-                            name="date_from"
-                            value="{{ $dateFrom }}"
-                            class="form-control"
-                        >
-                    </div>
-
-                    <div class="col-md-6 col-xl-2">
-                        <label
-                            for="date_to"
-                            class="form-label"
-                        >
-                            Tanggal Akhir
-                        </label>
-
-                        <input
-                            type="date"
-                            id="date_to"
-                            name="date_to"
-                            value="{{ $dateTo }}"
-                            class="form-control"
-                        >
-                    </div>
-
-                    <div class="col-12">
-                        <div class="d-grid d-sm-flex gap-2">
-                            <button
-                                type="submit"
-                                class="btn btn-primary"
+                            <div
+                                class="employee-schedule-search-control"
                             >
                                 <i
-                                    class="bi bi-funnel me-2"
+                                    class="bi bi-search
+                                        employee-schedule-search-icon"
                                     aria-hidden="true"
                                 ></i>
 
-                                Terapkan Filter
-                            </button>
+                                <input
+                                    type="search"
+                                    id="search"
+                                    name="search"
+                                    value="{{ $search }}"
+                                    class="form-control"
+                                    placeholder="Nama atau nomor karyawan"
+                                >
+                            </div>
+                        </div>
 
-                            <a
-                                href="{{ route(
-                                    'employee-schedules.index'
-                                ) }}"
-                                class="btn btn-outline-secondary"
+                        <div class="col-md-6 col-xl-3">
+                            <label
+                                for="branch_id"
+                                class="form-label"
                             >
-                                Reset
-                            </a>
+                                Cabang
+                            </label>
+
+                            <select
+                                id="branch_id"
+                                name="branch_id"
+                                class="form-select"
+                            >
+                                <option value="">
+                                    Semua cabang
+                                </option>
+
+                                @foreach ($branches as $branch)
+                                    <option
+                                        value="{{ $branch->id }}"
+                                        @selected(
+                                            (string) $selectedBranchId
+                                            === (string) $branch->id
+                                        )
+                                    >
+                                        {{ $branch->code }}
+                                        — {{ $branch->name }}
+
+                                        @if (
+                                            $branch->status
+                                            === 'inactive'
+                                        )
+                                            (Tidak aktif)
+                                        @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 col-xl-2">
+                            <label
+                                for="schedule_status"
+                                class="form-label"
+                            >
+                                Status
+                            </label>
+
+                            <select
+                                id="schedule_status"
+                                name="schedule_status"
+                                class="form-select"
+                            >
+                                <option value="">
+                                    Semua status
+                                </option>
+
+                                @foreach (
+                                    $statusLabels
+                                    as $statusValue => $statusLabel
+                                )
+                                    <option
+                                        value="{{ $statusValue }}"
+                                        @selected(
+                                            $selectedStatus
+                                            === $statusValue
+                                        )
+                                    >
+                                        {{ $statusLabel }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 col-xl-2">
+                            <label
+                                for="date_from"
+                                class="form-label"
+                            >
+                                Mulai
+                            </label>
+
+                            <input
+                                type="date"
+                                id="date_from"
+                                name="date_from"
+                                value="{{ $dateFrom }}"
+                                class="form-control"
+                            >
+                        </div>
+
+                        <div class="col-md-6 col-xl-2">
+                            <label
+                                for="date_to"
+                                class="form-label"
+                            >
+                                Sampai
+                            </label>
+
+                            <input
+                                type="date"
+                                id="date_to"
+                                name="date_to"
+                                value="{{ $dateTo }}"
+                                class="form-control"
+                            >
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-grid d-sm-flex gap-2">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+                                    Terapkan Filter
+                                </button>
+
+                                <a
+                                    href="{{ route(
+                                        'employee-schedules.index'
+                                    ) }}"
+                                    class="btn btn-outline-secondary"
+                                >
+                                    Reset
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
-        </section>
+                </form>
+            </div>
+        </details>
 
         <section
             class="employee-schedule-list-card"
@@ -768,20 +715,39 @@
                     </h2>
 
                     <p class="employee-schedule-list-copy">
-                        Ditemukan {{ $employeeSchedules->total() }}
-                        data jadwal.
+                        {{ $employeeSchedules->total() }} data
+                        ditampilkan dari tanggal paling awal
+                        ke tanggal paling akhir.
                     </p>
                 </div>
 
-                @if ($filterActive)
-                    <span class="badge text-bg-warning">
-                        Filter aktif
+                <div class="employee-schedule-list-meta">
+                    <span
+                        class="employee-schedule-meta-badge primary"
+                    >
+                        <i
+                            class="bi bi-sort-down-alt"
+                            aria-hidden="true"
+                        ></i>
+
+                        Urutan kronologis
                     </span>
-                @else
-                    <span class="badge text-bg-secondary">
-                        Halaman {{ $employeeSchedules->currentPage() }}
+
+                    <span class="employee-schedule-meta-badge">
+                        <i
+                            class="bi bi-building"
+                            aria-hidden="true"
+                        ></i>
+
+                        {{ $scopeLabel }}
                     </span>
-                @endif
+
+                    @if ($filterActive)
+                        <span class="badge text-bg-warning">
+                            Filter aktif
+                        </span>
+                    @endif
+                </div>
             </div>
 
             @if ($employeeSchedules->isEmpty())
@@ -799,8 +765,7 @@
 
                     <p class="employee-schedule-empty-copy">
                         Belum ada jadwal atau data tidak sesuai
-                        dengan filter karyawan, cabang, status,
-                        dan tanggal yang digunakan.
+                        dengan filter yang digunakan.
                     </p>
 
                     <a
@@ -815,29 +780,20 @@
             @else
                 <div
                     class="employee-schedule-desktop-table
-                        table-responsive"
+                        employee-schedule-table-wrap"
                 >
-                    <table class="table table-hover align-middle">
+                    <table
+                        class="table table-hover align-middle
+                            employee-schedule-table"
+                    >
                         <thead>
                             <tr>
-                                <th
-                                    scope="col"
-                                    class="text-center"
-                                    style="width: 4rem;"
-                                >
-                                    No.
-                                </th>
-
                                 <th scope="col">
                                     Tanggal
                                 </th>
 
                                 <th scope="col">
                                     Karyawan
-                                </th>
-
-                                <th scope="col">
-                                    Cabang
                                 </th>
 
                                 <th
@@ -848,14 +804,7 @@
                                 </th>
 
                                 <th scope="col">
-                                    Pola Jadwal
-                                </th>
-
-                                <th
-                                    scope="col"
-                                    class="text-center"
-                                >
-                                    Jam Kerja
+                                    Jadwal Kerja
                                 </th>
 
                                 <th
@@ -868,9 +817,8 @@
                                 <th
                                     scope="col"
                                     class="text-end"
-                                    style="width: 11rem;"
                                 >
-                                    Tindakan
+                                    Aksi
                                 </th>
                             </tr>
                         </thead>
@@ -907,43 +855,77 @@
                                             $scheduleStatus
                                         ]
                                         ?? 'text-bg-secondary';
+
+                                    $workScheduleName =
+                                        $employeeSchedule
+                                            ->work_schedule_name_snapshot
+                                        ?? $workSchedule?->name;
+
+                                    $checkInTime = $formatTime(
+                                        $employeeSchedule
+                                            ->check_in_time_snapshot
+                                        ?? $workSchedule
+                                            ?->check_in_time
+                                    );
+
+                                    $checkOutTime = $formatTime(
+                                        $employeeSchedule
+                                            ->check_out_time_snapshot
+                                        ?? $workSchedule
+                                            ?->check_out_time
+                                    );
+
+                                    $hasWorkTime =
+                                        $scheduleStatus === 'work'
+                                        && $workScheduleName !== null
+                                        && $checkInTime !== '-'
+                                        && $checkOutTime !== '-';
+
+                                    $attendanceCount =
+                                        $employeeSchedule
+                                            ->attendances_count
+                                        ?? 0;
                                 @endphp
 
-                                <tr>
-                                    <td
-                                        class="text-center
-                                            text-secondary"
-                                    >
-                                        {{
-                                            ($employeeSchedules
-                                                ->firstItem()
-                                                ?? 0)
-                                            + $loop->index
-                                        }}
-                                    </td>
-
+                                <tr
+                                    data-schedule-date="{{
+                                        $employeeSchedule
+                                            ->schedule_date
+                                            ?->toDateString()
+                                    }}"
+                                >
                                     <td>
-                                        <span
+                                        <div
                                             class="employee-schedule-date"
-                                        >
-                                            {{
-                                                $formatDate(
+                                            aria-label="{{
+                                                $formatDateFull(
                                                     $employeeSchedule
                                                         ->schedule_date
                                                 )
-                                            }}
-                                        </span>
+                                            }}"
+                                        >
+                                            <span
+                                                class="employee-schedule-date-day"
+                                            >
+                                                {{
+                                                    $formatDateDay(
+                                                        $employeeSchedule
+                                                            ->schedule_date
+                                                    )
+                                                }}
+                                            </span>
 
-                                        <span
-                                            class="employee-schedule-day"
-                                        >
-                                            {{
-                                                $formatDay(
-                                                    $employeeSchedule
-                                                        ->schedule_date
-                                                )
-                                            }}
-                                        </span>
+                                            <span
+                                                class="employee-schedule-date-value"
+                                            >
+                                                {{
+                                                    $formatDateValue(
+                                                        $employeeSchedule
+                                                            ->schedule_date
+                                                    )
+                                                }}
+                                            </span>
+                                        </div>
                                     </td>
 
                                     <td>
@@ -961,17 +943,18 @@
                                                 </span>
 
                                                 <span
-                                                    class="employee-schedule-person-number"
+                                                    class="employee-schedule-person-meta"
                                                 >
-                                                    {{
-                                                        $employee
-                                                            ->employee_number
-                                                    }}
-                                                </span>
+                                                    <span
+                                                        class="employee-schedule-person-number"
+                                                    >
+                                                        {{
+                                                            $employee
+                                                                ->employee_number
+                                                        }}
+                                                    </span>
 
-                                                <span
-                                                    class="employee-schedule-person-position"
-                                                >
+                                                    ·
                                                     {{
                                                         $employee
                                                             ->position
@@ -980,46 +963,10 @@
                                             </div>
                                         @else
                                             <span
-                                                class="text-danger
-                                                    small"
+                                                class="text-danger small"
                                             >
                                                 Data karyawan tidak
                                                 tersedia
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <td>
-                                        @if ($branch !== null)
-                                            <span
-                                                class="employee-schedule-branch-code"
-                                            >
-                                                {{ $branch->code }}
-                                            </span>
-
-                                            <span
-                                                class="employee-schedule-branch-name"
-                                            >
-                                                {{ $branch->name }}
-                                            </span>
-
-                                            @if (
-                                                $branch->status
-                                                === 'inactive'
-                                            )
-                                                <span
-                                                    class="badge
-                                                        text-bg-warning
-                                                        mt-2"
-                                                >
-                                                    Tidak aktif
-                                                </span>
-                                            @endif
-                                        @else
-                                            <span
-                                                class="text-secondary"
-                                            >
-                                                -
                                             </span>
                                         @endif
                                     </td>
@@ -1034,85 +981,45 @@
                                     </td>
 
                                     <td>
-                                        @if (
-                                            $scheduleStatus
-                                            === 'work'
-                                            && $workSchedule !== null
-                                        )
-                                            <span
-                                                class="employee-schedule-pattern-name"
-                                            >
-                                                {{
-                                                    $workSchedule
-                                                        ->name
-                                                }}
-                                            </span>
-
-                                            @if (
-                                                $workSchedule
-                                                    ->status
-                                                === 'inactive'
-                                            )
+                                        <div
+                                            class="employee-schedule-work"
+                                        >
+                                            @if ($hasWorkTime)
                                                 <span
-                                                    class="badge
-                                                        text-bg-warning
-                                                        mt-2"
+                                                    class="employee-schedule-work-name"
                                                 >
-                                                    Pola tidak aktif
+                                                    {{
+                                                        $workScheduleName
+                                                    }}
+                                                </span>
+
+                                                <span
+                                                    class="employee-schedule-work-time"
+                                                >
+                                                    <i
+                                                        class="bi bi-clock"
+                                                        aria-hidden="true"
+                                                    ></i>
+
+                                                    {{ $checkInTime }}–{{ $checkOutTime }} WIB
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="employee-schedule-work-name"
+                                                >
+                                                    Tidak ada jam kerja
+                                                </span>
+
+                                                <span
+                                                    class="employee-schedule-work-time"
+                                                >
+                                                    Status
+                                                    {{ strtolower(
+                                                        $statusLabel
+                                                    ) }}
                                                 </span>
                                             @endif
-                                        @else
-                                            <span
-                                                class="text-secondary
-                                                    small"
-                                            >
-                                                Tidak menggunakan
-                                                pola jadwal
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <td class="text-center">
-                                        @if (
-                                            $scheduleStatus
-                                            === 'work'
-                                            && $workSchedule !== null
-                                        )
-                                            <span
-                                                class="employee-schedule-time"
-                                            >
-                                                <i
-                                                    class="bi bi-clock"
-                                                    aria-hidden="true"
-                                                ></i>
-
-                                                {{
-                                                    $formatTime(
-                                                        $workSchedule
-                                                            ->check_in_time
-                                                    )
-                                                }}
-                                                –
-                                                {{
-                                                    $formatTime(
-                                                        $workSchedule
-                                                            ->check_out_time
-                                                    )
-                                                }}
-                                            </span>
-
-                                            <span
-                                                class="employee-schedule-timezone"
-                                            >
-                                                WIB
-                                            </span>
-                                        @else
-                                            <span
-                                                class="text-secondary"
-                                            >
-                                                -
-                                            </span>
-                                        @endif
+                                        </div>
                                     </td>
 
                                     <td class="text-center">
@@ -1120,57 +1027,67 @@
                                             class="employee-schedule-attendance-badge"
                                         >
                                             <i
-                                                class="bi
-                                                    bi-check2-square"
+                                                class="bi bi-check2-square"
                                                 aria-hidden="true"
                                             ></i>
 
-                                            {{
-                                                $employeeSchedule
-                                                    ->attendances_count
-                                                ?? 0
-                                            }}
+                                            {{ $attendanceCount }}
                                             data
                                         </span>
                                     </td>
 
                                     <td class="text-end">
-                                        <div
-                                            class="employee-schedule-action-group"
-                                        >
-                                            <a
-                                                href="{{ route(
-                                                    'employee-schedules.show',
-                                                    $employeeSchedule
-                                                ) }}"
+                                        <div class="dropdown">
+                                            <button
+                                                type="button"
                                                 class="btn btn-sm
-                                                    btn-outline-primary"
+                                                    btn-outline-secondary
+                                                    dropdown-toggle
+                                                    employee-schedule-action-button"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
                                             >
-                                                <i
-                                                    class="bi bi-eye me-1"
-                                                    aria-hidden="true"
-                                                ></i>
+                                                Aksi
+                                            </button>
 
-                                                Detail
-                                            </a>
-
-                                            <a
-                                                href="{{ route(
-                                                    'employee-schedules.edit',
-                                                    $employeeSchedule
-                                                ) }}"
-                                                class="btn btn-sm
-                                                    btn-outline-secondary"
+                                            <ul
+                                                class="dropdown-menu
+                                                    dropdown-menu-end"
                                             >
-                                                <i
-                                                    class="bi
-                                                        bi-pencil-square
-                                                        me-1"
-                                                    aria-hidden="true"
-                                                ></i>
+                                                <li>
+                                                    <a
+                                                        href="{{ route(
+                                                            'employee-schedules.show',
+                                                            $employeeSchedule
+                                                        ) }}"
+                                                        class="dropdown-item"
+                                                    >
+                                                        <i
+                                                            class="bi bi-eye me-2"
+                                                            aria-hidden="true"
+                                                        ></i>
 
-                                                Edit
-                                            </a>
+                                                        Detail
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a
+                                                        href="{{ route(
+                                                            'employee-schedules.edit',
+                                                            $employeeSchedule
+                                                        ) }}"
+                                                        class="dropdown-item"
+                                                    >
+                                                        <i
+                                                            class="bi bi-pencil-square me-2"
+                                                            aria-hidden="true"
+                                                        ></i>
+
+                                                        Edit
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -1204,32 +1121,64 @@
                             $statusClass =
                                 $statusClasses[$scheduleStatus]
                                 ?? 'text-bg-secondary';
+
+                            $workScheduleName =
+                                $employeeSchedule
+                                    ->work_schedule_name_snapshot
+                                ?? $workSchedule?->name;
+
+                            $checkInTime = $formatTime(
+                                $employeeSchedule
+                                    ->check_in_time_snapshot
+                                ?? $workSchedule?->check_in_time
+                            );
+
+                            $checkOutTime = $formatTime(
+                                $employeeSchedule
+                                    ->check_out_time_snapshot
+                                ?? $workSchedule?->check_out_time
+                            );
+
+                            $hasWorkTime =
+                                $scheduleStatus === 'work'
+                                && $workScheduleName !== null
+                                && $checkInTime !== '-'
+                                && $checkOutTime !== '-';
+
+                            $attendanceCount =
+                                $employeeSchedule
+                                    ->attendances_count
+                                ?? 0;
                         @endphp
 
                         <article
                             class="employee-schedule-mobile-card"
+                            data-schedule-date="{{
+                                $employeeSchedule
+                                    ->schedule_date
+                                    ?->toDateString()
+                            }}"
                         >
                             <div
                                 class="employee-schedule-mobile-top"
                             >
                                 <div>
-                                    <h3
-                                        class="employee-schedule-date
-                                            mb-0"
+                                    <span
+                                        class="employee-schedule-date-day"
                                     >
                                         {{
-                                            $formatDate(
+                                            $formatDateDay(
                                                 $employeeSchedule
                                                     ->schedule_date
                                             )
                                         }}
-                                    </h3>
+                                    </span>
 
                                     <span
-                                        class="employee-schedule-day"
+                                        class="employee-schedule-date-value"
                                     >
                                         {{
-                                            $formatDay(
+                                            $formatDateValue(
                                                 $employeeSchedule
                                                     ->schedule_date
                                             )
@@ -1238,35 +1187,25 @@
                                 </div>
 
                                 <span
-                                    class="badge
-                                        {{ $statusClass }}"
+                                    class="badge {{ $statusClass }}"
                                 >
                                     {{ $statusLabel }}
                                 </span>
                             </div>
 
                             <div
-                                class="employee-schedule-mobile-section"
+                                class="employee-schedule-mobile-person"
                             >
-                                <div
-                                    class="employee-schedule-mobile-label"
-                                >
-                                    Karyawan
-                                </div>
-
                                 @if ($employee !== null)
-                                    <div
-                                        class="employee-schedule-person"
+                                    <span
+                                        class="employee-schedule-person-name"
                                     >
-                                        <div
-                                            class="employee-schedule-person-name"
-                                        >
-                                            {{
-                                                $employee
-                                                    ->full_name
-                                            }}
-                                        </div>
+                                        {{ $employee->full_name }}
+                                    </span>
 
+                                    <span
+                                        class="employee-schedule-person-meta"
+                                    >
                                         <span
                                             class="employee-schedule-person-number"
                                         >
@@ -1276,180 +1215,119 @@
                                             }}
                                         </span>
 
-                                        <span
-                                            class="employee-schedule-person-position"
-                                        >
-                                            {{
-                                                $employee
-                                                    ->position
-                                            }}
-                                        </span>
-                                    </div>
+                                        · {{ $employee->position }}
+                                    </span>
                                 @else
-                                    <span
-                                        class="text-danger small"
-                                    >
+                                    <span class="text-danger small">
                                         Data karyawan tidak tersedia
                                     </span>
                                 @endif
                             </div>
 
                             <div
-                                class="employee-schedule-mobile-section"
+                                class="employee-schedule-mobile-work"
                             >
-                                <div
-                                    class="employee-schedule-mobile-grid"
-                                >
-                                    <div
-                                        class="employee-schedule-mobile-metric"
+                                @if ($hasWorkTime)
+                                    <span
+                                        class="employee-schedule-work-name"
                                     >
-                                        <div
-                                            class="employee-schedule-mobile-metric-label"
-                                        >
-                                            Cabang
-                                        </div>
+                                        {{ $workScheduleName }}
+                                    </span>
 
-                                        <div
-                                            class="employee-schedule-mobile-metric-value"
-                                        >
-                                            @if ($branch !== null)
-                                                {{ $branch->code }}
-                                                — {{ $branch->name }}
-                                            @else
-                                                -
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="employee-schedule-mobile-metric"
+                                    <span
+                                        class="employee-schedule-work-time"
                                     >
-                                        <div
-                                            class="employee-schedule-mobile-metric-label"
-                                        >
-                                            Pola jadwal
-                                        </div>
+                                        <i
+                                            class="bi bi-clock"
+                                            aria-hidden="true"
+                                        ></i>
 
-                                        <div
-                                            class="employee-schedule-mobile-metric-value"
-                                        >
-                                            @if (
-                                                $scheduleStatus
-                                                === 'work'
-                                                && $workSchedule
-                                                    !== null
-                                            )
-                                                {{
-                                                    $workSchedule
-                                                        ->name
-                                                }}
-                                            @else
-                                                Tidak menggunakan
-                                                pola jadwal
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="employee-schedule-mobile-metric"
+                                        {{ $checkInTime }}–{{ $checkOutTime }} WIB
+                                    </span>
+                                @else
+                                    <span
+                                        class="employee-schedule-work-name"
                                     >
-                                        <div
-                                            class="employee-schedule-mobile-metric-label"
-                                        >
-                                            Jam kerja
-                                        </div>
+                                        Tidak ada jam kerja
+                                    </span>
 
-                                        <div
-                                            class="employee-schedule-mobile-metric-value"
-                                        >
-                                            @if (
-                                                $scheduleStatus
-                                                === 'work'
-                                                && $workSchedule
-                                                    !== null
-                                            )
-                                                {{
-                                                    $formatTime(
-                                                        $workSchedule
-                                                            ->check_in_time
-                                                    )
-                                                }}
-                                                –
-                                                {{
-                                                    $formatTime(
-                                                        $workSchedule
-                                                            ->check_out_time
-                                                    )
-                                                }}
-                                                WIB
-                                            @else
-                                                -
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="employee-schedule-mobile-metric"
+                                    <span
+                                        class="employee-schedule-work-time"
                                     >
-                                        <div
-                                            class="employee-schedule-mobile-metric-label"
-                                        >
-                                            Presensi
-                                        </div>
-
-                                        <div
-                                            class="employee-schedule-mobile-metric-value"
-                                        >
-                                            {{
-                                                $employeeSchedule
-                                                    ->attendances_count
-                                                ?? 0
-                                            }}
-                                            data
-                                        </div>
-                                    </div>
-                                </div>
+                                        Status
+                                        {{ strtolower($statusLabel) }}
+                                    </span>
+                                @endif
                             </div>
 
-                            <div
-                                class="employee-schedule-mobile-section"
-                            >
+                            @if ($branch !== null)
                                 <div
-                                    class="employee-schedule-action-group"
+                                    class="employee-schedule-mobile-branch"
                                 >
-                                    <a
-                                        href="{{ route(
-                                            'employee-schedules.show',
-                                            $employeeSchedule
-                                        ) }}"
+                                    <i
+                                        class="bi bi-building me-1"
+                                        aria-hidden="true"
+                                    ></i>
+
+                                    {{ $branch->code }}
+                                    — {{ $branch->name }}
+                                </div>
+                            @endif
+
+                            <div
+                                class="employee-schedule-mobile-footer"
+                            >
+                                <span
+                                    class="employee-schedule-attendance-badge"
+                                >
+                                    <i
+                                        class="bi bi-check2-square"
+                                        aria-hidden="true"
+                                    ></i>
+
+                                    {{ $attendanceCount }} data
+                                </span>
+
+                                <div class="dropdown">
+                                    <button
+                                        type="button"
                                         class="btn btn-sm
-                                            btn-outline-primary"
+                                            btn-outline-secondary
+                                            dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
                                     >
-                                        <i
-                                            class="bi bi-eye me-1"
-                                            aria-hidden="true"
-                                        ></i>
+                                        Aksi
+                                    </button>
 
-                                        Detail
-                                    </a>
-
-                                    <a
-                                        href="{{ route(
-                                            'employee-schedules.edit',
-                                            $employeeSchedule
-                                        ) }}"
-                                        class="btn btn-sm
-                                            btn-outline-secondary"
+                                    <ul
+                                        class="dropdown-menu
+                                            dropdown-menu-end"
                                     >
-                                        <i
-                                            class="bi
-                                                bi-pencil-square
-                                                me-1"
-                                            aria-hidden="true"
-                                        ></i>
+                                        <li>
+                                            <a
+                                                href="{{ route(
+                                                    'employee-schedules.show',
+                                                    $employeeSchedule
+                                                ) }}"
+                                                class="dropdown-item"
+                                            >
+                                                Detail
+                                            </a>
+                                        </li>
 
-                                        Edit
-                                    </a>
+                                        <li>
+                                            <a
+                                                href="{{ route(
+                                                    'employee-schedules.edit',
+                                                    $employeeSchedule
+                                                ) }}"
+                                                class="dropdown-item"
+                                            >
+                                                Edit
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </article>

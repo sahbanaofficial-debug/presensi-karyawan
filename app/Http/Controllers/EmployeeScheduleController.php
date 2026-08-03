@@ -48,6 +48,7 @@ final class EmployeeScheduleController extends Controller
                 [
                     'work',
                     'off',
+                    'leave',
                     'permit',
                     'sick',
                 ],
@@ -130,8 +131,9 @@ final class EmployeeScheduleController extends Controller
                     $dateTo
                 )
             )
-            ->orderByDesc('schedule_date')
+            ->orderBy('schedule_date')
             ->orderBy('employee_id')
+            ->orderBy('id')
             ->paginate(self::ITEMS_PER_PAGE)
             ->withQueryString();
 
