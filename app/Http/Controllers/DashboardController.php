@@ -13,10 +13,15 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\View\View;
 
 final class DashboardController extends Controller
 {
+    private const PERIOD_WEEK = 'week';
+
+    private const PERIOD_TODAY = 'today';
+
     /**
      * Menampilkan dashboard sesuai peran dan ruang lingkup cabang pengguna.
      */
@@ -32,8 +37,12 @@ final class DashboardController extends Controller
         $attendanceSummary = null;
         $branchAttendance = collect();
         $recentAttendances = collect();
+        $dashboardBranches = collect();
         $dashboardDateLabel = null;
         $dashboardScopeLabel = null;
+        $dashboardPeriodKey = self::PERIOD_WEEK;
+        $dashboardPeriodLabel = 'Minggu ini';
+        $selectedDashboardBranchId = null;
 
         if ($user->hasRole('hrd') || $user->hasRole('admin')) {
             $timezone = (string) config(
@@ -41,10 +50,33 @@ final class DashboardController extends Controller
                 'Asia/Jakarta'
             );
 
-            $today = CarbonImmutable::now($timezone);
-            $todayDate = $today->toDateString();
+            $today = Date::now($timezone)->toImmutable();
+            $dashboardPeriodKey = $this->resolvePeriod(
+                $request->query('period')
+            );
 
-            $branchIds = $this->scopedBranchIds($user);
+            [$periodStart, $periodEnd] = $this->periodRange(
+                $today,
+                $dashboardPeriodKey
+            );
+
+            $dashboardBranches = $this->availableBranches($user);
+
+            $selectedDashboardBranchId =
+                $this->selectedBranchId(
+                    $user,
+                    $request,
+                    $dashboardBranches
+                );
+
+            $branchIds = $this->scopedBranchIds(
+                $user,
+                $dashboardBranches,
+                $selectedDashboardBranchId
+            );
+
+            $startDate = $periodStart->toDateString();
+            $endDate = $periodEnd->toDateString();
 
             $dashboardStats = [
                 'active_branches' => Branch::query()
@@ -65,17 +97,39 @@ final class DashboardController extends Controller
                     )
                     ->count(),
 
-                'today_attendances' => Attendance::query()
+                'period_attendances' => Attendance::query()
                     ->whereIn('branch_id', $branchIds)
-                    ->whereDate('attendance_date', $todayDate)
+                    ->whereDate(
+                        'attendance_date',
+                        '>=',
+                        $startDate
+                    )
+                    ->whereDate(
+                        'attendance_date',
+                        '<=',
+                        $endDate
+                    )
                     ->where('validation_status', 'accepted')
                     ->count(),
             ];
 
+            // Dipertahankan untuk kompatibilitas test dan view lama.
+            $dashboardStats['today_attendances'] =
+                $dashboardStats['period_attendances'];
+
             $attendanceSummary = [
                 'on_time' => Attendance::query()
                     ->whereIn('branch_id', $branchIds)
-                    ->whereDate('attendance_date', $todayDate)
+                    ->whereDate(
+                        'attendance_date',
+                        '>=',
+                        $startDate
+                    )
+                    ->whereDate(
+                        'attendance_date',
+                        '<=',
+                        $endDate
+                    )
                     ->where('validation_status', 'accepted')
                     ->where('attendance_type', 'check_in')
                     ->where('punctuality_status', 'on_time')
@@ -83,7 +137,16 @@ final class DashboardController extends Controller
 
                 'late' => Attendance::query()
                     ->whereIn('branch_id', $branchIds)
-                    ->whereDate('attendance_date', $todayDate)
+                    ->whereDate(
+                        'attendance_date',
+                        '>=',
+                        $startDate
+                    )
+                    ->whereDate(
+                        'attendance_date',
+                        '<=',
+                        $endDate
+                    )
                     ->where('validation_status', 'accepted')
                     ->where('attendance_type', 'check_in')
                     ->where('punctuality_status', 'late')
@@ -91,7 +154,16 @@ final class DashboardController extends Controller
 
                 'check_out' => Attendance::query()
                     ->whereIn('branch_id', $branchIds)
-                    ->whereDate('attendance_date', $todayDate)
+                    ->whereDate(
+                        'attendance_date',
+                        '>=',
+                        $startDate
+                    )
+                    ->whereDate(
+                        'attendance_date',
+                        '<=',
+                        $endDate
+                    )
                     ->where('validation_status', 'accepted')
                     ->where('attendance_type', 'check_out')
                     ->count(),
@@ -107,11 +179,17 @@ final class DashboardController extends Controller
                 ->withCount([
                     'attendances as attendance_count' => static function (
                         Builder $query
-                    ) use ($todayDate): void {
+                    ) use ($startDate, $endDate): void {
                         $query
                             ->whereDate(
                                 'attendance_date',
-                                $todayDate
+                                '>=',
+                                $startDate
+                            )
+                            ->whereDate(
+                                'attendance_date',
+                                '<=',
+                                $endDate
                             )
                             ->where(
                                 'validation_status',
@@ -133,21 +211,37 @@ final class DashboardController extends Controller
                     'branch:id,code,name',
                 ])
                 ->whereIn('branch_id', $branchIds)
-                ->whereDate('attendance_date', $todayDate)
+                ->whereDate(
+                    'attendance_date',
+                    '>=',
+                    $startDate
+                )
+                ->whereDate(
+                    'attendance_date',
+                    '<=',
+                    $endDate
+                )
+                ->orderByDesc('attendance_date')
                 ->orderByDesc('attendance_time')
                 ->limit(8)
                 ->get();
 
-            $dashboardDateLabel = $today
-                ->locale('id')
-                ->translatedFormat('d F Y');
+            $dashboardPeriodLabel =
+                $dashboardPeriodKey === self::PERIOD_TODAY
+                    ? 'Hari ini'
+                    : 'Minggu ini';
 
-            $dashboardScopeLabel = $user->hasRole('hrd')
-                ? 'Seluruh cabang'
-                : (Branch::query()
-                    ->whereKey($user->branch_id)
-                    ->value('name')
-                    ?? 'Cabang belum ditetapkan');
+            $dashboardDateLabel = $this->periodDateLabel(
+                $periodStart,
+                $periodEnd,
+                $dashboardPeriodKey
+            );
+
+            $dashboardScopeLabel = $this->scopeLabel(
+                $user,
+                $dashboardBranches,
+                $selectedDashboardBranchId
+            );
         }
 
         return view('dashboard', [
@@ -155,22 +249,137 @@ final class DashboardController extends Controller
             'attendanceSummary' => $attendanceSummary,
             'branchAttendance' => $branchAttendance,
             'recentAttendances' => $recentAttendances,
+            'dashboardBranches' => $dashboardBranches,
             'dashboardDateLabel' => $dashboardDateLabel,
             'dashboardScopeLabel' => $dashboardScopeLabel,
+            'dashboardPeriodKey' => $dashboardPeriodKey,
+            'dashboardPeriodLabel' => $dashboardPeriodLabel,
+            'selectedDashboardBranchId' =>
+                $selectedDashboardBranchId,
         ]);
     }
 
+    private function resolvePeriod(mixed $period): string
+    {
+        return in_array(
+            $period,
+            [
+                self::PERIOD_WEEK,
+                self::PERIOD_TODAY,
+            ],
+            true
+        )
+            ? (string) $period
+            : self::PERIOD_WEEK;
+    }
+
     /**
-     * @return Collection<int, int>
+     * @return array{0: CarbonImmutable, 1: CarbonImmutable}
      */
-    private function scopedBranchIds(User $user): Collection
+    private function periodRange(
+        CarbonImmutable $today,
+        string $period
+    ): array {
+        if ($period === self::PERIOD_TODAY) {
+            return [
+                $today->startOfDay(),
+                $today->endOfDay(),
+            ];
+        }
+
+        return [
+            $today->startOfWeek(),
+            $today->endOfWeek(),
+        ];
+    }
+
+    /**
+     * @return Collection<int, Branch>
+     */
+    private function availableBranches(User $user): Collection
     {
         if ($user->hasRole('hrd')) {
             return Branch::query()
+                ->where('status', 'active')
+                ->orderBy('code')
+                ->get([
+                    'id',
+                    'code',
+                    'name',
+                ]);
+        }
+
+        if (
+            ! $user->hasRole('admin')
+            || $user->branch_id === null
+        ) {
+            return collect();
+        }
+
+        return Branch::query()
+            ->whereKey($user->branch_id)
+            ->get([
+                'id',
+                'code',
+                'name',
+            ]);
+    }
+
+    /**
+     * @param  Collection<int, Branch>  $availableBranches
+     */
+    private function selectedBranchId(
+        User $user,
+        Request $request,
+        Collection $availableBranches
+    ): ?int {
+        if ($user->hasRole('admin')) {
+            return $user->branch_id === null
+                ? null
+                : (int) $user->branch_id;
+        }
+
+        if (! $user->hasRole('hrd')) {
+            return null;
+        }
+
+        $requestedBranchId = filter_var(
+            $request->query('branch_id'),
+            FILTER_VALIDATE_INT
+        );
+
+        if ($requestedBranchId === false) {
+            return null;
+        }
+
+        return $availableBranches->contains(
+            static fn (Branch $branch): bool =>
+                (int) $branch->id === (int) $requestedBranchId
+        )
+            ? (int) $requestedBranchId
+            : null;
+    }
+
+    /**
+     * @param  Collection<int, Branch>  $availableBranches
+     * @return Collection<int, int>
+     */
+    private function scopedBranchIds(
+        User $user,
+        Collection $availableBranches,
+        ?int $selectedBranchId
+    ): Collection {
+        if ($user->hasRole('hrd')) {
+            if ($selectedBranchId !== null) {
+                return collect([$selectedBranchId]);
+            }
+
+            return $availableBranches
                 ->pluck('id')
                 ->map(
                     static fn (mixed $id): int => (int) $id
-                );
+                )
+                ->values();
         }
 
         if (
@@ -181,5 +390,65 @@ final class DashboardController extends Controller
         }
 
         return collect([(int) $user->branch_id]);
+    }
+
+    private function periodDateLabel(
+        CarbonImmutable $periodStart,
+        CarbonImmutable $periodEnd,
+        string $period
+    ): string {
+        if ($period === self::PERIOD_TODAY) {
+            return $periodStart
+                ->locale('id')
+                ->translatedFormat('d F Y');
+        }
+
+        return sprintf(
+            '%s – %s',
+            $periodStart
+                ->locale('id')
+                ->translatedFormat('d F Y'),
+            $periodEnd
+                ->locale('id')
+                ->translatedFormat('d F Y')
+        );
+    }
+
+    /**
+     * @param  Collection<int, Branch>  $availableBranches
+     */
+    private function scopeLabel(
+        User $user,
+        Collection $availableBranches,
+        ?int $selectedBranchId
+    ): string {
+        if ($user->hasRole('hrd')) {
+            if ($selectedBranchId === null) {
+                return 'Seluruh cabang';
+            }
+
+            $branch = $availableBranches->first(
+                static fn (Branch $item): bool =>
+                    (int) $item->id === $selectedBranchId
+            );
+
+            return $branch === null
+                ? 'Seluruh cabang'
+                : sprintf(
+                    '%s — %s',
+                    $branch->code,
+                    $branch->name
+                );
+        }
+
+        $branch = $availableBranches->first();
+
+        return $branch === null
+            ? 'Cabang belum ditetapkan'
+            : sprintf(
+                '%s — %s',
+                $branch->code,
+                $branch->name
+            );
     }
 }

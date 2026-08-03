@@ -48,7 +48,7 @@
         'hrd' => [
             [
                 'label' => 'Monitoring presensi',
-                'description' => 'Pantau transaksi masuk dan pulang seluruh cabang.',
+                'description' => 'Pantau presensi masuk dan pulang seluruh cabang.',
                 'route' => 'attendance-monitoring.index',
                 'icon' => 'bi-activity',
             ],
@@ -78,7 +78,7 @@
             ],
             [
                 'label' => 'Log validasi',
-                'description' => 'Tinjau transaksi yang diterima atau ditolak.',
+                'description' => 'Tinjau presensi yang diterima atau ditolak.',
                 'route' => 'attendance-validation-logs.index',
                 'icon' => 'bi-shield-check',
             ],
@@ -86,7 +86,7 @@
         'admin' => [
             [
                 'label' => 'Monitoring presensi',
-                'description' => 'Pantau transaksi pada cabang penugasan.',
+                'description' => 'Pantau presensi pada cabang penugasan.',
                 'route' => 'attendance-monitoring.index',
                 'icon' => 'bi-activity',
             ],
@@ -180,6 +180,15 @@
         1,
         (int) ($branchAttendance?->max('attendance_count') ?? 0)
     );
+
+    $dashboardBranches = $dashboardBranches ?? collect();
+    $dashboardPeriodKey = $dashboardPeriodKey ?? 'week';
+    $dashboardPeriodLabel = $dashboardPeriodLabel ?? 'Minggu ini';
+    $dashboardPeriodLabelLower = \Illuminate\Support\Str::lower(
+        $dashboardPeriodLabel
+    );
+    $selectedDashboardBranchId =
+        $selectedDashboardBranchId ?? null;
 @endphp
 
 @push('styles')
@@ -251,6 +260,49 @@
             margin: var(--space-2) 0 0;
             color: var(--neutral-600);
             line-height: 1.7;
+        }
+
+        .dashboard-filter-panel {
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            background: var(--neutral-0);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .dashboard-filter-grid {
+            display: grid;
+            grid-template-columns:
+                minmax(10rem, 0.75fr)
+                minmax(14rem, 1.25fr)
+                auto;
+            gap: var(--space-3);
+            align-items: end;
+        }
+
+        .dashboard-filter-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .dashboard-filter-lock {
+            display: flex;
+            min-height: 2.75rem;
+            align-items: center;
+            gap: var(--space-2);
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            color: var(--neutral-700);
+            background: var(--neutral-50);
+            font-size: 0.8125rem;
+            font-weight: 700;
+        }
+
+        .dashboard-filter-caption {
+            margin-top: var(--space-2);
+            color: var(--neutral-600);
+            font-size: 0.75rem;
         }
 
         .dashboard-stat-grid {
@@ -417,7 +469,10 @@
 
         .dashboard-branch-row {
             display: grid;
-            grid-template-columns: minmax(8rem, 0.9fr) minmax(10rem, 1.8fr) 3rem;
+            grid-template-columns:
+                minmax(8rem, 0.9fr)
+                minmax(10rem, 1.8fr)
+                minmax(6.5rem, auto);
             gap: var(--space-3);
             align-items: center;
         }
@@ -433,23 +488,44 @@
         }
 
         .dashboard-branch-track {
-            height: 0.75rem;
+            height: 0.875rem;
             overflow: hidden;
             border-radius: var(--radius-pill);
             background: var(--neutral-100);
+            box-shadow:
+                inset 0 0 0 1px rgba(37, 42, 47, 0.035);
         }
 
         .dashboard-branch-bar {
+            display: block;
             height: 100%;
             border-radius: inherit;
-            background: var(--brand-500);
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--brand-400),
+                    var(--brand-600)
+                );
+            box-shadow:
+                0 0.125rem 0.375rem rgba(201, 83, 20, 0.24);
+            transition: width 180ms ease;
         }
 
         .dashboard-branch-count {
-            color: var(--neutral-900);
-            font-size: 0.8125rem;
+            display: inline-flex;
+            min-height: 2rem;
+            align-items: center;
+            justify-content: center;
+            padding: 0.35rem 0.65rem;
+            border: 1px solid var(--brand-100);
+            border-radius: var(--radius-pill);
+            color: var(--brand-700);
+            background: var(--brand-50);
+            font-size: 0.75rem;
             font-weight: 850;
-            text-align: right;
+            line-height: 1.2;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .dashboard-table-wrap {
@@ -577,6 +653,15 @@
         }
 
         @media (max-width: 1199.98px) {
+            .dashboard-filter-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .dashboard-filter-actions {
+                grid-column: 1 / -1;
+            }
+
             .dashboard-stat-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -591,6 +676,18 @@
         }
 
         @media (max-width: 767.98px) {
+            .dashboard-filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-filter-actions {
+                grid-column: auto;
+            }
+
+            .dashboard-filter-actions .btn {
+                flex: 1 1 0;
+            }
+
             .dashboard-welcome,
             .dashboard-panel-header,
             .dashboard-panel-body {
@@ -608,7 +705,10 @@
             }
 
             .dashboard-branch-row {
-                grid-template-columns: minmax(7rem, 0.9fr) minmax(7rem, 1.5fr) 2.5rem;
+                grid-template-columns:
+                    minmax(7rem, 0.9fr)
+                    minmax(7rem, 1.5fr)
+                    minmax(5.75rem, auto);
             }
 
             .dashboard-action {
@@ -657,6 +757,138 @@
         </section>
 
         @if ($isManagementDashboard && is_array($dashboardStats))
+            <section
+                class="dashboard-filter-panel"
+                aria-labelledby="dashboard-filter-title"
+            >
+                <div class="mb-3">
+                    <h2
+                        id="dashboard-filter-title"
+                        class="section-title mb-1"
+                    >
+                        Filter ringkasan
+                    </h2>
+
+                    <p class="section-description mb-0">
+                        Pilih periode dan cabang untuk memperbarui
+                        seluruh kartu, grafik, dan presensi terbaru.
+                    </p>
+                </div>
+
+                <form
+                    method="GET"
+                    action="{{ route('dashboard') }}"
+                    class="dashboard-filter-grid"
+                >
+                    <div>
+                        <label
+                            for="dashboard_period"
+                            class="form-label"
+                        >
+                            Periode
+                        </label>
+
+                        <select
+                            id="dashboard_period"
+                            name="period"
+                            class="form-select"
+                        >
+                            <option
+                                value="week"
+                                @selected(
+                                    $dashboardPeriodKey === 'week'
+                                )
+                            >
+                                Minggu ini
+                            </option>
+
+                            <option
+                                value="today"
+                                @selected(
+                                    $dashboardPeriodKey === 'today'
+                                )
+                            >
+                                Hari ini
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label
+                            for="dashboard_branch"
+                            class="form-label"
+                        >
+                            Cabang
+                        </label>
+
+                        @if ($user?->hasRole('hrd'))
+                            <select
+                                id="dashboard_branch"
+                                name="branch_id"
+                                class="form-select"
+                            >
+                                <option value="">
+                                    Semua cabang
+                                </option>
+
+                                @foreach (
+                                    $dashboardBranches
+                                    as $dashboardBranch
+                                )
+                                    <option
+                                        value="{{ $dashboardBranch->id }}"
+                                        @selected(
+                                            (string)
+                                                $selectedDashboardBranchId
+                                            ===
+                                            (string)
+                                                $dashboardBranch->id
+                                        )
+                                    >
+                                        {{ $dashboardBranch->code }}
+                                        — {{ $dashboardBranch->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <div
+                                id="dashboard_branch"
+                                class="dashboard-filter-lock"
+                                aria-label="Cabang terkunci"
+                            >
+                                <i
+                                    class="bi bi-lock"
+                                    aria-hidden="true"
+                                ></i>
+
+                                {{ $dashboardScopeLabel }}
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="dashboard-filter-actions">
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Terapkan
+                        </button>
+
+                        <a
+                            href="{{ route('dashboard') }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Reset
+                        </a>
+                    </div>
+                </form>
+
+                <p class="dashboard-filter-caption mb-0">
+                    Periode aktif: {{ $dashboardDateLabel }} ·
+                    Ruang lingkup: {{ $dashboardScopeLabel }}
+                </p>
+            </section>
+
             <section aria-labelledby="dashboard-operational-summary">
                 <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-2 mb-3">
                     <div>
@@ -664,7 +896,7 @@
                             Ringkasan operasional
                         </h2>
                         <p class="section-description mb-0">
-                            Data {{ $dashboardDateLabel }} sesuai ruang lingkup akun.
+                            Periode {{ $dashboardDateLabel }} sesuai ruang lingkup akun.
                         </p>
                     </div>
 
@@ -709,8 +941,8 @@
                             <i class="bi bi-fingerprint" aria-hidden="true"></i>
                         </span>
                         <span>
-                            <span class="dashboard-stat-label">Transaksi hari ini</span>
-                            <strong class="dashboard-stat-value">{{ $dashboardStats['today_attendances'] }}</strong>
+                            <span class="dashboard-stat-label">Presensi {{ $dashboardPeriodLabelLower }}</span>
+                            <strong class="dashboard-stat-value">{{ $dashboardStats['period_attendances'] }}</strong>
                         </span>
                     </article>
                 </div>
@@ -721,10 +953,10 @@
                     <div class="dashboard-panel-header">
                         <div>
                             <h2 id="attendance-composition-title" class="section-title mb-1">
-                                Komposisi presensi hari ini
+                                Komposisi presensi {{ $dashboardPeriodLabelLower }}
                             </h2>
                             <p class="section-description mb-0">
-                                Transaksi yang diterima oleh sistem.
+                                Presensi yang diterima oleh sistem.
                             </p>
                         </div>
                     </div>
@@ -735,28 +967,28 @@
                                 class="dashboard-donut {{ $summaryTotal === 0 ? 'empty' : '' }}"
                                 style="--on-time-end: {{ $onTimePercent }}%; --late-end: {{ $lateEnd }}%;"
                                 role="img"
-                                aria-label="{{ $summaryOnTime }} tepat waktu, {{ $summaryLate }} terlambat, dan {{ $summaryCheckOut }} presensi pulang"
+                                aria-label="{{ $summaryOnTime }} masuk tepat waktu, {{ $summaryLate }} masuk terlambat, dan {{ $summaryCheckOut }} pulang"
                             >
                                 <span class="dashboard-donut-value">
                                     <span class="dashboard-donut-number">{{ $summaryTotal }}</span>
-                                    <span class="dashboard-donut-caption">transaksi</span>
+                                    <span class="dashboard-donut-caption">presensi</span>
                                 </span>
                             </div>
 
                             <ul class="dashboard-legend">
                                 <li class="dashboard-legend-item">
                                     <span class="dashboard-legend-dot success"></span>
-                                    <span>Tepat waktu</span>
+                                    <span>Masuk tepat waktu</span>
                                     <strong>{{ $summaryOnTime }}</strong>
                                 </li>
                                 <li class="dashboard-legend-item">
                                     <span class="dashboard-legend-dot warning"></span>
-                                    <span>Terlambat</span>
+                                    <span>Masuk terlambat</span>
                                     <strong>{{ $summaryLate }}</strong>
                                 </li>
                                 <li class="dashboard-legend-item">
                                     <span class="dashboard-legend-dot brand"></span>
-                                    <span>Presensi pulang</span>
+                                    <span>Pulang</span>
                                     <strong>{{ $summaryCheckOut }}</strong>
                                 </li>
                             </ul>
@@ -768,10 +1000,10 @@
                     <div class="dashboard-panel-header">
                         <div>
                             <h2 id="branch-attendance-title" class="section-title mb-1">
-                                Transaksi per cabang
+                                Presensi per cabang
                             </h2>
                             <p class="section-description mb-0">
-                                Perbandingan jumlah transaksi yang diterima hari ini.
+                                Perbandingan jumlah presensi pada periode aktif.
                             </p>
                         </div>
                     </div>
@@ -800,7 +1032,7 @@
                                             <span class="dashboard-branch-bar" style="width: {{ $barWidth }}%"></span>
                                         </span>
                                         <strong class="dashboard-branch-count">
-                                            {{ $branchItem->attendance_count }}
+                                            {{ $branchItem->attendance_count }} presensi
                                         </strong>
                                     </div>
                                 @endforeach
@@ -824,10 +1056,10 @@
                 <div class="dashboard-panel-header">
                     <div>
                         <h2 id="recent-attendance-title" class="section-title mb-1">
-                            Transaksi terbaru
+                            Presensi terbaru
                         </h2>
                         <p class="section-description mb-0">
-                            Delapan aktivitas presensi terbaru pada tanggal berjalan.
+                            Delapan aktivitas presensi terbaru pada periode aktif.
                         </p>
                     </div>
 
@@ -842,7 +1074,7 @@
                     <table class="table dashboard-table align-middle">
                         <thead>
                             <tr>
-                                <th>Waktu</th>
+                                <th>Tanggal/Waktu</th>
                                 <th>Karyawan</th>
                                 <th>Cabang</th>
                                 <th>Jenis</th>
@@ -868,7 +1100,25 @@
                                     };
                                 @endphp
                                 <tr>
-                                    <td>{{ $attendance->attendance_time?->format('H:i:s') ?? '-' }}</td>
+                                    <td><strong>
+                                            {{
+                                                $attendance
+                                                    ->attendance_date
+                                                    ?->locale('id')
+                                                    ->translatedFormat(
+                                                        'd M Y'
+                                                    )
+                                                ?? '-'
+                                            }}
+                                        </strong>
+                                        <div class="text-secondary small">
+                                            {{
+                                                $attendance
+                                                    ->attendance_time
+                                                    ?->format('H:i:s')
+                                                ?? '-'
+                                            }}
+                                        </div></td>
                                     <td>
                                         <strong>{{ $attendance->employee?->full_name ?? '-' }}</strong>
                                         <div class="text-secondary small">
@@ -895,7 +1145,7 @@
                             @empty
                                 <tr>
                                     <td colspan="8" class="text-center py-5 text-secondary">
-                                        Belum ada transaksi presensi pada tanggal ini.
+                                        Belum ada presensi pada periode ini.
                                     </td>
                                 </tr>
                             @endforelse
