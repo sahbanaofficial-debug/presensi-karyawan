@@ -19,9 +19,9 @@
     };
 
     $roleDescription = match ($user?->role) {
-        'hrd' => 'Mengelola kebijakan, data cabang, data karyawan, jadwal, monitoring, dan laporan presensi.',
-        'admin' => 'Mendukung operasional presensi, sesi QR, monitoring, dan pengelolaan jadwal.',
-        'employee' => 'Melakukan presensi, memeriksa jadwal, dan melihat riwayat kehadiran.',
+        'hrd' => 'Mengelola data dan monitoring presensi lintas cabang.',
+        'admin' => 'Mengelola kegiatan operasional pada cabang penugasan.',
+        'employee' => 'Melakukan presensi, memeriksa jadwal, dan melihat riwayat pribadi.',
         default => 'Mengakses fitur Sistem Presensi Karyawan.',
     };
 
@@ -32,9 +32,9 @@
             'icon' => 'bi-activity',
         ],
         'admin' => [
-            'label' => 'Kelola sesi presensi',
-            'route' => 'attendance-sessions.index',
-            'icon' => 'bi-qr-code-scan',
+            'label' => 'Buka monitoring',
+            'route' => 'attendance-monitoring.index',
+            'icon' => 'bi-activity',
         ],
         'employee' => [
             'label' => 'Lakukan presensi',
@@ -47,24 +47,29 @@
     $quickActions = match ($user?->role) {
         'hrd' => [
             [
+                'label' => 'Monitoring presensi',
+                'description' => 'Pantau transaksi masuk dan pulang seluruh cabang.',
+                'route' => 'attendance-monitoring.index',
+                'icon' => 'bi-activity',
+            ],
+            [
                 'label' => 'Data karyawan',
                 'description' => 'Kelola profil dan status karyawan.',
                 'route' => 'employees.index',
                 'icon' => 'bi-people',
             ],
             [
-                'label' => 'Jadwal karyawan',
-                'description' => 'Atur penempatan jadwal harian.',
-                'route' => 'employee-schedules.index',
-                'icon' => 'bi-calendar-check',
+                'label' => 'Roster mingguan',
+                'description' => 'Susun dan publikasikan roster mingguan.',
+                'route' => 'weekly-rosters.index',
+                'icon' => 'bi-calendar3-week',
             ],
-        [
-            'label' => 'Roster mingguan',
-            'description' => 'Susun dan publikasikan jadwal satu minggu.',
-            'route' => 'weekly-rosters.index',
-            'icon' => 'bi-calendar3-week',
-        ],
-
+            [
+                'label' => 'Terminal cabang',
+                'description' => 'Kelola terminal QR pada setiap cabang.',
+                'route' => 'branch-terminals.index',
+                'icon' => 'bi-display',
+            ],
             [
                 'label' => 'Data cabang',
                 'description' => 'Kelola konfigurasi lokasi dan geofence.',
@@ -80,35 +85,36 @@
         ],
         'admin' => [
             [
-                'label' => 'Sesi presensi',
-                'description' => 'Buat dan pantau QR presensi aktif.',
-                'route' => 'attendance-sessions.index',
-                'icon' => 'bi-qr-code-scan',
-            ],
-            [
-                'label' => 'Monitoring',
-                'description' => 'Pantau aktivitas presensi karyawan.',
+                'label' => 'Monitoring presensi',
+                'description' => 'Pantau transaksi pada cabang penugasan.',
                 'route' => 'attendance-monitoring.index',
                 'icon' => 'bi-activity',
+            ],
+            [
+                'label' => 'Roster mingguan',
+                'description' => 'Susun dan publikasikan roster mingguan cabang.',
+                'route' => 'weekly-rosters.index',
+                'icon' => 'bi-calendar3-week',
+                'requires_branch_assignment' => true,
+            ],
+            [
+                'label' => 'Terminal cabang',
+                'description' => 'Kelola terminal QR cabang penugasan.',
+                'route' => 'branch-terminals.index',
+                'icon' => 'bi-display',
+                'requires_branch_assignment' => true,
+            ],
+            [
+                'label' => 'Data karyawan',
+                'description' => 'Lihat karyawan pada cabang penugasan.',
+                'route' => 'employees.index',
+                'icon' => 'bi-people',
             ],
             [
                 'label' => 'Pertukaran jadwal',
                 'description' => 'Tinjau permintaan perubahan jadwal.',
                 'route' => 'schedule-swap-requests.index',
                 'icon' => 'bi-arrow-left-right',
-            ],
-            [
-                'label' => 'Data karyawan',
-                'description' => 'Lihat dan kelola data karyawan.',
-                'route' => 'employees.index',
-                'icon' => 'bi-people',
-            ],
-            [
-                'label' => 'Roster mingguan',
-                'description' => 'Susun dan publikasikan jadwal cabang satu minggu.',
-                'route' => 'weekly-rosters.index',
-                'icon' => 'bi-calendar3-week',
-                'requires_branch_assignment' => true,
             ],
         ],
         'employee' => [
@@ -147,49 +153,84 @@
 
     $primaryActionAvailable = $primaryAction !== null
         && \Illuminate\Support\Facades\Route::has($primaryAction['route']);
+
+    $isManagementDashboard = in_array(
+        $user?->role,
+        ['hrd', 'admin'],
+        true
+    );
+
+    $summaryTotal = (int) ($attendanceSummary['total'] ?? 0);
+    $summaryOnTime = (int) ($attendanceSummary['on_time'] ?? 0);
+    $summaryLate = (int) ($attendanceSummary['late'] ?? 0);
+    $summaryCheckOut = (int) ($attendanceSummary['check_out'] ?? 0);
+
+    $onTimePercent = $summaryTotal > 0
+        ? round(($summaryOnTime / $summaryTotal) * 100, 2)
+        : 0;
+    $latePercent = $summaryTotal > 0
+        ? round(($summaryLate / $summaryTotal) * 100, 2)
+        : 0;
+    $checkOutPercent = $summaryTotal > 0
+        ? round(($summaryCheckOut / $summaryTotal) * 100, 2)
+        : 0;
+
+    $lateEnd = $onTimePercent + $latePercent;
+    $branchAttendanceMax = max(
+        1,
+        (int) ($branchAttendance?->max('attendance_count') ?? 0)
+    );
 @endphp
 
 @push('styles')
     <style>
-        .dashboard-grid {
+        .dashboard-stack {
             display: grid;
             gap: var(--space-5);
         }
 
-        .dashboard-welcome {
-            position: relative;
-            overflow: hidden;
-            padding: var(--space-5);
+        .dashboard-welcome,
+        .dashboard-card,
+        .dashboard-panel {
             border: 1px solid var(--neutral-200);
             border-radius: var(--radius-lg);
             background: var(--neutral-0);
             box-shadow: var(--shadow-xs);
         }
 
+        .dashboard-welcome {
+            position: relative;
+            overflow: hidden;
+            padding: var(--space-5);
+        }
+
         .dashboard-welcome::before {
             position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
+            inset: 0 auto 0 0;
             width: 0.25rem;
             background: var(--brand-500);
             content: "";
         }
 
-        .dashboard-welcome-icon {
+        .dashboard-welcome-icon,
+        .dashboard-action-icon,
+        .dashboard-stat-icon {
             display: inline-flex;
-            width: 3rem;
-            height: 3rem;
-            flex: 0 0 3rem;
             align-items: center;
             justify-content: center;
             border-radius: var(--radius-md);
             color: var(--brand-700);
             background: var(--brand-50);
+        }
+
+        .dashboard-welcome-icon {
+            width: 3rem;
+            height: 3rem;
+            flex: 0 0 3rem;
             font-size: 1.25rem;
         }
 
-        .dashboard-welcome-kicker {
+        .dashboard-kicker {
             margin-bottom: var(--space-1);
             color: var(--brand-700);
             font-size: 0.75rem;
@@ -198,32 +239,75 @@
             text-transform: uppercase;
         }
 
-        .dashboard-welcome-title {
+        .dashboard-title {
             margin: 0;
             color: var(--neutral-900);
             font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 800;
             letter-spacing: -0.035em;
-            line-height: 1.2;
         }
 
-        .dashboard-welcome-copy {
-            max-width: 50rem;
+        .dashboard-copy {
             margin: var(--space-2) 0 0;
             color: var(--neutral-600);
             line-height: 1.7;
         }
 
-        .dashboard-panel {
-            height: 100%;
-            overflow: hidden;
+        .dashboard-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: var(--space-4);
+        }
+
+        .dashboard-stat-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4);
             border: 1px solid var(--neutral-200);
             border-radius: var(--radius-lg);
             background: var(--neutral-0);
             box-shadow: var(--shadow-xs);
         }
 
+        .dashboard-stat-icon {
+            width: 3rem;
+            height: 3rem;
+            flex: 0 0 3rem;
+            font-size: 1.15rem;
+        }
+
+        .dashboard-stat-label {
+            display: block;
+            color: var(--neutral-600);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .dashboard-stat-value {
+            display: block;
+            margin-top: 0.125rem;
+            color: var(--neutral-900);
+            font-size: 1.65rem;
+            font-weight: 850;
+            line-height: 1;
+        }
+
+        .dashboard-chart-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+            gap: var(--space-5);
+        }
+
+        .dashboard-panel {
+            overflow: hidden;
+        }
+
         .dashboard-panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--space-4);
             padding: var(--space-4) var(--space-5);
             border-bottom: 1px solid var(--neutral-200);
         }
@@ -232,97 +316,198 @@
             padding: var(--space-5);
         }
 
-        .dashboard-account-list {
-            display: grid;
-            gap: var(--space-4);
-            margin: 0;
-        }
-
-        .dashboard-account-row {
-            display: grid;
-            grid-template-columns: minmax(8rem, 0.85fr) minmax(0, 1.15fr);
-            gap: var(--space-4);
-            align-items: start;
-        }
-
-        .dashboard-account-row dt {
-            margin: 0;
-            color: var(--neutral-600);
-            font-size: 0.8125rem;
-            font-weight: 600;
-        }
-
-        .dashboard-account-row dd {
-            min-width: 0;
-            margin: 0;
-            color: var(--neutral-900);
-            font-size: 0.875rem;
-            font-weight: 700;
-            overflow-wrap: anywhere;
-        }
-
-        .dashboard-status {
+        .dashboard-scope-badge {
             display: inline-flex;
-            align-items: center;
-            gap: var(--space-2);
-            padding: 0.375rem 0.625rem;
+            padding: 0.35rem 0.65rem;
             border-radius: var(--radius-pill);
-            color: var(--success-700);
-            background: var(--success-50);
+            color: var(--brand-700);
+            background: var(--brand-50);
             font-size: 0.75rem;
             font-weight: 800;
         }
 
-        .dashboard-status::before {
-            width: 0.5rem;
-            height: 0.5rem;
+        .dashboard-donut-layout {
+            display: grid;
+            grid-template-columns: 12rem minmax(0, 1fr);
+            gap: var(--space-5);
+            align-items: center;
+        }
+
+        .dashboard-donut {
+            position: relative;
+            width: 11rem;
+            height: 11rem;
+            margin: auto;
             border-radius: 50%;
-            background: var(--success-500);
+            background: conic-gradient(
+                var(--success-500) 0 var(--on-time-end),
+                var(--warning-500) var(--on-time-end) var(--late-end),
+                var(--brand-500) var(--late-end) 100%
+            );
+        }
+
+        .dashboard-donut.empty {
+            background: var(--neutral-200);
+        }
+
+        .dashboard-donut::after {
+            position: absolute;
+            inset: 1.7rem;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--neutral-0);
             content: "";
         }
 
-        .dashboard-role-card {
-            padding: var(--space-5);
-            border: 1px solid var(--brand-200);
-            border-radius: var(--radius-lg);
-            background: var(--brand-50);
+        .dashboard-donut-value {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            display: grid;
+            place-content: center;
+            text-align: center;
         }
 
-        .dashboard-role-icon {
-            display: inline-flex;
-            width: 2.75rem;
-            height: 2.75rem;
-            align-items: center;
-            justify-content: center;
-            border-radius: var(--radius-md);
-            color: var(--brand-700);
-            background: var(--brand-100);
-            font-size: 1.125rem;
-        }
-
-        .dashboard-role-title {
-            margin: var(--space-4) 0 var(--space-2);
+        .dashboard-donut-number {
             color: var(--neutral-900);
-            font-size: 1rem;
-            font-weight: 800;
+            font-size: 2rem;
+            font-weight: 850;
+            line-height: 1;
         }
 
-        .dashboard-role-copy {
+        .dashboard-donut-caption {
+            margin-top: 0.3rem;
+            color: var(--neutral-600);
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .dashboard-legend {
+            display: grid;
+            gap: var(--space-3);
             margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .dashboard-legend-item {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            gap: var(--space-2);
+            align-items: center;
             color: var(--neutral-700);
-            font-size: 0.875rem;
-            line-height: 1.7;
+            font-size: 0.8125rem;
+        }
+
+        .dashboard-legend-dot {
+            width: 0.65rem;
+            height: 0.65rem;
+            border-radius: 50%;
+        }
+
+        .dashboard-legend-dot.success { background: var(--success-500); }
+        .dashboard-legend-dot.warning { background: var(--warning-500); }
+        .dashboard-legend-dot.brand { background: var(--brand-500); }
+
+        .dashboard-branch-chart {
+            display: grid;
+            gap: var(--space-4);
+        }
+
+        .dashboard-branch-row {
+            display: grid;
+            grid-template-columns: minmax(8rem, 0.9fr) minmax(10rem, 1.8fr) 3rem;
+            gap: var(--space-3);
+            align-items: center;
+        }
+
+        .dashboard-branch-name {
+            min-width: 0;
+            color: var(--neutral-800);
+            font-size: 0.8125rem;
+            font-weight: 750;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dashboard-branch-track {
+            height: 0.75rem;
+            overflow: hidden;
+            border-radius: var(--radius-pill);
+            background: var(--neutral-100);
+        }
+
+        .dashboard-branch-bar {
+            height: 100%;
+            border-radius: inherit;
+            background: var(--brand-500);
+        }
+
+        .dashboard-branch-count {
+            color: var(--neutral-900);
+            font-size: 0.8125rem;
+            font-weight: 850;
+            text-align: right;
+        }
+
+        .dashboard-table-wrap {
+            overflow-x: auto;
+        }
+
+        .dashboard-table {
+            min-width: 58rem;
+            margin: 0;
+        }
+
+        .dashboard-table th {
+            color: var(--neutral-600);
+            background: var(--neutral-50);
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .dashboard-table td {
+            color: var(--neutral-800);
+            font-size: 0.8125rem;
+            vertical-align: middle;
+        }
+
+        .dashboard-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.3rem 0.55rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.7rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .dashboard-badge.success {
+            color: var(--success-700);
+            background: var(--success-50);
+        }
+
+        .dashboard-badge.warning {
+            color: var(--warning-700);
+            background: var(--warning-50);
+        }
+
+        .dashboard-badge.neutral {
+            color: var(--neutral-700);
+            background: var(--neutral-100);
         }
 
         .dashboard-action-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: var(--space-3);
         }
 
         .dashboard-action {
             display: flex;
-            min-height: 7.5rem;
+            min-height: 7rem;
             align-items: flex-start;
             gap: var(--space-3);
             padding: var(--space-4);
@@ -331,9 +516,7 @@
             color: var(--neutral-900);
             background: var(--neutral-0);
             text-decoration: none;
-            transition:
-                border-color 150ms ease,
-                background-color 150ms ease;
+            transition: border-color 150ms ease, background-color 150ms ease;
         }
 
         .dashboard-action:hover,
@@ -344,21 +527,9 @@
         }
 
         .dashboard-action-icon {
-            display: inline-flex;
             width: 2.5rem;
             height: 2.5rem;
             flex: 0 0 2.5rem;
-            align-items: center;
-            justify-content: center;
-            border-radius: var(--radius-md);
-            color: var(--brand-700);
-            background: var(--brand-50);
-            font-size: 1rem;
-        }
-
-        .dashboard-action:hover .dashboard-action-icon,
-        .dashboard-action:focus .dashboard-action-icon {
-            background: var(--brand-100);
         }
 
         .dashboard-action-title {
@@ -366,7 +537,7 @@
             margin-bottom: var(--space-1);
             color: var(--neutral-900);
             font-size: 0.8125rem;
-            font-weight: 800;
+            font-weight: 850;
         }
 
         .dashboard-action-copy {
@@ -376,65 +547,68 @@
             line-height: 1.55;
         }
 
-        .dashboard-capability-list {
+        .dashboard-account-grid {
             display: grid;
-            gap: var(--space-3);
-            margin: 0;
-            padding: 0;
-            list-style: none;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--space-4);
         }
 
-        .dashboard-capability-item {
-            display: flex;
-            align-items: flex-start;
-            gap: var(--space-3);
-            color: var(--neutral-700);
-            font-size: 0.8125rem;
-            line-height: 1.55;
+        .dashboard-account-item {
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-50);
         }
 
-        .dashboard-capability-icon {
-            color: var(--success-500);
-            font-size: 1rem;
+        .dashboard-account-label {
+            display: block;
+            color: var(--neutral-600);
+            font-size: 0.75rem;
+            font-weight: 700;
         }
 
-        @media (min-width: 992px) {
-            .dashboard-main-columns {
-                display: grid;
-                grid-template-columns:
-                    minmax(0, 1.1fr)
-                    minmax(18rem, 0.9fr);
-                gap: var(--space-5);
+        .dashboard-account-value {
+            display: block;
+            margin-top: var(--space-1);
+            color: var(--neutral-900);
+            font-size: 0.875rem;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 1199.98px) {
+            .dashboard-stat-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .dashboard-chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-action-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
         @media (max-width: 767.98px) {
-            .dashboard-welcome {
-                padding: var(--space-4);
-            }
-
-            .dashboard-welcome-content {
-                align-items: flex-start !important;
-            }
-
-            .dashboard-welcome-icon {
-                width: 2.75rem;
-                height: 2.75rem;
-                flex-basis: 2.75rem;
-            }
-
+            .dashboard-welcome,
             .dashboard-panel-header,
             .dashboard-panel-body {
                 padding: var(--space-4);
             }
 
-            .dashboard-account-row {
+            .dashboard-stat-grid,
+            .dashboard-action-grid,
+            .dashboard-account-grid {
                 grid-template-columns: 1fr;
-                gap: var(--space-1);
             }
 
-            .dashboard-action-grid {
+            .dashboard-donut-layout {
                 grid-template-columns: 1fr;
+            }
+
+            .dashboard-branch-row {
+                grid-template-columns: minmax(7rem, 0.9fr) minmax(7rem, 1.5fr) 2.5rem;
             }
 
             .dashboard-action {
@@ -446,263 +620,366 @@
 
 @section('content')
     <header class="page-header">
-        <h1 class="page-title">
-            Dashboard
-        </h1>
+        <h1 class="page-title">Dashboard</h1>
 
         <p class="page-description">
-            Ringkasan akun dan akses utama Sistem Presensi
-            PT Gadai Ogan Baru.
+            Ringkasan akun dan aktivitas Sistem Presensi PT Gadai Ogan Baru.
         </p>
     </header>
 
-    <div class="dashboard-grid">
+    <div class="dashboard-stack">
         <section class="dashboard-welcome">
-            <div
-                class="dashboard-welcome-content
-                    d-flex flex-column flex-md-row
-                    align-items-md-center justify-content-between
-                    gap-4"
-            >
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
                 <div class="d-flex align-items-start gap-3 min-w-0">
                     <span class="dashboard-welcome-icon">
-                        <i
-                            class="bi bi-person-check"
-                            aria-hidden="true"
-                        ></i>
+                        <i class="bi bi-person-check" aria-hidden="true"></i>
                     </span>
 
                     <div class="min-w-0">
-                        <div class="dashboard-welcome-kicker">
-                            Selamat datang
-                        </div>
+                        <div class="dashboard-kicker">Selamat datang</div>
 
-                        <h2 class="dashboard-welcome-title">
-                            {{ $displayName }}
-                        </h2>
+                        <h2 class="dashboard-title">{{ $displayName }}</h2>
 
-                        <p class="dashboard-welcome-copy">
+                        <p class="dashboard-copy">
                             Anda masuk sebagai {{ $roleLabel }}.
-                            Gunakan akses yang tersedia untuk menjalankan
-                            aktivitas presensi sesuai kewenangan akun.
+                            {{ $roleDescription }}
                         </p>
                     </div>
                 </div>
 
                 @if ($primaryActionAvailable)
-                    <a
-                        href="{{ route($primaryAction['route']) }}"
-                        class="btn btn-primary flex-shrink-0"
-                    >
-                        <i
-                            class="bi {{ $primaryAction['icon'] }} me-2"
-                            aria-hidden="true"
-                        ></i>
-
+                    <a href="{{ route($primaryAction['route']) }}" class="btn btn-primary flex-shrink-0">
+                        <i class="bi {{ $primaryAction['icon'] }} me-2" aria-hidden="true"></i>
                         {{ $primaryAction['label'] }}
                     </a>
                 @endif
             </div>
         </section>
 
-        <div class="dashboard-main-columns">
-            <section class="dashboard-panel">
-                <div class="dashboard-panel-header">
-                    <h2 class="section-title">
-                        Akses utama
-                    </h2>
+        @if ($isManagementDashboard && is_array($dashboardStats))
+            <section aria-labelledby="dashboard-operational-summary">
+                <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-2 mb-3">
+                    <div>
+                        <h2 id="dashboard-operational-summary" class="section-title mb-1">
+                            Ringkasan operasional
+                        </h2>
+                        <p class="section-description mb-0">
+                            Data {{ $dashboardDateLabel }} sesuai ruang lingkup akun.
+                        </p>
+                    </div>
 
-                    <p class="section-description">
-                        Fitur yang paling relevan untuk peran
-                        {{ $roleLabel }}.
-                    </p>
+                    <span class="dashboard-scope-badge">
+                        {{ $dashboardScopeLabel }}
+                    </span>
                 </div>
 
-                <div class="dashboard-panel-body">
-                    @if ($quickActions->isNotEmpty())
-                        <div class="dashboard-action-grid">
-                            @foreach ($quickActions as $action)
-                                <a
-                                    href="{{ route($action['route']) }}"
-                                    class="dashboard-action"
-                                >
-                                    <span class="dashboard-action-icon">
-                                        <i
-                                            class="bi {{ $action['icon'] }}"
-                                            aria-hidden="true"
-                                        ></i>
-                                    </span>
+                <div class="dashboard-stat-grid">
+                    <article class="dashboard-stat-card">
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-building" aria-hidden="true"></i>
+                        </span>
+                        <span>
+                            <span class="dashboard-stat-label">Cabang aktif</span>
+                            <strong class="dashboard-stat-value">{{ $dashboardStats['active_branches'] }}</strong>
+                        </span>
+                    </article>
 
-                                    <span>
-                                        <span
-                                            class="dashboard-action-title"
-                                        >
-                                            {{ $action['label'] }}
-                                        </span>
+                    <article class="dashboard-stat-card">
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-people" aria-hidden="true"></i>
+                        </span>
+                        <span>
+                            <span class="dashboard-stat-label">Karyawan aktif</span>
+                            <strong class="dashboard-stat-value">{{ $dashboardStats['active_employees'] }}</strong>
+                        </span>
+                    </article>
 
-                                        <span
-                                            class="dashboard-action-copy"
-                                        >
-                                            {{ $action['description'] }}
-                                        </span>
-                                    </span>
-                                </a>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="empty-state">
-                            <span class="empty-state-icon">
-                                <i
-                                    class="bi bi-grid"
-                                    aria-hidden="true"
-                                ></i>
-                            </span>
+                    <article class="dashboard-stat-card">
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-display" aria-hidden="true"></i>
+                        </span>
+                        <span>
+                            <span class="dashboard-stat-label">Terminal aktif</span>
+                            <strong class="dashboard-stat-value">{{ $dashboardStats['active_terminals'] }}</strong>
+                        </span>
+                    </article>
 
-                            <h3 class="section-title">
-                                Belum ada akses cepat
-                            </h3>
-
-                            <p class="section-description">
-                                Menu yang tersedia tetap dapat dibuka
-                                melalui navigasi utama.
-                            </p>
-                        </div>
-                    @endif
+                    <article class="dashboard-stat-card">
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-fingerprint" aria-hidden="true"></i>
+                        </span>
+                        <span>
+                            <span class="dashboard-stat-label">Transaksi hari ini</span>
+                            <strong class="dashboard-stat-value">{{ $dashboardStats['today_attendances'] }}</strong>
+                        </span>
+                    </article>
                 </div>
             </section>
 
-            <div class="dashboard-grid">
-                <section class="dashboard-role-card">
-                    <span class="dashboard-role-icon">
-                        <i
-                            class="bi bi-shield-check"
-                            aria-hidden="true"
-                        ></i>
-                    </span>
-
-                    <h2 class="dashboard-role-title">
-                        Akses {{ $roleLabel }}
-                    </h2>
-
-                    <p class="dashboard-role-copy">
-                        {{ $roleDescription }}
-                    </p>
-                </section>
-
-                <section class="dashboard-panel">
+            <div class="dashboard-chart-grid">
+                <section class="dashboard-panel" aria-labelledby="attendance-composition-title">
                     <div class="dashboard-panel-header">
-                        <h2 class="section-title">
-                            Informasi akun
-                        </h2>
-
-                        <p class="section-description">
-                            Identitas akun yang sedang digunakan.
-                        </p>
+                        <div>
+                            <h2 id="attendance-composition-title" class="section-title mb-1">
+                                Komposisi presensi hari ini
+                            </h2>
+                            <p class="section-description mb-0">
+                                Transaksi yang diterima oleh sistem.
+                            </p>
+                        </div>
                     </div>
 
                     <div class="dashboard-panel-body">
-                        <dl class="dashboard-account-list">
-                            <div class="dashboard-account-row">
-                                <dt>Nama pengguna</dt>
-
-                                <dd>
-                                    {{ \Illuminate\Support\Str::title(
-                                        $user?->name ?? '-'
-                                    ) }}
-                                </dd>
+                        <div class="dashboard-donut-layout">
+                            <div
+                                class="dashboard-donut {{ $summaryTotal === 0 ? 'empty' : '' }}"
+                                style="--on-time-end: {{ $onTimePercent }}%; --late-end: {{ $lateEnd }}%;"
+                                role="img"
+                                aria-label="{{ $summaryOnTime }} tepat waktu, {{ $summaryLate }} terlambat, dan {{ $summaryCheckOut }} presensi pulang"
+                            >
+                                <span class="dashboard-donut-value">
+                                    <span class="dashboard-donut-number">{{ $summaryTotal }}</span>
+                                    <span class="dashboard-donut-caption">transaksi</span>
+                                </span>
                             </div>
 
-                            <div class="dashboard-account-row">
-                                <dt>Alamat email</dt>
-
-                                <dd>
-                                    {{ $user?->email ?? '-' }}
-                                </dd>
-                            </div>
-
-                            <div class="dashboard-account-row">
-                                <dt>Peran</dt>
-
-                                <dd>
-                                    <span class="badge text-bg-primary">
-                                        {{ $roleLabel }}
-                                    </span>
-                                </dd>
-                            </div>
-
-                            <div class="dashboard-account-row">
-                                <dt>Status akun</dt>
-
-                                <dd>
-                                    <span class="dashboard-status">
-                                        Aktif
-                                    </span>
-                                </dd>
-                            </div>
-
-                            <div class="dashboard-account-row">
-                                <dt>Waktu akses</dt>
-
-                                <dd>
-                                    {{ now()->format('d-m-Y H:i') }} WIB
-                                </dd>
-                            </div>
-                        </dl>
+                            <ul class="dashboard-legend">
+                                <li class="dashboard-legend-item">
+                                    <span class="dashboard-legend-dot success"></span>
+                                    <span>Tepat waktu</span>
+                                    <strong>{{ $summaryOnTime }}</strong>
+                                </li>
+                                <li class="dashboard-legend-item">
+                                    <span class="dashboard-legend-dot warning"></span>
+                                    <span>Terlambat</span>
+                                    <strong>{{ $summaryLate }}</strong>
+                                </li>
+                                <li class="dashboard-legend-item">
+                                    <span class="dashboard-legend-dot brand"></span>
+                                    <span>Presensi pulang</span>
+                                    <strong>{{ $summaryCheckOut }}</strong>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </section>
 
-                <section class="dashboard-panel">
+                <section class="dashboard-panel" aria-labelledby="branch-attendance-title">
                     <div class="dashboard-panel-header">
-                        <h2 class="section-title">
-                            Validasi sistem
-                        </h2>
-
-                        <p class="section-description">
-                            Mekanisme utama yang melindungi transaksi.
-                        </p>
+                        <div>
+                            <h2 id="branch-attendance-title" class="section-title mb-1">
+                                Transaksi per cabang
+                            </h2>
+                            <p class="section-description mb-0">
+                                Perbandingan jumlah transaksi yang diterima hari ini.
+                            </p>
+                        </div>
                     </div>
 
                     <div class="dashboard-panel-body">
-                        <ul class="dashboard-capability-list">
-                            <li class="dashboard-capability-item">
-                                <i
-                                    class="bi bi-check-circle-fill
-                                        dashboard-capability-icon"
-                                    aria-hidden="true"
-                                ></i>
+                        @if ($branchAttendance->isNotEmpty())
+                            <div class="dashboard-branch-chart">
+                                @foreach ($branchAttendance as $branchItem)
+                                    @php
+                                        $barWidth = (int) $branchItem->attendance_count > 0
+                                            ? max(
+                                                2,
+                                                round(
+                                                    ((int) $branchItem->attendance_count / $branchAttendanceMax) * 100,
+                                                    2
+                                                )
+                                            )
+                                            : 0;
+                                    @endphp
 
-                                <span>
-                                    QR dinamis berbasis TOTP.
+                                    <div class="dashboard-branch-row">
+                                        <span class="dashboard-branch-name" title="{{ $branchItem->code }} — {{ $branchItem->name }}">
+                                            {{ $branchItem->code }} — {{ $branchItem->name }}
+                                        </span>
+                                        <span class="dashboard-branch-track" aria-hidden="true">
+                                            <span class="dashboard-branch-bar" style="width: {{ $barWidth }}%"></span>
+                                        </span>
+                                        <strong class="dashboard-branch-count">
+                                            {{ $branchItem->attendance_count }}
+                                        </strong>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="empty-state py-4">
+                                <span class="empty-state-icon">
+                                    <i class="bi bi-bar-chart" aria-hidden="true"></i>
                                 </span>
-                            </li>
-
-                            <li class="dashboard-capability-item">
-                                <i
-                                    class="bi bi-check-circle-fill
-                                        dashboard-capability-icon"
-                                    aria-hidden="true"
-                                ></i>
-
-                                <span>
-                                    Validasi geofence Formula Haversine.
-                                </span>
-                            </li>
-
-                            <li class="dashboard-capability-item">
-                                <i
-                                    class="bi bi-check-circle-fill
-                                        dashboard-capability-icon"
-                                    aria-hidden="true"
-                                ></i>
-
-                                <span>
-                                    Pemeriksaan jadwal, waktu, dan duplikasi.
-                                </span>
-                            </li>
-                        </ul>
+                                <h3 class="section-title">Belum ada data cabang</h3>
+                                <p class="section-description mb-0">
+                                    Grafik akan terisi setelah cabang aktif tersedia.
+                                </p>
+                            </div>
+                        @endif
                     </div>
                 </section>
             </div>
-        </div>
+
+            <section class="dashboard-panel" aria-labelledby="recent-attendance-title">
+                <div class="dashboard-panel-header">
+                    <div>
+                        <h2 id="recent-attendance-title" class="section-title mb-1">
+                            Transaksi terbaru
+                        </h2>
+                        <p class="section-description mb-0">
+                            Delapan aktivitas presensi terbaru pada tanggal berjalan.
+                        </p>
+                    </div>
+
+                    @if (\Illuminate\Support\Facades\Route::has('attendance-monitoring.index'))
+                        <a href="{{ route('attendance-monitoring.index') }}" class="btn btn-sm btn-outline-primary">
+                            Lihat monitoring
+                        </a>
+                    @endif
+                </div>
+
+                <div class="dashboard-table-wrap">
+                    <table class="table dashboard-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Waktu</th>
+                                <th>Karyawan</th>
+                                <th>Cabang</th>
+                                <th>Jenis</th>
+                                <th>Ketepatan</th>
+                                <th>Jarak</th>
+                                <th>Akurasi</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($recentAttendances as $attendance)
+                                @php
+                                    $punctualityLabel = match ($attendance->punctuality_status) {
+                                        'on_time' => 'Tepat Waktu',
+                                        'late' => 'Terlambat',
+                                        default => 'Tidak Dinilai',
+                                    };
+
+                                    $punctualityClass = match ($attendance->punctuality_status) {
+                                        'on_time' => 'success',
+                                        'late' => 'warning',
+                                        default => 'neutral',
+                                    };
+                                @endphp
+                                <tr>
+                                    <td>{{ $attendance->attendance_time?->format('H:i:s') ?? '-' }}</td>
+                                    <td>
+                                        <strong>{{ $attendance->employee?->full_name ?? '-' }}</strong>
+                                        <div class="text-secondary small">
+                                            {{ $attendance->employee?->employee_number ?? '-' }}
+                                        </div>
+                                    </td>
+                                    <td>{{ $attendance->branch?->code ?? '-' }}</td>
+                                    <td>
+                                        {{ $attendance->attendance_type === 'check_in' ? 'Masuk' : 'Pulang' }}
+                                    </td>
+                                    <td>
+                                        <span class="dashboard-badge {{ $punctualityClass }}">
+                                            {{ $punctualityLabel }}
+                                        </span>
+                                    </td>
+                                    <td>{{ number_format((float) $attendance->distance, 2, ',', '.') }} m</td>
+                                    <td>{{ number_format((float) $attendance->accuracy, 2, ',', '.') }} m</td>
+                                    <td>
+                                        <span class="dashboard-badge {{ $attendance->validation_status === 'accepted' ? 'success' : 'warning' }}">
+                                            {{ $attendance->validation_status === 'accepted' ? 'Diterima' : 'Ditolak' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-secondary">
+                                        Belum ada transaksi presensi pada tanggal ini.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        @endif
+
+        <section class="dashboard-panel" aria-labelledby="dashboard-actions-title">
+            <div class="dashboard-panel-header">
+                <div>
+                    <h2 id="dashboard-actions-title" class="section-title mb-1">
+                        Akses utama
+                    </h2>
+                    <p class="section-description mb-0">
+                        Fitur yang relevan untuk peran {{ $roleLabel }}.
+                    </p>
+                </div>
+            </div>
+
+            <div class="dashboard-panel-body">
+                @if ($quickActions->isNotEmpty())
+                    <div class="dashboard-action-grid">
+                        @foreach ($quickActions as $action)
+                            <a href="{{ route($action['route']) }}" class="dashboard-action">
+                                <span class="dashboard-action-icon">
+                                    <i class="bi {{ $action['icon'] }}" aria-hidden="true"></i>
+                                </span>
+                                <span>
+                                    <span class="dashboard-action-title">{{ $action['label'] }}</span>
+                                    <span class="dashboard-action-copy">{{ $action['description'] }}</span>
+                                </span>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="empty-state">
+                        <span class="empty-state-icon">
+                            <i class="bi bi-grid" aria-hidden="true"></i>
+                        </span>
+                        <h3 class="section-title">Belum ada akses cepat</h3>
+                        <p class="section-description">
+                            Menu yang tersedia tetap dapat dibuka melalui navigasi utama.
+                        </p>
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        <section class="dashboard-panel" aria-labelledby="dashboard-account-title">
+            <div class="dashboard-panel-header">
+                <div>
+                    <h2 id="dashboard-account-title" class="section-title mb-1">
+                        Informasi akun
+                    </h2>
+                    <p class="section-description mb-0">
+                        Identitas akun yang sedang digunakan.
+                    </p>
+                </div>
+            </div>
+
+            <div class="dashboard-panel-body">
+                <div class="dashboard-account-grid">
+                    <div class="dashboard-account-item">
+                        <span class="dashboard-account-label">Nama pengguna</span>
+                        <strong class="dashboard-account-value">
+                            {{ \Illuminate\Support\Str::title($user?->name ?? '-') }}
+                        </strong>
+                    </div>
+                    <div class="dashboard-account-item">
+                        <span class="dashboard-account-label">Alamat email</span>
+                        <strong class="dashboard-account-value">{{ $user?->email ?? '-' }}</strong>
+                    </div>
+                    <div class="dashboard-account-item">
+                        <span class="dashboard-account-label">Peran</span>
+                        <strong class="dashboard-account-value">{{ $roleLabel }}</strong>
+                    </div>
+                    <div class="dashboard-account-item">
+                        <span class="dashboard-account-label">Waktu akses</span>
+                        <strong class="dashboard-account-value">{{ now()->format('d-m-Y H:i') }} WIB</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 @endsection

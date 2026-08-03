@@ -11,6 +11,7 @@ use App\Http\Controllers\AttendanceValidationLogController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchTerminalController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeScheduleController;
 use App\Http\Controllers\ScheduleSwapRequestController;
@@ -49,8 +50,10 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::middleware(['auth', 'active'])->group(function (): void {
-    Route::view('/dashboard', 'dashboard')
-        ->name('dashboard');
+    Route::get(
+        '/dashboard',
+        [DashboardController::class, 'index']
+    )->name('dashboard');
     /*
      |--------------------------------------------------------------------------
      | Presensi Karyawan

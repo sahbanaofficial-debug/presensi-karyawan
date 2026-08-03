@@ -258,8 +258,8 @@ final class WeeklyRosterController extends Controller
                 $query
             ): void {
                 $query
-                    ->orderBy('schedule_date')
-                    ->orderBy('employee_id');
+                    ->orderBy('employee_id')
+                    ->orderBy('schedule_date');
             },
 
             'items.employee:id,branch_id,employee_number,full_name,position,employment_status',
@@ -269,8 +269,98 @@ final class WeeklyRosterController extends Controller
             'items.employeeSchedule:id,weekly_schedule_item_id',
         ]);
 
+        $timezone = (string) config(
+            'app.timezone',
+            'Asia/Jakarta'
+        );
+
+        $weekStart = CarbonImmutable::parse(
+            $this->dateString(
+                $weeklySchedule->week_start_date
+            ),
+            $timezone
+        );
+
+        $weekDays = collect(
+            range(0, 6)
+        )->map(
+            static function (
+                int $dayOffset
+            ) use ($weekStart): array {
+                $date = $weekStart->addDays(
+                    $dayOffset
+                );
+
+                return [
+                    'date' => $date->toDateString(),
+
+                    'day_label' => $date
+                        ->locale('id')
+                        ->translatedFormat('l'),
+
+                    'date_label' => $date
+                        ->locale('id')
+                        ->translatedFormat('d M'),
+                ];
+            }
+        );
+
+        $rosterRows = $weeklySchedule
+            ->items
+            ->groupBy('employee_id')
+            ->map(
+                static function (
+                    $items
+                ) use ($weekDays): array {
+                    $employee = $items
+                        ->first()
+                        ?->employee;
+
+                    $itemsByDate = $items->keyBy(
+                        static fn ($item): string => $item
+                            ->schedule_date
+                            ->toDateString()
+                    );
+
+                    return [
+                        'employee' => $employee,
+
+                        'cells' => $weekDays->mapWithKeys(
+                            static fn (
+                                array $day
+                            ): array => [
+                                $day['date'] => $itemsByDate->get(
+                                    $day['date']
+                                ),
+                            ]
+                        ),
+                    ];
+                }
+            )
+            ->sortBy(
+                static fn (
+                    array $row
+                ): string => (string) (
+                    $row['employee']
+                        ?->employee_number
+                    ?? ''
+                )
+            )
+            ->values();
+
         return view('weekly-rosters.show', [
             'weeklySchedule' => $weeklySchedule,
+
+            'weekDays' => $weekDays,
+
+            'rosterRows' => $rosterRows,
+
+            'scheduleStatusLabels' => [
+                'off' => 'Libur',
+                'leave' => 'Cuti',
+                'permit' => 'Izin',
+                'sick' => 'Sakit',
+            ],
         ]);
     }
 
