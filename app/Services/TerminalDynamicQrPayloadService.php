@@ -87,19 +87,22 @@ final class TerminalDynamicQrPayloadService
             );
         }
 
+        /*
+         * Terminal normal menggunakan sesi otomatis dari jadwal harian.
+         *
+         * Untuk pengujian/demonstrasi terkontrol, HRD/Admin dapat membuka
+         * sesi manual pada jam berjalan. Sesi manual yang aktif diberi
+         * prioritas sehingga terminal tetap dapat menampilkan QR dinamis
+         * bertanda tangan tanpa menunggu roster/scheduler.
+         *
+         * Setelah sesi manual ditutup atau berakhir, terminal otomatis
+         * kembali menggunakan sesi otomatis yang tersedia.
+         */
         $attendanceSession =
             AttendanceSession::query()
                 ->where(
                     'branch_id',
                     $branch->getKey()
-                )
-                ->where(
-                    'attendance_type',
-                    AttendanceSession::TYPE_AUTO
-                )
-                ->where(
-                    'session_source',
-                    AttendanceSession::SOURCE_AUTOMATIC
                 )
                 ->where(
                     'status',
@@ -118,6 +121,46 @@ final class TerminalDynamicQrPayloadService
                     'end_time',
                     '>=',
                     $now
+                )
+                ->where(
+                    function ($query): void {
+                        $query
+                            ->where(
+                                function ($manualQuery): void {
+                                    $manualQuery
+                                        ->where(
+                                            'session_source',
+                                            AttendanceSession::SOURCE_MANUAL
+                                        )
+                                        ->whereIn(
+                                            'attendance_type',
+                                            [
+                                                'check_in',
+                                                'check_out',
+                                            ]
+                                        );
+                                }
+                            )
+                            ->orWhere(
+                                function ($automaticQuery): void {
+                                    $automaticQuery
+                                        ->where(
+                                            'session_source',
+                                            AttendanceSession::SOURCE_AUTOMATIC
+                                        )
+                                        ->where(
+                                            'attendance_type',
+                                            AttendanceSession::TYPE_AUTO
+                                        );
+                                }
+                            );
+                    }
+                )
+                ->orderByRaw(
+                    "CASE
+                        WHEN session_source = 'manual' THEN 0
+                        ELSE 1
+                    END"
                 )
                 ->orderByDesc('start_time')
                 ->orderByDesc('id')

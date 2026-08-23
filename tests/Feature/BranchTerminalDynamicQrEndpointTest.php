@@ -173,7 +173,10 @@ final class BranchTerminalDynamicQrEndpointTest extends TestCase
         );
     }
 
-    public function test_manual_and_other_branch_sessions_are_not_exposed(): void
+    /**
+     * @throws JsonException
+     */
+    public function test_current_manual_session_is_exposed_on_terminal_with_signed_payload(): void
     {
         $this->travelTo(
             CarbonImmutable::parse(
@@ -183,12 +186,12 @@ final class BranchTerminalDynamicQrEndpointTest extends TestCase
         );
 
         $activated = $this->activateTerminal(
-            'Terminal Scope Cabang'
+            'Terminal Sesi Manual'
         );
 
         $creator = $this->createHrd();
 
-        $this->createManualSession(
+        $manualSession = $this->createManualSession(
             branch: $activated['terminal']
                 ->branch,
 
@@ -206,6 +209,99 @@ final class BranchTerminalDynamicQrEndpointTest extends TestCase
             endTime: '17:00:00'
         );
 
+        $response = $this->withTerminalHeaders(
+            $activated
+        )
+            ->getJson(
+                route('terminal.qr-payload')
+            )
+            ->assertOk()
+            ->assertJsonPath(
+                'code',
+                'terminal_qr_payload_ready'
+            )
+            ->assertJsonPath(
+                'data.available',
+                true
+            )
+            ->assertJsonPath(
+                'data.session.public_id',
+                $manualSession->public_id
+            )
+            ->assertJsonPath(
+                'data.session.attendance_type',
+                'check_in'
+            )
+            ->assertJsonPath(
+                'data.session.session_source',
+                AttendanceSession::SOURCE_MANUAL
+            );
+
+        $qrPayload = json_decode(
+            (string) $response->json(
+                'data.qr_payload'
+            ),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
+        $this->assertSame(
+            TerminalDynamicQrPayloadService::PAYLOAD_VERSION,
+            $qrPayload['version']
+        );
+
+        $this->assertSame(
+            $manualSession->public_id,
+            $qrPayload['session']
+        );
+
+        $this->assertSame(
+            $activated['terminal']->public_id,
+            $qrPayload['terminal']
+        );
+
+        $this->assertTrue(
+            app(
+                TerminalDynamicQrPayloadService::class
+            )->verifySignature(
+                sessionPublicId: $qrPayload['session'],
+                token: $qrPayload['token'],
+                terminalPublicId: $qrPayload['terminal'],
+                signature: $qrPayload['signature']
+            )
+        );
+    }
+
+    public function test_manual_session_has_priority_over_automatic_session_for_terminal_demo(): void
+    {
+        $this->travelTo(
+            CarbonImmutable::parse(
+                '2026-11-24 09:30:00',
+                'Asia/Jakarta'
+            )
+        );
+
+        $activated = $this->activateTerminal(
+            'Terminal Prioritas Manual'
+        );
+
+        $branch = $activated['terminal']->branch;
+        $creator = $this->createHrd();
+
+        $automaticSession = $this->createAutomaticSession(
+            branch: $branch,
+            sessionDate: '2026-11-24',
+            startTime: '08:00:00',
+            endTime: '17:00:00'
+        );
+
+        $manualSession = $this->createManualSession(
+            branch: $branch,
+            creator: $creator,
+            sessionDate: '2026-11-24'
+        );
+
         $this->withTerminalHeaders(
             $activated
         )
@@ -215,20 +311,15 @@ final class BranchTerminalDynamicQrEndpointTest extends TestCase
             ->assertOk()
             ->assertJsonPath(
                 'code',
-                'terminal_qr_unavailable'
+                'terminal_qr_payload_ready'
             )
             ->assertJsonPath(
-                'data.available',
-                false
+                'data.session.public_id',
+                $manualSession->public_id
             )
-            ->assertJsonPath(
-                'data.session',
-                null
-            )
-            ->assertJsonPath(
-                'data.qr_payload',
-                null
-            );
+            ->assertJsonMissing([
+                'public_id' => $automaticSession->public_id,
+            ]);
     }
 
     public function test_session_before_start_time_is_unavailable(): void

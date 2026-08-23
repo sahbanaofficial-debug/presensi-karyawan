@@ -546,17 +546,24 @@ final class AttendanceController extends Controller
                 }
 
                 /*
-                 * Sesi otomatis hanya menerima QR yang
+                 * QR yang berasal dari terminal wajib
                  * ditandatangani dan terikat pada terminal aktif.
                  *
-                 * QR sesi manual tetap kompatibel dengan
-                 * struktur lama session + token.
+                 * Sesi otomatis selalu mewajibkan binding terminal.
+                 * Sesi manual tetap kompatibel dengan QR legacy
+                 * session + token, tetapi apabila ditampilkan oleh
+                 * terminal maka binding/signature ikut diverifikasi.
                  */
-                if (
-                    $attendanceSession->isAutomatic()
-                    && $attendanceSession
-                        ->isAutoType()
-                ) {
+                $requiresTerminalBinding =
+                    (
+                        $attendanceSession->isAutomatic()
+                        && $attendanceSession
+                            ->isAutoType()
+                    )
+                    || $request
+                        ->hasCompleteTerminalQrBinding();
+
+                if ($requiresTerminalBinding) {
                     if (
                         ! $request
                             ->hasCompleteTerminalQrBinding()

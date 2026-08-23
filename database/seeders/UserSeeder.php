@@ -11,15 +11,19 @@ use RuntimeException;
 class UserSeeder extends Seeder
 {
     /**
-     * Password awal khusus lingkungan pengembangan lokal.
-     */
-    private const DEFAULT_PASSWORD = 'Presensi123!';
-
-    /**
      * Mengisi akun awal HRD, admin operasional, dan karyawan.
      */
     public function run(): void
     {
+        $initialPassword = (string) config('presensi.initial_password', '');
+
+        if (mb_strlen($initialPassword) < 12) {
+            throw new RuntimeException(
+                'PRESENSI_INITIAL_PASSWORD wajib diisi minimal 12 karakter '
+                .'sebelum menjalankan DatabaseSeeder.'
+            );
+        }
+
         $branch = Branch::query()
             ->where('code', 'CB02')
             ->first();
@@ -71,7 +75,7 @@ class UserSeeder extends Seeder
                 [
                     'branch_id' => $userData['branch_id'],
                     'name' => $userData['name'],
-                    'password' => Hash::make(self::DEFAULT_PASSWORD),
+                    'password' => Hash::make($initialPassword),
                     'role' => $userData['role'],
                     'status' => 'active',
                     'last_login_at' => null,

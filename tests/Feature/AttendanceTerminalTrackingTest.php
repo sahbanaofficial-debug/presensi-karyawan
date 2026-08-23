@@ -389,6 +389,72 @@ final class AttendanceTerminalTrackingTest extends TestCase
     /**
      * @throws JsonException
      */
+    public function test_signed_manual_terminal_qr_is_accepted_and_tracks_terminal(): void
+    {
+        $this->travelTo(
+            CarbonImmutable::parse(
+                '2026-12-06 08:45:00',
+                'Asia/Jakarta'
+            )
+        );
+
+        $context = $this->createContext(
+            sessionDate: '2026-12-06',
+            automatic: false
+        );
+
+        $terminal = $this->createTerminal(
+            branch: $context['branch'],
+            creator: $context['approver']
+        );
+
+        $payload = $this->signedPayload(
+            session: $context['session'],
+            terminal: $terminal,
+            branch: $context['branch']
+        );
+
+        $this->actingAs(
+            $context['user']
+        )
+            ->postJson(
+                route('attendance.store'),
+                $payload
+            )
+            ->assertCreated()
+            ->assertJsonPath(
+                'code',
+                'attendance_accepted'
+            )
+            ->assertJsonPath(
+                'data.attendance_type',
+                'check_in'
+            );
+
+        $this->assertDatabaseHas(
+            'attendances',
+            [
+                'attendance_session_id' => $context['session']->id,
+                'branch_terminal_id' => $terminal->id,
+                'attendance_type' => 'check_in',
+                'validation_status' => 'accepted',
+            ]
+        );
+
+        $this->assertDatabaseHas(
+            'validation_logs',
+            [
+                'attendance_session_id' => $context['session']->id,
+                'branch_terminal_id' => $terminal->id,
+                'validation_type' => 'attendance_accepted',
+                'status' => 'accepted',
+            ]
+        );
+    }
+
+    /**
+     * @throws JsonException
+     */
     public function test_legacy_manual_qr_remains_accepted_without_terminal_tracking(): void
     {
         $this->travelTo(
