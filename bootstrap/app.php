@@ -19,6 +19,8 @@ return Application::configure(
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'active' => EnsureActiveUser::class,
             'role' => EnsureRole::class,
