@@ -8,6 +8,7 @@ use App\Http\Controllers\AttendanceHistoryController;
 use App\Http\Controllers\AttendanceMonitoringController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\AttendanceValidationLogController;
+use App\Http\Controllers\Auth\AccountPasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchTerminalController;
@@ -54,6 +55,18 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         '/dashboard',
         [DashboardController::class, 'index']
     )->name('dashboard');
+
+    Route::get(
+        '/account/password',
+        [AccountPasswordController::class, 'edit']
+    )->name('account.password.edit');
+
+    Route::put(
+        '/account/password',
+        [AccountPasswordController::class, 'update']
+    )
+        ->middleware('throttle:5,1')
+        ->name('account.password.update');
     /*
      |--------------------------------------------------------------------------
      | Presensi Karyawan

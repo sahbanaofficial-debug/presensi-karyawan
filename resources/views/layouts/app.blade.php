@@ -1123,6 +1123,18 @@
                     ],
                 ],
             ],
+            [
+                'label' => 'Akun',
+                'items' => [
+                    [
+                        'label' => 'Ubah Password',
+                        'route' => 'account.password.edit',
+                        'patterns' => ['account.password.*'],
+                        'icon' => 'bi-shield-lock',
+                        'roles' => ['hrd', 'admin', 'employee'],
+                    ],
+                ],
+            ],
         ];
 
         $navigationSections = collect($navigationSections)
@@ -1369,6 +1381,20 @@
                                 class="dropdown-menu
                                     dropdown-menu-end"
                             >
+                                <li>
+                                    <a
+                                        href="{{ route('account.password.edit') }}"
+                                        class="dropdown-item"
+                                    >
+                                        <i
+                                            class="bi bi-shield-lock me-2"
+                                            aria-hidden="true"
+                                        ></i>
+
+                                        Ubah Password
+                                    </a>
+                                </li>
+
                                 <li>
                                     <span
                                         class="dropdown-item-text
