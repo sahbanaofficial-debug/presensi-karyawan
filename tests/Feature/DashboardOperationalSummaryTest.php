@@ -88,8 +88,7 @@ final class DashboardOperationalSummaryTest extends TestCase
             )
             ->assertViewHas(
                 'dashboardStats',
-                static fn (?array $stats): bool =>
-                    $stats !== null
+                static fn (?array $stats): bool => $stats !== null
                     && $stats['active_branches'] === 2
                     && $stats['active_employees'] === 2
                     && $stats['active_terminals'] === 0
@@ -97,8 +96,7 @@ final class DashboardOperationalSummaryTest extends TestCase
             )
             ->assertViewHas(
                 'attendanceSummary',
-                static fn (?array $summary): bool =>
-                    $summary !== null
+                static fn (?array $summary): bool => $summary !== null
                     && $summary['on_time'] === 1
                     && $summary['late'] === 0
                     && $summary['check_out'] === 1
@@ -165,14 +163,12 @@ final class DashboardOperationalSummaryTest extends TestCase
             ->assertViewHas('dashboardPeriodLabel', 'Hari ini')
             ->assertViewHas(
                 'dashboardStats',
-                static fn (?array $stats): bool =>
-                    $stats !== null
+                static fn (?array $stats): bool => $stats !== null
                     && $stats['period_attendances'] === 1
             )
             ->assertViewHas(
                 'recentAttendances',
-                static fn ($attendances): bool =>
-                    $attendances->count() === 1
+                static fn ($attendances): bool => $attendances->count() === 1
                     && $attendances
                         ->first()
                         ?->attendance_date
@@ -243,24 +239,21 @@ final class DashboardOperationalSummaryTest extends TestCase
             )
             ->assertViewHas(
                 'dashboardStats',
-                static fn (?array $stats): bool =>
-                    $stats !== null
+                static fn (?array $stats): bool => $stats !== null
                     && $stats['active_branches'] === 1
                     && $stats['active_employees'] === 1
                     && $stats['period_attendances'] === 1
             )
             ->assertViewHas(
                 'branchAttendance',
-                static fn ($branches): bool =>
-                    $branches->count() === 1
+                static fn ($branches): bool => $branches->count() === 1
                     && $branches->first()?->is(
                         $selectedBranch
                     )
             )
             ->assertViewHas(
                 'recentAttendances',
-                static fn ($attendances): bool =>
-                    $attendances->count() === 1
+                static fn ($attendances): bool => $attendances->count() === 1
                     && $attendances->first()?->is(
                         $selectedAttendance
                     )
@@ -333,22 +326,75 @@ final class DashboardOperationalSummaryTest extends TestCase
             )
             ->assertViewHas(
                 'dashboardStats',
-                static fn (?array $stats): bool =>
-                    $stats !== null
+                static fn (?array $stats): bool => $stats !== null
                     && $stats['active_branches'] === 1
                     && $stats['active_employees'] === 1
                     && $stats['period_attendances'] === 1
             )
             ->assertViewHas(
                 'recentAttendances',
-                static fn ($attendances): bool =>
-                    $attendances->count() === 1
+                static fn ($attendances): bool => $attendances->count() === 1
                     && $attendances->first()?->is(
                         $assignedAttendance
                     )
             )
             ->assertSee('Cabang Admin Dashboard')
             ->assertDontSee('Cabang Lain Dashboard');
+    }
+
+    public function test_employee_dashboard_shows_latest_today_summary(): void
+    {
+        $this->freezeDashboardTime();
+
+        $branch = $this->createBranch(
+            'DASH-EMPLOYEE-01',
+            'Cabang Dashboard Karyawan'
+        );
+
+        $employee = $this->createEmployee(
+            $branch,
+            'P001',
+            'Percobaan 1'
+        );
+
+        $checkIn = $this->createAttendance(
+            $employee,
+            $branch,
+            '2026-08-05',
+            '08:17:05',
+            'check_in'
+        );
+
+        $checkOut = $this->createAttendance(
+            $employee,
+            $branch,
+            '2026-08-05',
+            '17:01:45',
+            'check_out'
+        );
+
+        $this->actingAs(
+            User::query()->findOrFail($employee->user_id)
+        )
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertViewHas(
+                'employeeTodaySchedule',
+                static fn (?EmployeeSchedule $schedule): bool => $schedule?->id === $checkIn->employee_schedule_id
+            )
+            ->assertViewHas(
+                'employeeTodayCheckIn',
+                static fn (?Attendance $attendance): bool => $attendance?->is($checkIn) === true
+            )
+            ->assertViewHas(
+                'employeeTodayCheckOut',
+                static fn (?Attendance $attendance): bool => $attendance?->is($checkOut) === true
+            )
+            ->assertSee('Jadwal Hari Ini')
+            ->assertSee('Mulai Presensi')
+            ->assertSee('Tepat Waktu')
+            ->assertSee('Selesai')
+            ->assertSee('Ubah Password');
     }
 
     private function freezeDashboardTime(): void
@@ -408,28 +454,29 @@ final class DashboardOperationalSummaryTest extends TestCase
         string $attendanceTime,
         string $attendanceType
     ): Attendance {
-        $employeeSchedule =
-            EmployeeSchedule::query()->firstOrCreate(
+        $employeeSchedule = EmployeeSchedule::query()
+            ->where('employee_id', $employee->id)
+            ->whereDate('schedule_date', $attendanceDate)
+            ->first();
+
+        if ($employeeSchedule === null) {
+            $employeeSchedule = EmployeeSchedule::query()->create(
                 [
                     'employee_id' => $employee->id,
                     'schedule_date' => $attendanceDate,
-                ],
-                [
                     'work_schedule_id' => null,
                     'schedule_status' => 'work',
-                    'schedule_source' =>
-                        EmployeeSchedule::SOURCE_MANUAL,
+                    'schedule_source' => EmployeeSchedule::SOURCE_MANUAL,
                     'approved_by' => null,
-                    'notes' =>
-                        'Fixture pengujian dashboard.',
+                    'notes' => 'Fixture pengujian dashboard.',
                 ]
             );
+        }
 
         return Attendance::query()->create([
             'employee_id' => $employee->id,
             'attendance_session_id' => null,
-            'employee_schedule_id' =>
-                $employeeSchedule->id,
+            'employee_schedule_id' => $employeeSchedule->id,
             'branch_id' => $branch->id,
             'attendance_type' => $attendanceType,
             'attendance_date' => $attendanceDate,
@@ -444,14 +491,12 @@ final class DashboardOperationalSummaryTest extends TestCase
             'distance' => null,
             'geofence_radius' => null,
             'attendance_status' => 'present',
-            'punctuality_status' =>
-                $attendanceType === 'check_out'
+            'punctuality_status' => $attendanceType === 'check_out'
                     ? 'not_applicable'
                     : 'on_time',
             'late_minutes' => null,
             'validation_status' => 'accepted',
-            'record_source' =>
-                Attendance::RECORD_SOURCE_MANUAL,
+            'record_source' => Attendance::RECORD_SOURCE_MANUAL,
         ]);
     }
 }

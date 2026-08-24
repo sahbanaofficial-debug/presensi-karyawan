@@ -11,7 +11,7 @@ use RuntimeException;
 class EmployeeSeeder extends Seeder
 {
     /**
-     * Membuat tiga profil karyawan aktif untuk Cabang 02.
+     * Membuat lima profil akun percobaan aktif untuk Cabang 02.
      */
     public function run(): void
     {
@@ -27,24 +27,38 @@ class EmployeeSeeder extends Seeder
 
         $employees = [
             [
-                'email' => 'sahbana@presensi.test',
-                'employee_number' => '02',
+                'email' => 'percobaan1@presensi.test',
+                'employee_number' => 'P001',
                 'full_name' => 'Percobaan 1',
-                'position' => 'Kepala Cabang',
+                'position' => 'percobaan',
                 'phone_number' => null,
             ],
             [
-                'email' => 'dame@presensi.test',
-                'employee_number' => '022',
+                'email' => 'percobaan2@presensi.test',
+                'employee_number' => 'P002',
                 'full_name' => 'Percobaan 2',
-                'position' => 'Kepala Gudang',
+                'position' => 'percobaan',
                 'phone_number' => null,
             ],
             [
-                'email' => 'nadya@presensi.test',
-                'employee_number' => '0222',
+                'email' => 'percobaan3@presensi.test',
+                'employee_number' => 'P003',
                 'full_name' => 'Percobaan 3',
-                'position' => 'Kasir',
+                'position' => 'percobaan',
+                'phone_number' => null,
+            ],
+            [
+                'email' => 'percobaan4@presensi.test',
+                'employee_number' => 'P004',
+                'full_name' => 'Percobaan 4',
+                'position' => 'percobaan',
+                'phone_number' => null,
+            ],
+            [
+                'email' => 'percobaan5@presensi.test',
+                'employee_number' => 'P005',
+                'full_name' => 'Percobaan 5',
+                'position' => 'percobaan',
                 'phone_number' => null,
             ],
         ];

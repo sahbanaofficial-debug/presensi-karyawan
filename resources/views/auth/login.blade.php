@@ -963,14 +963,14 @@
 
                                     <label
                                         for="remember"
-                                        class="form-check-label"
+                                        class="form-check-label fw-semibold"
                                     >
-                                        Ingat saya
+                                        Tetap masuk di perangkat ini
                                     </label>
                                 </div>
 
                                 <span class="small text-secondary">
-                                    Akses berdasarkan peran
+                                    Tidak perlu masuk ulang di perangkat ini
                                 </span>
                             </div>
 

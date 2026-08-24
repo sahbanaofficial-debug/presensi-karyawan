@@ -21,24 +21,53 @@ final class SeededTrialEmployeeDisplayNameTest extends TestCase
 
         $this->seed(DatabaseSeeder::class);
 
-        $expectedNames = [
-            'sahbana@presensi.test' => 'Percobaan 1',
-            'dame@presensi.test' => 'Percobaan 2',
-            'nadya@presensi.test' => 'Percobaan 3',
+        $expectedAccounts = [
+            'percobaan1@presensi.test' => [
+                'name' => 'Percobaan 1',
+                'employee_number' => 'P001',
+            ],
+            'percobaan2@presensi.test' => [
+                'name' => 'Percobaan 2',
+                'employee_number' => 'P002',
+            ],
+            'percobaan3@presensi.test' => [
+                'name' => 'Percobaan 3',
+                'employee_number' => 'P003',
+            ],
+            'percobaan4@presensi.test' => [
+                'name' => 'Percobaan 4',
+                'employee_number' => 'P004',
+            ],
+            'percobaan5@presensi.test' => [
+                'name' => 'Percobaan 5',
+                'employee_number' => 'P005',
+            ],
         ];
 
-        foreach ($expectedNames as $email => $displayName) {
+        foreach ($expectedAccounts as $email => $expected) {
             $user = DB::table('users')
                 ->where('email', $email)
                 ->first();
 
             $this->assertNotNull($user);
-            $this->assertSame($displayName, $user->name);
+            $this->assertSame($expected['name'], $user->name);
 
             $this->assertDatabaseHas('employees', [
                 'user_id' => $user->id,
-                'full_name' => $displayName,
+                'employee_number' => $expected['employee_number'],
+                'full_name' => $expected['name'],
+                'position' => 'percobaan',
             ]);
         }
+
+        $this->assertDatabaseMissing('users', [
+            'email' => 'sahbana@presensi.test',
+        ]);
+        $this->assertDatabaseMissing('users', [
+            'email' => 'dame@presensi.test',
+        ]);
+        $this->assertDatabaseMissing('users', [
+            'email' => 'nadya@presensi.test',
+        ]);
     }
 }

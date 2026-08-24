@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', auth()->user()?->role === 'employee' ? 'Beranda' : 'Dashboard')
 
 @php
     $user = auth()->user();
@@ -715,10 +715,943 @@
                 min-height: auto;
             }
         }
-    </style>
+
+        /* ====================================================
+         * EMPLOYEE MOBILE HOME V2
+         * Tampilan modern khusus karyawan
+         * ==================================================== */
+
+        @if ($user?->role === 'employee')
+
+        .app-sidebar {
+            display: none !important;
+        }
+
+        .app-main {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+
+        .app-topbar .app-icon-button {
+            display: none !important;
+        }
+
+        .app-topbar .dropdown {
+            display: none !important;
+        }
+
+        .app-footer {
+            display: none !important;
+        }
+
+        .app-content {
+            max-width: none;
+            padding-top: 1rem;
+            padding-bottom: 7rem;
+        }
+
+        .employee-home {
+            width: 100%;
+            max-width: 42rem;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .employee-hero {
+            position: relative;
+            overflow: hidden;
+            padding: 1.4rem;
+            border-radius: 1.5rem;
+            color: #ffffff;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(255,255,255,.24),
+                    transparent 42%
+                ),
+                linear-gradient(
+                    135deg,
+                    var(--brand-500),
+                    var(--brand-700)
+                );
+            box-shadow:
+                0 1rem 2.5rem rgba(201, 83, 20, .20);
+        }
+
+        .employee-hero::after {
+            position: absolute;
+            right: -3rem;
+            bottom: -4rem;
+            width: 9rem;
+            height: 9rem;
+            border-radius: 50%;
+            background: rgba(255,255,255,.10);
+            content: "";
+        }
+
+        .employee-hero-kicker {
+            margin: 0 0 .25rem;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            opacity: .85;
+        }
+
+        .employee-hero-name {
+            margin: 0;
+            font-size: 1.7rem;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -.025em;
+        }
+
+        .employee-hero-date {
+            margin: .55rem 0 0;
+            font-size: .85rem;
+            opacity: .9;
+        }
+
+        .employee-hero-avatar {
+            width: 3.4rem;
+            height: 3.4rem;
+            flex: 0 0 3.4rem;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255,255,255,.28);
+            border-radius: 1.1rem;
+            background: rgba(255,255,255,.16);
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .employee-presence-card {
+            padding: 1.25rem;
+            border: 1px solid var(--neutral-200);
+            border-radius: 1.4rem;
+            background: #ffffff;
+            box-shadow:
+                0 .5rem 1.8rem rgba(37, 42, 47, .06);
+        }
+
+        .employee-card-label {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: .35rem;
+            color: var(--neutral-600);
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: .055em;
+            text-transform: uppercase;
+        }
+
+        .employee-card-title {
+            margin: 0;
+            color: var(--neutral-900);
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .employee-card-copy {
+            margin: .45rem 0 1.1rem;
+            color: var(--neutral-600);
+            font-size: .85rem;
+            line-height: 1.6;
+        }
+
+        .employee-presence-button {
+            min-height: 3.6rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .65rem;
+            border-radius: 1rem;
+            font-size: .95rem;
+            font-weight: 800;
+            box-shadow:
+                0 .65rem 1.5rem rgba(229,106,31,.20);
+        }
+
+        .employee-shortcuts {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: .8rem;
+        }
+
+        .employee-shortcut {
+            min-height: 7rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid var(--neutral-200);
+            border-radius: 1.25rem;
+            color: var(--neutral-900);
+            background: #ffffff;
+            text-decoration: none;
+            box-shadow:
+                0 .35rem 1.25rem rgba(37,42,47,.045);
+        }
+
+        .employee-shortcut:hover {
+            color: var(--neutral-900);
+            border-color: var(--brand-200);
+            background: var(--brand-50);
+        }
+
+        .employee-shortcut-icon {
+            width: 2.75rem;
+            height: 2.75rem;
+            display: grid;
+            place-items: center;
+            border-radius: .9rem;
+            color: var(--brand-700);
+            background: var(--brand-50);
+            font-size: 1.15rem;
+        }
+
+        .employee-shortcut-title {
+            display: block;
+            margin-top: .8rem;
+            font-weight: 800;
+        }
+
+        .employee-shortcut-copy {
+            display: block;
+            margin-top: .2rem;
+            color: var(--neutral-600);
+            font-size: .72rem;
+            line-height: 1.45;
+        }
+
+        .employee-account-card {
+            scroll-margin-top: 6rem;
+            padding: 1.15rem;
+            border: 1px solid var(--neutral-200);
+            border-radius: 1.25rem;
+            background: #ffffff;
+        }
+
+        .employee-account-head {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            margin-bottom: .8rem;
+        }
+
+        .employee-account-icon {
+            width: 2.6rem;
+            height: 2.6rem;
+            display: grid;
+            flex: 0 0 2.6rem;
+            place-items: center;
+            border-radius: .85rem;
+            color: var(--brand-700);
+            background: var(--brand-50);
+        }
+
+        .employee-account-title {
+            margin: 0;
+            font-size: .95rem;
+            font-weight: 800;
+        }
+
+        .employee-account-copy {
+            margin: .1rem 0 0;
+            color: var(--neutral-600);
+            font-size: .73rem;
+        }
+
+        .employee-account-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: .7rem 0;
+            border-top: 1px solid var(--neutral-100);
+            font-size: .8rem;
+        }
+
+        .employee-account-row span {
+            color: var(--neutral-600);
+        }
+
+        .employee-account-row strong {
+            max-width: 65%;
+            color: var(--neutral-900);
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .employee-bottom-nav {
+            position: fixed;
+            z-index: 1040;
+            left: 50%;
+            bottom:
+                max(.7rem, env(safe-area-inset-bottom));
+            transform: translateX(-50%);
+            width: calc(100% - 1.1rem);
+            max-width: 40rem;
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+            padding: .45rem;
+            border: 1px solid rgba(226,229,232,.95);
+            border-radius: 1.3rem;
+            background: rgba(255,255,255,.96);
+            box-shadow:
+                0 1rem 2.5rem rgba(37,42,47,.15);
+            backdrop-filter: blur(1rem);
+        }
+
+        .employee-bottom-link {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .15rem;
+            padding: .5rem .2rem;
+            border-radius: .85rem;
+            color: var(--neutral-500);
+            font-size: .65rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .employee-bottom-link i {
+            font-size: 1.05rem;
+        }
+
+        .employee-bottom-link:hover,
+        .employee-bottom-link.active {
+            color: var(--brand-700);
+            background: var(--brand-50);
+        }
+
+        @media (max-width: 575.98px) {
+            .app-content {
+                padding-right: .8rem;
+                padding-left: .8rem;
+            }
+
+            .employee-hero {
+                padding: 1.2rem;
+                border-radius: 1.25rem;
+            }
+
+            .employee-presence-card {
+                padding: 1rem;
+            }
+        }
+
+        @endif
+
+        @if ($user?->role === 'employee')
+
+        .employee-shortcuts {
+            display: none !important;
+        }
+
+        .employee-today-card {
+            padding: 1.2rem;
+            border: 1px solid var(--neutral-200);
+            border-radius: 1.4rem;
+            background: #ffffff;
+            box-shadow:
+                0 .5rem 1.8rem rgba(37, 42, 47, .06);
+        }
+
+        .employee-today-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .employee-today-label {
+            margin: 0;
+            color: var(--neutral-600);
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .employee-today-name {
+            margin: .15rem 0 0;
+            color: var(--neutral-900);
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .employee-today-time {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            margin-top: .35rem;
+            color: var(--neutral-600);
+            font-size: .82rem;
+            font-weight: 600;
+        }
+
+        .employee-today-icon {
+            width: 2.8rem;
+            height: 2.8rem;
+            flex: 0 0 2.8rem;
+            display: grid;
+            place-items: center;
+            border-radius: .9rem;
+            color: var(--brand-700);
+            background: var(--brand-50);
+            font-size: 1.15rem;
+        }
+
+        .employee-status-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+        }
+
+        .employee-status-box {
+            padding: .9rem;
+            border-radius: 1rem;
+            background: var(--neutral-50);
+        }
+
+        .employee-status-label {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            color: var(--neutral-600);
+            font-size: .72rem;
+            font-weight: 700;
+        }
+
+        .employee-status-value {
+            display: block;
+            margin-top: .35rem;
+            color: var(--neutral-900);
+            font-size: .95rem;
+            font-weight: 800;
+        }
+
+        .employee-status-meta {
+            display: block;
+            margin-top: .15rem;
+            color: var(--neutral-600);
+            font-size: .7rem;
+        }
+
+        .employee-status-badge {
+            display: inline-flex;
+            margin-top: .35rem;
+            padding: .25rem .5rem;
+            border-radius: 999px;
+            font-size: .65rem;
+            font-weight: 800;
+        }
+
+        .employee-status-badge.success {
+            color: var(--success-700);
+            background: var(--success-50);
+        }
+
+        .employee-status-badge.warning {
+            color: var(--warning-700);
+            background: var(--warning-50);
+        }
+
+        .employee-status-badge.muted {
+            color: var(--neutral-600);
+            background: var(--neutral-100);
+        }
+
+        .employee-no-schedule {
+            padding: 1rem;
+            border-radius: 1rem;
+            color: var(--neutral-600);
+            background: var(--neutral-50);
+            text-align: center;
+            font-size: .82rem;
+        }
+
+        @endif
+</style>
 @endpush
 
 @section('content')
+    @if ($user?->role === 'employee')
+
+        {{-- EMPLOYEE MOBILE HOME V2 --}}
+
+        <div class="employee-home">
+
+            <section class="employee-hero">
+                <div
+                    class="d-flex align-items-center
+                        justify-content-between gap-3"
+                >
+                    <div class="min-w-0">
+                        <p class="employee-hero-kicker">
+                            Selamat datang
+                        </p>
+
+                        <h1 class="employee-hero-name">
+                            {{ $displayName }}
+                        </h1>
+
+                        <p class="employee-hero-date">
+                            <i
+                                class="bi bi-calendar3 me-1"
+                                aria-hidden="true"
+                            ></i>
+
+                            {{
+                                now()
+                                    ->locale('id')
+                                    ->translatedFormat(
+                                        'l, d F Y'
+                                    )
+                            }}
+                        </p>
+                    </div>
+
+                    <div class="employee-hero-avatar">
+                        {{
+                            \Illuminate\Support\Str::upper(
+                                \Illuminate\Support\Str::substr(
+                                    $displayName,
+                                    0,
+                                    2
+                                )
+                            )
+                        }}
+                    </div>
+                </div>
+            </section>
+
+                        <section class="employee-today-card">
+                @if ($employeeTodaySchedule)
+                    @php
+                        $scheduleStatus =
+                            $employeeTodaySchedule
+                                ->schedule_status;
+
+                        $scheduleName =
+                            $employeeTodaySchedule
+                                ->work_schedule_name_snapshot
+                            ?? $employeeTodaySchedule
+                                ->workSchedule?->name
+                            ?? 'Jadwal Kerja';
+
+                        $checkInTime =
+                            $employeeTodaySchedule
+                                ->check_in_time_snapshot
+                            ?? $employeeTodaySchedule
+                                ->workSchedule?->check_in_time;
+
+                        $checkOutTime =
+                            $employeeTodaySchedule
+                                ->check_out_time_snapshot
+                            ?? $employeeTodaySchedule
+                                ->workSchedule?->check_out_time;
+
+                        $scheduleStatusLabel = match (
+                            $scheduleStatus
+                        ) {
+                            'work' => 'Kerja',
+                            'off' => 'Libur',
+                            'permit' => 'Izin',
+                            'sick' => 'Sakit',
+                            'leave' => 'Cuti',
+                            default => ucfirst(
+                                (string) $scheduleStatus
+                            ),
+                        };
+                    @endphp
+
+                    <div class="employee-today-head">
+                        <div>
+                            <p class="employee-today-label">
+                                Jadwal Hari Ini
+                            </p>
+
+                            <h2 class="employee-today-name">
+                                {{
+                                    $scheduleStatus === 'work'
+                                        ? $scheduleName
+                                        : $scheduleStatusLabel
+                                }}
+                            </h2>
+
+                            @if (
+                                $scheduleStatus === 'work'
+                                && $checkInTime
+                                && $checkOutTime
+                            )
+                                <div class="employee-today-time">
+                                    <i
+                                        class="bi bi-clock"
+                                        aria-hidden="true"
+                                    ></i>
+
+                                    {{
+                                        substr(
+                                            (string) $checkInTime,
+                                            0,
+                                            5
+                                        )
+                                    }}
+                                    —
+                                    {{
+                                        substr(
+                                            (string) $checkOutTime,
+                                            0,
+                                            5
+                                        )
+                                    }}
+                                    WIB
+                                </div>
+                            @endif
+                        </div>
+
+                        <span class="employee-today-icon">
+                            <i
+                                class="bi bi-calendar-check"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+                    </div>
+
+                    @if ($scheduleStatus === 'work')
+                        <div class="employee-status-grid">
+                            <div class="employee-status-box">
+                                <span class="employee-status-label">
+                                    <i
+                                        class="bi bi-box-arrow-in-right"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Masuk
+                                </span>
+
+                                @if ($employeeTodayCheckIn)
+                                    <strong class="employee-status-value">
+                                        {{
+                                            $employeeTodayCheckIn
+                                                ->attendance_time
+                                                ?->format('H:i')
+                                        }}
+                                        WIB
+                                    </strong>
+
+                                    @if (
+                                        $employeeTodayCheckIn
+                                            ->punctuality_status
+                                        === 'late'
+                                    )
+                                        <span
+                                            class="employee-status-badge warning"
+                                        >
+                                            Terlambat
+                                        </span>
+                                    @else
+                                        <span
+                                            class="employee-status-badge success"
+                                        >
+                                            Tepat Waktu
+                                        </span>
+                                    @endif
+                                @else
+                                    <strong class="employee-status-value">
+                                        Belum
+                                    </strong>
+
+                                    <span
+                                        class="employee-status-badge muted"
+                                    >
+                                        Belum Presensi
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="employee-status-box">
+                                <span class="employee-status-label">
+                                    <i
+                                        class="bi bi-box-arrow-right"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Pulang
+                                </span>
+
+                                @if ($employeeTodayCheckOut)
+                                    <strong class="employee-status-value">
+                                        {{
+                                            $employeeTodayCheckOut
+                                                ->attendance_time
+                                                ?->format('H:i')
+                                        }}
+                                        WIB
+                                    </strong>
+
+                                    <span
+                                        class="employee-status-badge success"
+                                    >
+                                        Selesai
+                                    </span>
+                                @else
+                                    <strong class="employee-status-value">
+                                        Belum
+                                    </strong>
+
+                                    <span
+                                        class="employee-status-badge muted"
+                                    >
+                                        Belum Presensi
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                @else
+                    <div class="employee-no-schedule">
+                        <i
+                            class="bi bi-calendar-x me-1"
+                            aria-hidden="true"
+                        ></i>
+
+                        Belum ada jadwal kerja untuk hari ini.
+                    </div>
+                @endif
+            </section>
+<section class="employee-presence-card">
+                <div class="employee-card-label">
+                    <i
+                        class="bi bi-fingerprint"
+                        aria-hidden="true"
+                    ></i>
+
+                    Presensi hari ini
+                </div>
+
+                <h2 class="employee-card-title">
+                    Siap melakukan presensi?
+                </h2>
+
+                <p class="employee-card-copy">
+                    Aktifkan lokasi perangkat kemudian pindai
+                    QR Code yang ditampilkan terminal cabang.
+                </p>
+
+                @if (
+                    \Illuminate\Support\Facades\Route::has(
+                        'attendance.create'
+                    )
+                )
+                    <a
+                        href="{{ route('attendance.create') }}"
+                        class="btn btn-primary
+                            employee-presence-button"
+                    >
+                        <i
+                            class="bi bi-qr-code-scan"
+                            aria-hidden="true"
+                        ></i>
+
+                        Mulai Presensi
+                    </a>
+                @endif
+            </section>
+
+            <div class="employee-shortcuts">
+
+                @if (
+                    \Illuminate\Support\Facades\Route::has(
+                        'attendance.create'
+                    )
+                )
+                    <a
+                        href="{{ route('attendance.create') }}"
+                        class="employee-shortcut"
+                    >
+                        <span class="employee-shortcut-icon">
+                            <i
+                                class="bi bi-qr-code-scan"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <span>
+                            <span class="employee-shortcut-title">
+                                Presensi
+                            </span>
+
+                            <span class="employee-shortcut-copy">
+                                Pindai QR terminal untuk
+                                mencatat kehadiran.
+                            </span>
+                        </span>
+                    </a>
+                @endif
+
+                @if (
+                    \Illuminate\Support\Facades\Route::has(
+                        'attendance.history'
+                    )
+                )
+                    <a
+                        href="{{ route('attendance.history') }}"
+                        class="employee-shortcut"
+                    >
+                        <span class="employee-shortcut-icon">
+                            <i
+                                class="bi bi-clock-history"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+
+                        <span>
+                            <span class="employee-shortcut-title">
+                                Riwayat
+                            </span>
+
+                            <span class="employee-shortcut-copy">
+                                Lihat catatan masuk dan
+                                pulang Anda.
+                            </span>
+                        </span>
+                    </a>
+                @endif
+
+            </div>
+
+            <section
+                id="employee-account"
+                class="employee-account-card"
+            >
+                <div class="employee-account-head">
+                    <span class="employee-account-icon">
+                        <i
+                            class="bi bi-person-circle"
+                            aria-hidden="true"
+                        ></i>
+                    </span>
+
+                    <div>
+                        <h2 class="employee-account-title">
+                            Akun Saya
+                        </h2>
+
+                        <p class="employee-account-copy">
+                            Informasi akun yang sedang digunakan.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="employee-account-row">
+                    <span>Nama</span>
+
+                    <strong>
+                        {{
+                            \Illuminate\Support\Str::title(
+                                $user?->name ?? '-'
+                            )
+                        }}
+                    </strong>
+                </div>
+
+                <div class="employee-account-row">
+                    <span>Email</span>
+                    <strong>
+                        {{ $user?->email ?? '-' }}
+                    </strong>
+                </div>
+
+                <div class="employee-account-row">
+                    <span>Peran</span>
+                    <strong>Karyawan</strong>
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ route('logout') }}"
+                    class="mt-3"
+                >
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-danger w-100"
+                    >
+                        <i
+                            class="bi bi-box-arrow-right me-2"
+                            aria-hidden="true"
+                        ></i>
+
+                        Keluar dari Akun
+                    </button>
+                </form>
+            </section>
+
+        </div>
+
+        <nav
+            class="employee-bottom-nav"
+            aria-label="Navigasi karyawan"
+        >
+            <a
+                href="{{ route('dashboard') }}"
+                class="employee-bottom-link active"
+            >
+                <i
+                    class="bi bi-house-door"
+                    aria-hidden="true"
+                ></i>
+                <span>Beranda</span>
+            </a>
+
+            <a
+                href="{{ route('attendance.create') }}"
+                class="employee-bottom-link"
+            >
+                <i
+                    class="bi bi-qr-code-scan"
+                    aria-hidden="true"
+                ></i>
+                <span>Presensi</span>
+            </a>
+
+            <a
+                href="{{ route('attendance.history') }}"
+                class="employee-bottom-link"
+            >
+                <i
+                    class="bi bi-clock-history"
+                    aria-hidden="true"
+                ></i>
+                <span>Riwayat</span>
+            </a>
+
+            <a
+                href="#employee-account"
+                class="employee-bottom-link"
+            >
+                <i
+                    class="bi bi-person"
+                    aria-hidden="true"
+                ></i>
+                <span>Akun</span>
+            </a>
+        </nav>
+
+    @else
+
     <header class="page-header">
         <h1 class="page-title">Dashboard</h1>
 
@@ -1232,4 +2165,5 @@
             </div>
         </section>
     </div>
+    @endif
 @endsection

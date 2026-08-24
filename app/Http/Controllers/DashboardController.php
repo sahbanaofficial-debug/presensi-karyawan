@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Branch;
 use App\Models\BranchTerminal;
 use App\Models\Employee;
+use App\Models\EmployeeSchedule;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,6 +42,61 @@ final class DashboardController extends Controller
         $dashboardDateLabel = null;
         $dashboardScopeLabel = null;
         $dashboardPeriodKey = self::PERIOD_WEEK;
+
+        /*
+         * EMPLOYEE TODAY DASHBOARD V1
+         * Ringkasan jadwal dan presensi karyawan hari ini.
+         */
+        $employeeTodaySchedule = null;
+        $employeeTodayCheckIn = null;
+        $employeeTodayCheckOut = null;
+
+        if (
+            $user?->role === 'employee'
+            && $user->employee !== null
+        ) {
+            $today = now('Asia/Jakarta')->toDateString();
+
+            $employeeTodaySchedule =
+                EmployeeSchedule::query()
+                    ->with('workSchedule')
+                    ->where(
+                        'employee_id',
+                        $user->employee->id
+                    )
+                    ->whereDate(
+                        'schedule_date',
+                        $today
+                    )
+                    ->first();
+
+            if ($employeeTodaySchedule !== null) {
+                $todayAttendances =
+                    Attendance::query()
+                        ->where(
+                            'employee_schedule_id',
+                            $employeeTodaySchedule->id
+                        )
+                        ->where(
+                            'validation_status',
+                            'accepted'
+                        )
+                        ->get();
+
+                $employeeTodayCheckIn =
+                    $todayAttendances->firstWhere(
+                        'attendance_type',
+                        'check_in'
+                    );
+
+                $employeeTodayCheckOut =
+                    $todayAttendances->firstWhere(
+                        'attendance_type',
+                        'check_out'
+                    );
+            }
+        }
+
         $dashboardPeriodLabel = 'Minggu ini';
         $selectedDashboardBranchId = null;
 
@@ -253,9 +309,11 @@ final class DashboardController extends Controller
             'dashboardDateLabel' => $dashboardDateLabel,
             'dashboardScopeLabel' => $dashboardScopeLabel,
             'dashboardPeriodKey' => $dashboardPeriodKey,
+            'employeeTodaySchedule' => $employeeTodaySchedule,
+            'employeeTodayCheckIn' => $employeeTodayCheckIn,
+            'employeeTodayCheckOut' => $employeeTodayCheckOut,
             'dashboardPeriodLabel' => $dashboardPeriodLabel,
-            'selectedDashboardBranchId' =>
-                $selectedDashboardBranchId,
+            'selectedDashboardBranchId' => $selectedDashboardBranchId,
         ]);
     }
 
@@ -353,8 +411,7 @@ final class DashboardController extends Controller
         }
 
         return $availableBranches->contains(
-            static fn (Branch $branch): bool =>
-                (int) $branch->id === (int) $requestedBranchId
+            static fn (Branch $branch): bool => (int) $branch->id === (int) $requestedBranchId
         )
             ? (int) $requestedBranchId
             : null;
@@ -428,8 +485,7 @@ final class DashboardController extends Controller
             }
 
             $branch = $availableBranches->first(
-                static fn (Branch $item): bool =>
-                    (int) $item->id === $selectedBranchId
+                static fn (Branch $item): bool => (int) $item->id === $selectedBranchId
             );
 
             return $branch === null

@@ -982,12 +982,126 @@
                 animation-iteration-count: 1 !important;
             }
         }
-    </style>
+
+        /* ====================================================
+         * EMPLOYEE GLOBAL APP NAV V1
+         * Tampilan aplikasi mobile pada seluruh halaman karyawan
+         * ==================================================== */
+
+        .employee-app .app-sidebar {
+            display: none !important;
+        }
+
+        .employee-app .app-main {
+            width: 100% !important;
+            margin-left: 0 !important;
+        }
+
+        .employee-app .app-topbar .app-icon-button {
+            display: none !important;
+        }
+
+        .employee-app .app-topbar .dropdown {
+            display: none !important;
+        }
+
+        .employee-app .app-footer {
+            display: none !important;
+        }
+
+        .employee-app .app-content {
+            max-width: 48rem;
+            margin-right: auto;
+            margin-left: auto;
+            padding-bottom: 7rem;
+        }
+
+        /*
+         * Menyembunyikan bottom navigation lama
+         * yang sebelumnya hanya berada di dashboard.
+         */
+        .employee-app .employee-bottom-nav {
+            display: none !important;
+        }
+
+        .employee-global-nav {
+            position: fixed;
+            z-index: 1050;
+            left: 50%;
+            bottom: max(
+                .7rem,
+                env(safe-area-inset-bottom)
+            );
+            transform: translateX(-50%);
+            width: calc(100% - 1.1rem);
+            max-width: 40rem;
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+            gap: .15rem;
+            padding: .45rem;
+            border:
+                1px solid rgba(226, 229, 232, .95);
+            border-radius: 1.3rem;
+            background: rgba(255, 255, 255, .97);
+            box-shadow:
+                0 1rem 2.5rem rgba(37, 42, 47, .15);
+            backdrop-filter: blur(1rem);
+            -webkit-backdrop-filter: blur(1rem);
+        }
+
+        .employee-global-nav-link {
+            min-width: 0;
+            min-height: 3.7rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .15rem;
+            padding: .45rem .2rem;
+            border-radius: .85rem;
+            color: var(--neutral-500);
+            font-size: .65rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition:
+                color 150ms ease,
+                background-color 150ms ease;
+        }
+
+        .employee-global-nav-link i {
+            font-size: 1.05rem;
+        }
+
+        .employee-global-nav-link:hover,
+        .employee-global-nav-link:focus {
+            color: var(--brand-700);
+            background: var(--brand-50);
+        }
+
+        .employee-global-nav-link.active {
+            color: var(--brand-700);
+            background: var(--brand-50);
+        }
+
+        @media (max-width: 575.98px) {
+            .employee-app .app-content {
+                padding-right: .8rem;
+                padding-left: .8rem;
+            }
+        }
+</style>
 
     @stack('styles')
 </head>
 
-<body>
+<body
+    class="{{
+        auth()->user()?->role === 'employee'
+            ? 'employee-app'
+            : ''
+    }}"
+>
     @php
         $authenticatedUser = auth()->user();
 
@@ -1660,6 +1774,90 @@
         </div>
     </div>
 
+
+    @if (auth()->user()?->role === 'employee')
+        <nav
+            class="employee-global-nav"
+            aria-label="Navigasi utama karyawan"
+        >
+            <a
+                href="{{ route('dashboard') }}"
+                class="employee-global-nav-link {{
+                    request()->routeIs('dashboard')
+                        ? 'active'
+                        : ''
+                }}"
+            >
+                <i
+                    class="bi bi-house-door"
+                    aria-hidden="true"
+                ></i>
+
+                <span>Beranda</span>
+            </a>
+
+            @if (
+                \Illuminate\Support\Facades\Route::has(
+                    'attendance.create'
+                )
+            )
+                <a
+                    href="{{ route('attendance.create') }}"
+                    class="employee-global-nav-link {{
+                        request()->routeIs(
+                            'attendance.create',
+                            'attendance.store'
+                        )
+                            ? 'active'
+                            : ''
+                    }}"
+                >
+                    <i
+                        class="bi bi-qr-code-scan"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>Presensi</span>
+                </a>
+            @endif
+
+            @if (
+                \Illuminate\Support\Facades\Route::has(
+                    'attendance.history'
+                )
+            )
+                <a
+                    href="{{ route('attendance.history') }}"
+                    class="employee-global-nav-link {{
+                        request()->routeIs(
+                            'attendance.history'
+                        )
+                            ? 'active'
+                            : ''
+                    }}"
+                >
+                    <i
+                        class="bi bi-clock-history"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>Riwayat</span>
+                </a>
+            @endif
+
+            <a
+                href="{{ route('dashboard') }}#employee-account"
+                class="employee-global-nav-link"
+            >
+                <i
+                    class="bi bi-person"
+                    aria-hidden="true"
+                ></i>
+
+                <span>Akun</span>
+            </a>
+        </nav>
+    @endif
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     ></script>
