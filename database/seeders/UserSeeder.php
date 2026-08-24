@@ -49,19 +49,19 @@ class UserSeeder extends Seeder
             ],
             [
                 'branch_id' => null,
-                'name' => 'Sahbana',
+                'name' => 'Percobaan 1',
                 'email' => 'sahbana@presensi.test',
                 'role' => 'employee',
             ],
             [
                 'branch_id' => null,
-                'name' => 'Dame',
+                'name' => 'Percobaan 2',
                 'email' => 'dame@presensi.test',
                 'role' => 'employee',
             ],
             [
                 'branch_id' => null,
-                'name' => 'Nadya',
+                'name' => 'Percobaan 3',
                 'email' => 'nadya@presensi.test',
                 'role' => 'employee',
             ],
