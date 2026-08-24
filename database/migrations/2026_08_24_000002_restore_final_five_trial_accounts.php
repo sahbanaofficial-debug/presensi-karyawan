@@ -77,7 +77,6 @@ return new class extends Migration
                         'branch_id' => null,
                         'name' => $account['name'],
                         'email' => $account['email'],
-                        'email_verified_at' => now(),
                         'password' => Hash::make($initialPassword),
                         'role' => 'employee',
                         'status' => 'active',
