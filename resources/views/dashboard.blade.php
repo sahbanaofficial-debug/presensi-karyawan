@@ -1246,22 +1246,22 @@
 
                         $scheduleName =
                             $employeeTodaySchedule
-                                ->work_schedule_name_snapshot
-                            ?? $employeeTodaySchedule
                                 ->workSchedule?->name
+                            ?? $employeeTodaySchedule
+                                ->work_schedule_name_snapshot
                             ?? 'Jadwal Kerja';
 
                         $checkInTime =
                             $employeeTodaySchedule
-                                ->check_in_time_snapshot
+                                ->workSchedule?->check_in_time
                             ?? $employeeTodaySchedule
-                                ->workSchedule?->check_in_time;
+                                ->check_in_time_snapshot;
 
                         $checkOutTime =
                             $employeeTodaySchedule
-                                ->check_out_time_snapshot
+                                ->workSchedule?->check_out_time
                             ?? $employeeTodaySchedule
-                                ->workSchedule?->check_out_time;
+                                ->check_out_time_snapshot;
 
                         $scheduleStatusLabel = match (
                             $scheduleStatus

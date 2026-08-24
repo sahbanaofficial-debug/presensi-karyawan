@@ -9,6 +9,7 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use App\Models\User;
+use App\Models\WorkSchedule;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Date;
@@ -395,6 +396,62 @@ final class DashboardOperationalSummaryTest extends TestCase
             ->assertSee('Tepat Waktu')
             ->assertSee('Selesai')
             ->assertSee('Ubah Password');
+    }
+
+    public function test_employee_dashboard_prefers_current_schedule_over_stale_snapshot(): void
+    {
+        $this->freezeDashboardTime();
+
+        $branch = $this->createBranch(
+            'DASH-SYNC-01',
+            'Cabang Sinkronisasi Jadwal'
+        );
+
+        $employee = $this->createEmployee(
+            $branch,
+            'P-SYNC-001',
+            'Karyawan Sinkronisasi'
+        );
+
+        $currentWorkSchedule = WorkSchedule::query()->create([
+            'name' => 'Masuk Siang',
+            'check_in_time' => '13:00:00',
+            'check_out_time' => '21:30:00',
+            'check_in_open_minutes' => 30,
+            'check_in_limit_minutes' => 30,
+            'late_tolerance_minutes' => 5,
+            'check_out_limit_minutes' => 60,
+            'status' => 'active',
+        ]);
+
+        EmployeeSchedule::query()->create([
+            'employee_id' => $employee->id,
+            'work_schedule_id' => $currentWorkSchedule->id,
+            'schedule_date' => '2026-08-05',
+            'schedule_status' => 'work',
+            'schedule_source' =>
+                EmployeeSchedule::SOURCE_BRANCH_DEFAULT,
+            'work_schedule_name_snapshot' => 'Jadwal Penuh',
+            'check_in_time_snapshot' => '08:45:00',
+            'check_out_time_snapshot' => '21:30:00',
+            'check_in_open_minutes_snapshot' => 30,
+            'check_in_limit_minutes_snapshot' => 30,
+            'late_tolerance_minutes_snapshot' => 5,
+            'check_out_limit_minutes_snapshot' => 60,
+            'approved_by' => null,
+            'notes' => null,
+        ]);
+
+        $this->actingAs(
+            User::query()->findOrFail($employee->user_id)
+        )
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Masuk Siang')
+            ->assertSee('13:00')
+            ->assertSee('21:30')
+            ->assertDontSee('Jadwal Penuh')
+            ->assertDontSee('08:45');
     }
 
     private function freezeDashboardTime(): void

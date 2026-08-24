@@ -209,6 +209,9 @@ final class EmployeeScheduleController extends Controller
             ->user()
             ->getKey();
 
+        $validated['schedule_source'] =
+            EmployeeSchedule::SOURCE_MANUAL;
+
         $employeeSchedule = EmployeeSchedule::query()
             ->create($validated);
 
@@ -336,6 +339,27 @@ final class EmployeeScheduleController extends Controller
         $validated['approved_by'] = $request
             ->user()
             ->getKey();
+
+        /*
+         * Perubahan melalui formulir HRD merupakan override manual.
+         * Relasi roster dan snapshot lama harus dilepas agar seluruh
+         * halaman membaca pola jadwal terbaru yang sama.
+         */
+        $validated = array_merge(
+            $validated,
+            [
+                'weekly_schedule_item_id' => null,
+                'schedule_source' =>
+                    EmployeeSchedule::SOURCE_MANUAL,
+                'work_schedule_name_snapshot' => null,
+                'check_in_time_snapshot' => null,
+                'check_out_time_snapshot' => null,
+                'check_in_open_minutes_snapshot' => null,
+                'check_in_limit_minutes_snapshot' => null,
+                'late_tolerance_minutes_snapshot' => null,
+                'check_out_limit_minutes_snapshot' => null,
+            ]
+        );
 
         $employeeSchedule->update($validated);
 

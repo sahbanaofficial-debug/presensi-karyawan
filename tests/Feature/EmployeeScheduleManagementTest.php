@@ -534,6 +534,82 @@ final class EmployeeScheduleManagementTest extends TestCase
         );
     }
 
+    public function test_hrd_edit_converts_generated_schedule_to_manual_override(): void
+    {
+        $hrd = $this->createHrd();
+        $branch = Branch::factory()->create();
+        $employee = $this->createEmployee($branch);
+
+        $originalSchedule = $this->createWorkSchedule([
+            'name' => 'Jadwal Penuh',
+            'check_in_time' => '08:45:00',
+            'check_out_time' => '21:30:00',
+        ]);
+
+        $replacementSchedule = $this->createWorkSchedule([
+            'name' => 'Masuk Siang',
+            'check_in_time' => '13:00:00',
+            'check_out_time' => '21:30:00',
+        ]);
+
+        $employeeSchedule = $this->createEmployeeSchedule(
+            $employee,
+            $originalSchedule,
+            $hrd,
+            [
+                'schedule_date' => '2026-08-24',
+                'schedule_source' =>
+                    EmployeeSchedule::SOURCE_BRANCH_DEFAULT,
+                'work_schedule_name_snapshot' => 'Jadwal Penuh',
+                'check_in_time_snapshot' => '08:45:00',
+                'check_out_time_snapshot' => '21:30:00',
+                'check_in_open_minutes_snapshot' => 30,
+                'check_in_limit_minutes_snapshot' => 30,
+                'late_tolerance_minutes_snapshot' => 5,
+                'check_out_limit_minutes_snapshot' => 60,
+            ]
+        );
+
+        $this->actingAs($hrd)
+            ->put(
+                route(
+                    'employee-schedules.update',
+                    $employeeSchedule
+                ),
+                [
+                    'employee_id' => $employee->id,
+                    'work_schedule_id' =>
+                        $replacementSchedule->id,
+                    'schedule_date' => '2026-08-24',
+                    'schedule_status' => 'work',
+                    'notes' => 'Jadwal pengujian siang',
+                ]
+            )
+            ->assertRedirect(
+                route(
+                    'employee-schedules.show',
+                    $employeeSchedule
+                )
+            );
+
+        $employeeSchedule->refresh();
+
+        $this->assertSame(
+            $replacementSchedule->id,
+            $employeeSchedule->work_schedule_id
+        );
+        $this->assertSame(
+            EmployeeSchedule::SOURCE_MANUAL,
+            $employeeSchedule->schedule_source
+        );
+        $this->assertNull(
+            $employeeSchedule->weekly_schedule_item_id
+        );
+        $this->assertTrue(
+            $employeeSchedule->hasEmptyWorkSnapshot()
+        );
+    }
+
     public function test_search_and_status_filter_return_matching_schedule(): void
     {
         $hrd = $this->createHrd();
