@@ -6,6 +6,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceCorrectionController;
 use App\Http\Controllers\AttendanceHistoryController;
 use App\Http\Controllers\AttendanceMonitoringController;
+use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\AttendanceValidationLogController;
 use App\Http\Controllers\Auth\AccountPasswordController;
@@ -120,6 +121,15 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     )
         ->middleware('role:hrd,admin')
         ->name('attendance-monitoring.index');
+    Route::get(
+        '/attendance-reports',
+        [
+            AttendanceReportController::class,
+            'index',
+        ]
+    )
+        ->middleware('role:hrd,admin')
+        ->name('attendance-reports.index');
     /*
     |--------------------------------------------------------------------------
     | Log Validasi Presensi

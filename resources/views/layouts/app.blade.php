@@ -1212,6 +1212,13 @@
                         'roles' => ['hrd', 'admin'],
                     ],
                     [
+                        'label' => 'Laporan Presensi',
+                        'route' => 'attendance-reports.index',
+                        'patterns' => ['attendance-reports.*'],
+                        'icon' => 'bi-clipboard-data',
+                        'roles' => ['hrd', 'admin'],
+                    ],
+                    [
                         'label' => 'Log Validasi',
                         'route' => 'attendance-validation-logs.index',
                         'patterns' => ['attendance-validation-logs.*'],
