@@ -666,9 +666,14 @@
             }
         }
     </style>
+
+    <link
+        href="{{ asset('css/ui-modern.css') }}"
+        rel="stylesheet"
+    >
 </head>
 
-<body>
+<body class="login-body">
     <div class="login-page">
         <header class="login-topbar">
             <div class="login-topbar-inner">
@@ -712,22 +717,32 @@
                     class="login-information"
                     aria-labelledby="system-information-title"
                 >
+                    <div class="login-panel-brand">
+                        <img
+                            src="{{ asset('images/logo-pt-gadai-ogan-baru.png') }}"
+                            alt="Logo PT Gadai Ogan Baru"
+                        >
+
+                        <span>
+                            <strong>PT Gadai Ogan Baru</strong>
+                            <span>Sistem internal perusahaan</span>
+                        </span>
+                    </div>
+
                     <p class="information-kicker">
-                        Sistem operasional
+                        Selamat datang
                     </p>
 
                     <h1
                         id="system-information-title"
                         class="information-title"
                     >
-                        Presensi terverifikasi untuk operasional
-                        PT Gadai Ogan Baru.
+                        Sistem Presensi
                     </h1>
 
                     <p class="information-copy">
-                        Setiap transaksi diperiksa menggunakan jadwal,
-                        QR Code dinamis berbasis TOTP, dan lokasi perangkat
-                        pada area geofence cabang.
+                        Presensi karyawan berbasis lokasi dan QR dinamis
+                        dengan data yang tersimpan secara terpusat.
                     </p>
 
                     <ul class="capability-list">
@@ -809,11 +824,12 @@
                             id="login-title"
                             class="login-form-title"
                         >
-                            Masuk ke sistem
+                            Masuk ke Akun
                         </h2>
 
                         <p class="login-form-copy">
-                            Gunakan akun internal yang telah terdaftar.
+                            Gunakan akun yang telah diberikan oleh
+                            administrator.
                         </p>
 
                         @if (session('success'))
@@ -969,7 +985,10 @@
                                     </label>
                                 </div>
 
-                                <span class="small text-secondary">
+                                <span
+                                    class="small text-secondary
+                                        login-remember-hint"
+                                >
                                     Tidak perlu masuk ulang di perangkat ini
                                 </span>
                             </div>

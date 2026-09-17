@@ -1,0 +1,966 @@
+/*
+ * PT Gadai Ogan Baru — UI refresh 2026
+ * Lapisan visual ini sengaja hanya mengubah tampilan dan interaksi.
+ * Logika presensi, validasi, serta struktur data tetap ditangani aplikasi.
+ */
+
+:root {
+    --ui-orange: #ef6418;
+    --ui-orange-dark: #c9470d;
+    --ui-orange-soft: #fff2e9;
+    --ui-ink: #17212b;
+    --ui-ink-soft: #263443;
+    --ui-canvas: #f3f5f7;
+    --ui-surface: #ffffff;
+    --ui-line: #e4e8ec;
+    --ui-muted: #687481;
+    --ui-success: #16815a;
+    --ui-warning: #ad6b00;
+    --ui-radius: 1rem;
+    --ui-radius-sm: 0.75rem;
+    --ui-shadow: 0 0.45rem 1.5rem rgba(23, 33, 43, 0.055);
+}
+
+html,
+body {
+    background: var(--ui-canvas);
+}
+
+body {
+    color: var(--ui-ink);
+}
+
+/* Shared application shell */
+.management-app .app-sidebar {
+    border-right: 0;
+    background: var(--ui-ink);
+    box-shadow: 0.5rem 0 2rem rgba(23, 33, 43, 0.08);
+}
+
+.management-app .app-brand {
+    min-height: 5rem;
+    border-bottom-color: rgba(255, 255, 255, 0.09);
+    color: #fff;
+}
+
+.management-app .app-brand:hover,
+.management-app .app-brand:focus {
+    color: #fff;
+}
+
+.management-app .app-brand-mark {
+    width: 3rem;
+    height: 3rem;
+    flex-basis: 3rem;
+    padding: 0.15rem;
+    border-radius: 0.875rem;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.management-app .app-brand-title {
+    color: #fff;
+    font-size: 0.93rem;
+}
+
+.management-app .app-brand-subtitle {
+    color: rgba(255, 255, 255, 0.58);
+}
+
+.management-app .app-nav {
+    padding: 1.25rem 0.875rem 2rem;
+}
+
+.management-app .app-nav-heading {
+    padding-inline: 0.85rem;
+    color: rgba(255, 255, 255, 0.42);
+}
+
+.management-app .app-nav-link {
+    min-height: 2.9rem;
+    margin-bottom: 0.2rem;
+    padding: 0.72rem 0.85rem;
+    color: rgba(255, 255, 255, 0.68);
+    border-radius: 0.75rem;
+}
+
+.management-app .app-nav-link:hover,
+.management-app .app-nav-link:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.management-app .app-nav-link.active {
+    color: #fff;
+    background: var(--ui-orange);
+}
+
+.management-app .app-nav-link.active::before {
+    display: none;
+}
+
+.management-app .app-nav-icon,
+.management-app .app-nav-link.active .app-nav-icon {
+    color: currentColor;
+}
+
+.management-app .app-sidebar-user {
+    border-top-color: rgba(255, 255, 255, 0.09);
+}
+
+.management-app .app-user-card {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.055);
+}
+
+.management-app .app-sidebar .app-user-name {
+    color: #fff;
+}
+
+.management-app .app-sidebar .app-user-role {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.management-app .app-sidebar .btn-light {
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.78);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.management-app .app-sidebar .btn-light:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.management-app .app-topbar {
+    min-height: 5rem;
+    border-bottom: 1px solid var(--ui-line);
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 0.25rem 1rem rgba(23, 33, 43, 0.025);
+}
+
+.management-app .app-topbar-inner {
+    min-height: 5rem;
+    padding-inline: clamp(1rem, 2.5vw, 2rem);
+}
+
+.management-app .app-topbar-eyebrow {
+    color: var(--ui-orange-dark);
+}
+
+.management-app .app-content {
+    padding: clamp(1.25rem, 2.7vw, 2.25rem);
+}
+
+.management-app .page-header {
+    display: block;
+    margin-bottom: 1.5rem;
+}
+
+.management-app .page-title {
+    font-size: clamp(1.55rem, 2.5vw, 2.15rem);
+}
+
+.management-app .page-description {
+    color: var(--ui-muted);
+}
+
+/* Shared surfaces, forms and data tables */
+.management-app .content-card,
+.management-app .card,
+.management-app .dashboard-panel,
+.management-app .dashboard-filter-panel,
+.management-app .dashboard-stat-card,
+.management-app .dashboard-welcome {
+    border-color: var(--ui-line);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow);
+}
+
+.management-app .form-control,
+.management-app .form-select,
+.management-app .input-group-text {
+    min-height: 2.9rem;
+    border-color: #d8dde2;
+    border-radius: var(--ui-radius-sm);
+}
+
+.management-app .form-control:focus,
+.management-app .form-select:focus {
+    border-color: var(--ui-orange);
+    box-shadow: 0 0 0 0.2rem rgba(239, 100, 24, 0.12);
+}
+
+.management-app .btn {
+    min-height: 2.65rem;
+    border-radius: 0.7rem;
+}
+
+.management-app .btn-primary {
+    border-color: var(--ui-orange);
+    background: var(--ui-orange);
+}
+
+.management-app .btn-primary:hover,
+.management-app .btn-primary:focus {
+    border-color: var(--ui-orange-dark);
+    background: var(--ui-orange-dark);
+}
+
+.management-app .table {
+    margin-bottom: 0;
+}
+
+.management-app .table > :not(caption) > * > * {
+    padding: 0.9rem 1rem;
+    border-bottom-color: #edf0f2;
+}
+
+.management-app .table thead th {
+    color: #617080;
+    background: #f7f8f9;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+}
+
+.management-app .table tbody tr {
+    transition: background-color 140ms ease;
+}
+
+.management-app .table tbody tr:hover {
+    background: #fffaf7;
+}
+
+.management-app .pagination {
+    gap: 0.25rem;
+}
+
+.management-app .page-link {
+    border-radius: 0.6rem !important;
+}
+
+/* HRD / branch-admin dashboard */
+.management-app .dashboard-stack {
+    gap: 1.35rem;
+}
+
+.management-app .dashboard-welcome {
+    position: relative;
+    padding: 1.5rem;
+    border: 0;
+    color: #fff;
+    background: var(--ui-ink);
+    box-shadow: 0 0.75rem 2.2rem rgba(23, 33, 43, 0.13);
+}
+
+.management-app .dashboard-welcome::before {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: 0.25rem;
+    background: var(--ui-orange);
+}
+
+.management-app .dashboard-welcome::after {
+    position: absolute;
+    top: -4rem;
+    right: -2rem;
+    width: 13rem;
+    height: 13rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 2.25rem rgba(255, 255, 255, 0.025),
+        0 0 0 4.5rem rgba(255, 255, 255, 0.018);
+    content: "";
+    pointer-events: none;
+}
+
+.management-app .dashboard-welcome-icon {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    background: var(--ui-orange);
+}
+
+.management-app .dashboard-welcome > div {
+    position: relative;
+    z-index: 1;
+}
+
+.management-app .dashboard-kicker {
+    color: #ffb184;
+}
+
+.management-app .dashboard-title {
+    color: #fff;
+}
+
+.management-app .dashboard-copy {
+    max-width: 48rem;
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.management-app .dashboard-welcome .btn-primary {
+    border-color: var(--ui-orange);
+    background: var(--ui-orange);
+}
+
+.management-app .dashboard-filter-panel {
+    padding: 1rem 1.15rem;
+    background: #fff;
+}
+
+.management-app .dashboard-filter-grid {
+    grid-template-columns: minmax(9rem, 0.7fr) minmax(14rem, 1.25fr) auto;
+    gap: 0.8rem;
+}
+
+.management-app .dashboard-filter-caption {
+    padding-top: 0.65rem;
+    border-top: 1px solid #eef0f2;
+}
+
+.management-app .dashboard-stat-grid {
+    gap: 0.9rem;
+}
+
+.management-app .dashboard-stat-card {
+    position: relative;
+    min-height: 7.5rem;
+    align-items: flex-start;
+    padding: 1.15rem;
+    overflow: hidden;
+    background: #fff;
+}
+
+.management-app .dashboard-stat-card::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 3.25rem;
+    height: 0.2rem;
+    border-radius: 0.2rem 0 0 0;
+    background: var(--ui-orange);
+    content: "";
+}
+
+.management-app .dashboard-stat-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-basis: 2.75rem;
+    color: var(--ui-orange-dark);
+    background: var(--ui-orange-soft);
+}
+
+.management-app .dashboard-stat-label {
+    color: var(--ui-muted);
+    font-size: 0.72rem;
+}
+
+.management-app .dashboard-stat-value {
+    margin-top: 0.45rem;
+    font-size: 1.85rem;
+}
+
+.management-app .dashboard-chart-grid {
+    gap: 1.15rem;
+}
+
+.management-app .dashboard-panel-header {
+    padding: 1.1rem 1.25rem;
+    background: #fff;
+}
+
+.management-app .dashboard-panel-body {
+    padding: 1.25rem;
+}
+
+.management-app .dashboard-donut {
+    width: 10rem;
+    height: 10rem;
+}
+
+.management-app .dashboard-donut::after {
+    inset: 1.4rem;
+}
+
+.management-app .dashboard-branch-track {
+    height: 0.65rem;
+    background: #edf0f2;
+}
+
+.management-app .dashboard-branch-bar {
+    background: var(--ui-orange);
+    box-shadow: none;
+}
+
+.management-app .dashboard-branch-count,
+.management-app .dashboard-scope-badge {
+    color: var(--ui-orange-dark);
+    background: var(--ui-orange-soft);
+    border-color: #ffd9c2;
+}
+
+.management-app .dashboard-action {
+    min-height: 6.35rem;
+    padding: 1rem;
+    border-radius: 0.85rem;
+    background: #fff;
+}
+
+.management-app .dashboard-action:hover,
+.management-app .dashboard-action:focus {
+    transform: translateY(-0.1rem);
+    border-color: #f6b58f;
+    background: #fffaf7;
+    box-shadow: 0 0.55rem 1.4rem rgba(23, 33, 43, 0.06);
+}
+
+.management-app .dashboard-action-icon {
+    color: var(--ui-orange-dark);
+    background: var(--ui-orange-soft);
+}
+
+.management-app .dashboard-account-item {
+    border-color: #e8ebee;
+    background: #f8f9fa;
+}
+
+/* Employee application */
+.employee-app {
+    background: #f4f5f6;
+}
+
+.employee-app .app-topbar {
+    min-height: 4.3rem;
+    border-bottom-color: var(--ui-line);
+    background: rgba(255, 255, 255, 0.97);
+}
+
+.employee-app .app-topbar-inner {
+    min-height: 4.3rem;
+}
+
+.employee-app .app-mobile-brand .app-brand-mark {
+    width: 2.55rem;
+    height: 2.55rem;
+    flex-basis: 2.55rem;
+}
+
+.employee-app .app-content {
+    padding-top: 1.15rem;
+    padding-bottom: 6.75rem;
+}
+
+.employee-app .employee-home {
+    max-width: 44rem;
+    gap: 0.9rem;
+}
+
+.employee-app .employee-hero {
+    min-height: auto;
+    padding: 1.25rem 1.35rem;
+    border: 0;
+    border-radius: var(--ui-radius);
+    color: #fff;
+    background: var(--ui-ink);
+    box-shadow: 0 0.65rem 1.8rem rgba(23, 33, 43, 0.11);
+}
+
+.employee-app .employee-hero::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 0.22rem;
+    background: var(--ui-orange);
+    content: "";
+}
+
+.employee-app .employee-hero::after {
+    right: -2.25rem;
+    bottom: -3.5rem;
+    width: 8rem;
+    height: 8rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: transparent;
+    box-shadow: 0 0 0 1.75rem rgba(255, 255, 255, 0.025);
+}
+
+.employee-app .employee-hero-kicker {
+    color: #ffb184;
+    opacity: 1;
+}
+
+.employee-app .employee-hero-name {
+    font-size: clamp(1.35rem, 5vw, 1.75rem);
+}
+
+.employee-app .employee-hero-date {
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
+}
+
+.employee-app .employee-hero-avatar {
+    border-color: rgba(255, 255, 255, 0.14);
+    border-radius: 0.85rem;
+    color: #fff;
+    background: var(--ui-orange);
+}
+
+.employee-app .employee-today-card,
+.employee-app .employee-presence-card,
+.employee-app .employee-account-card {
+    border-color: var(--ui-line);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow);
+}
+
+.employee-app .employee-today-card {
+    padding: 1.1rem;
+}
+
+.employee-app .employee-today-icon,
+.employee-app .employee-account-icon,
+.employee-app .employee-shortcut-icon {
+    color: var(--ui-orange-dark);
+    background: var(--ui-orange-soft);
+}
+
+.employee-app .employee-status-box {
+    border: 1px solid #eceff1;
+    border-radius: 0.8rem;
+    background: #f8f9fa;
+}
+
+.employee-app .employee-presence-card {
+    padding: 1.1rem;
+}
+
+.employee-app .employee-presence-button {
+    min-height: 3.15rem;
+    border-radius: 0.75rem;
+    box-shadow: none;
+}
+
+.employee-app .employee-account-card {
+    padding: 1.1rem;
+}
+
+.employee-app .employee-global-nav {
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    padding: 0.45rem max(0.6rem, env(safe-area-inset-right)) max(0.45rem, env(safe-area-inset-bottom)) max(0.6rem, env(safe-area-inset-left));
+    border: 0;
+    border-top: 1px solid var(--ui-line);
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 -0.4rem 1.5rem rgba(23, 33, 43, 0.07);
+    backdrop-filter: blur(0.75rem);
+}
+
+.employee-app .employee-global-nav-link {
+    max-width: 10rem;
+    margin-inline: auto;
+    border-radius: 0.7rem;
+}
+
+.employee-app .employee-global-nav-link.active {
+    color: var(--ui-orange-dark);
+    background: var(--ui-orange-soft);
+}
+
+.employee-app .attendance-history-page .history-profile-card,
+.employee-app .attendance-history-page .history-filter-card,
+.employee-app .attendance-history-page .history-list-card,
+.employee-app .attendance-history-page .history-summary-card {
+    border-color: var(--ui-line);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow);
+}
+
+.employee-app .attendance-history-page .history-summary-icon {
+    color: var(--ui-orange-dark);
+    background: var(--ui-orange-soft);
+}
+
+/* Login page matching the refreshed application identity */
+.login-body {
+    background: #f1f3f5;
+}
+
+.login-body .login-page {
+    min-height: 100vh;
+}
+
+.login-body .login-topbar {
+    display: none;
+}
+
+.login-body .login-main {
+    max-width: 80rem;
+    padding: clamp(1rem, 4vw, 3rem);
+}
+
+.login-body .login-shell {
+    min-height: min(46rem, calc(100vh - 6rem));
+    border: 1px solid rgba(23, 33, 43, 0.11);
+    border-radius: 1.6rem;
+    box-shadow: 0 1.25rem 3.5rem rgba(23, 33, 43, 0.13);
+}
+
+.login-body .login-information {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    border: 0;
+    color: #fff;
+    background: var(--ui-orange);
+}
+
+.login-body .login-information::before {
+    top: -5rem;
+    right: -4rem;
+    bottom: auto;
+    left: auto;
+    width: 16rem;
+    height: 16rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    background: transparent;
+    box-shadow:
+        0 0 0 2.75rem rgba(255, 255, 255, 0.07),
+        0 0 0 5.5rem rgba(255, 255, 255, 0.035);
+}
+
+.login-body .login-information::after {
+    position: absolute;
+    right: -2.8rem;
+    bottom: -3.5rem;
+    width: 11rem;
+    height: 11rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2rem rgba(255, 255, 255, 0.045);
+    content: "";
+}
+
+.login-panel-brand {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 2.25rem;
+}
+
+.login-panel-brand img {
+    width: 5.5rem;
+    height: 5.5rem;
+    padding: 0.22rem;
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.12);
+    object-fit: contain;
+}
+
+.login-panel-brand strong,
+.login-panel-brand span {
+    display: block;
+}
+
+.login-panel-brand strong {
+    color: #fff;
+    font-size: 1rem;
+}
+
+.login-panel-brand span {
+    margin-top: 0.15rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.75rem;
+}
+
+.login-body .information-kicker,
+.login-body .information-title,
+.login-body .information-copy,
+.login-body .capability-list {
+    position: relative;
+    z-index: 1;
+}
+
+.login-body .information-kicker {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.login-body .information-kicker::before {
+    background: #fff;
+}
+
+.login-body .information-title {
+    color: #fff;
+    font-size: clamp(2.25rem, 4.8vw, 3.6rem);
+}
+
+.login-body .information-copy {
+    max-width: 30rem;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.login-body .capability-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+}
+
+.login-body .capability-item {
+    min-width: 0;
+    padding: 0.75rem;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.login-body .capability-icon {
+    width: 2.15rem;
+    height: 2.15rem;
+    flex-basis: 2.15rem;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.login-body .capability-title {
+    color: #fff;
+    font-size: 0.73rem;
+}
+
+.login-body .capability-copy {
+    display: none;
+}
+
+.login-body .login-form-panel {
+    padding: clamp(2rem, 5vw, 4.5rem);
+}
+
+.login-body .login-form-wrapper {
+    max-width: 29rem;
+}
+
+.login-body .login-form-icon {
+    display: none;
+}
+
+.login-body .login-form-title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+}
+
+.login-body .login-form-copy {
+    margin-top: 0.55rem;
+}
+
+.login-body .login-form {
+    margin-top: 2rem;
+}
+
+.login-body .input-group-text,
+.login-body .form-control {
+    min-height: 3.15rem;
+}
+
+.login-body .btn-login {
+    min-height: 3.2rem;
+    border-color: var(--ui-orange);
+    background: var(--ui-orange);
+}
+
+.login-body .btn-login:hover,
+.login-body .btn-login:focus {
+    border-color: var(--ui-orange-dark);
+    background: var(--ui-orange-dark);
+}
+
+.login-body .login-support {
+    justify-content: center;
+    border: 0;
+    border-top: 1px solid var(--ui-line);
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+}
+
+.login-body .login-footer {
+    padding-bottom: 1rem;
+}
+
+@media (min-width: 992px) {
+    .login-body .login-shell {
+        grid-template-columns: minmax(0, 0.92fr) minmax(27rem, 1.08fr);
+    }
+
+    .login-body .login-information {
+        padding: clamp(2.5rem, 5vw, 4.5rem);
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .management-app .dashboard-filter-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 991.98px) {
+    .login-body .login-main {
+        align-items: flex-start;
+        max-width: 42rem;
+        padding: 1rem;
+    }
+
+    .login-body .login-shell {
+        min-height: 0;
+        display: block;
+        border-radius: 1.25rem;
+    }
+
+    .login-body .login-information {
+        min-height: 13rem;
+        display: block;
+        padding: 1.5rem 1.5rem 2.2rem;
+    }
+
+    .login-panel-brand {
+        margin-bottom: 1rem;
+    }
+
+    .login-panel-brand img {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 1rem;
+    }
+
+    .login-body .information-kicker,
+    .login-body .information-copy,
+    .login-body .capability-list {
+        display: none;
+    }
+
+    .login-body .information-title {
+        max-width: 18rem;
+        font-size: 1.55rem;
+    }
+
+    .login-body .login-form-panel {
+        position: relative;
+        z-index: 2;
+        margin-top: -1rem;
+        padding: 1.5rem;
+        border-radius: 1.25rem 1.25rem 0 0;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .management-app .dashboard-welcome {
+        padding: 1.2rem;
+    }
+
+    .management-app .dashboard-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .management-app .dashboard-stat-card {
+        min-height: 6.9rem;
+        gap: 0.7rem;
+        padding: 0.9rem;
+    }
+
+    .management-app .dashboard-stat-icon {
+        width: 2.4rem;
+        height: 2.4rem;
+        flex-basis: 2.4rem;
+    }
+
+    .management-app .dashboard-stat-value {
+        font-size: 1.45rem;
+    }
+
+    .management-app .dashboard-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .management-app .dashboard-filter-actions {
+        grid-column: auto;
+    }
+
+    .employee-app .attendance-history-page .history-profile-card {
+        display: none;
+    }
+
+    .employee-app .attendance-history-page .history-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .employee-app .attendance-history-page .history-summary-card {
+        min-height: 7.25rem;
+        padding: 0.85rem;
+    }
+
+    .employee-app .attendance-history-page .history-summary-icon {
+        width: 2.15rem;
+        height: 2.15rem;
+        margin-bottom: 0.6rem;
+        border-radius: 0.65rem;
+    }
+
+    .employee-app .attendance-history-page .history-summary-value {
+        font-size: 1.45rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .employee-app .app-content {
+        padding-right: 0.75rem;
+        padding-left: 0.75rem;
+    }
+
+    .employee-app .employee-status-grid {
+        gap: 0.55rem;
+    }
+
+    .employee-app .employee-status-box {
+        padding: 0.75rem;
+    }
+
+    .login-body .login-main {
+        padding: 0;
+    }
+
+    .login-body .login-shell {
+        min-height: 100vh;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .login-body .login-form-panel {
+        padding: 1.35rem 1.15rem 1.75rem;
+    }
+
+    .login-body .login-remember-hint {
+        display: none;
+    }
+
+    .login-body .login-footer {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .management-app .dashboard-action {
+        transition: none;
+    }
+}

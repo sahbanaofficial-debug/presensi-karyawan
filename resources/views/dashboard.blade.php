@@ -1601,55 +1601,6 @@
 
         </div>
 
-        <nav
-            class="employee-bottom-nav"
-            aria-label="Navigasi karyawan"
-        >
-            <a
-                href="{{ route('dashboard') }}"
-                class="employee-bottom-link active"
-            >
-                <i
-                    class="bi bi-house-door"
-                    aria-hidden="true"
-                ></i>
-                <span>Beranda</span>
-            </a>
-
-            <a
-                href="{{ route('attendance.create') }}"
-                class="employee-bottom-link"
-            >
-                <i
-                    class="bi bi-qr-code-scan"
-                    aria-hidden="true"
-                ></i>
-                <span>Presensi</span>
-            </a>
-
-            <a
-                href="{{ route('attendance.history') }}"
-                class="employee-bottom-link"
-            >
-                <i
-                    class="bi bi-clock-history"
-                    aria-hidden="true"
-                ></i>
-                <span>Riwayat</span>
-            </a>
-
-            <a
-                href="#employee-account"
-                class="employee-bottom-link"
-            >
-                <i
-                    class="bi bi-person"
-                    aria-hidden="true"
-                ></i>
-                <span>Akun</span>
-            </a>
-        </nav>
-
     @else
 
     <header class="page-header">

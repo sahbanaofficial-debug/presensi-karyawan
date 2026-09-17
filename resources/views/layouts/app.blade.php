@@ -1093,13 +1093,19 @@
 </style>
 
     @stack('styles')
+
+    <link
+        href="{{ asset('css/ui-modern.css') }}"
+        rel="stylesheet"
+    >
 </head>
 
 <body
     class="{{
         auth()->user()?->role === 'employee'
             ? 'employee-app'
-            : ''
+            : 'management-app role-'
+                . (auth()->user()?->role ?? 'guest')
     }}"
 >
     @php
