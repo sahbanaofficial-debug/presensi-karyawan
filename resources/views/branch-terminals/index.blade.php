@@ -276,7 +276,7 @@
 
         @if ($terminals->hasPages())
             <div class="card-footer bg-white border-0">
-                {{ $terminals->links() }}
+                {{ $terminals->links('pagination::bootstrap-5') }}
             </div>
         @endif
     </div>

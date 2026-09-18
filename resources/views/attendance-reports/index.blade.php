@@ -929,7 +929,7 @@
 
                 @if ($reports->hasPages())
                     <div class="report-pagination">
-                        {{ $reports->links() }}
+                        {{ $reports->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             @endif
