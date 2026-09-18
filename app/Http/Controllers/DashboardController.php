@@ -41,7 +41,10 @@ final class DashboardController extends Controller
         $dashboardBranches = collect();
         $dashboardDateLabel = null;
         $dashboardScopeLabel = null;
-        $dashboardPeriodKey = self::PERIOD_WEEK;
+        $dashboardPeriodKey = self::PERIOD_TODAY;
+        $dashboardStatusFilter = '';
+        $dashboardEmployeeSearch = '';
+        $dashboardSelectedDate = null;
 
         /*
          * EMPLOYEE TODAY DASHBOARD V1
@@ -97,7 +100,7 @@ final class DashboardController extends Controller
             }
         }
 
-        $dashboardPeriodLabel = 'Minggu ini';
+        $dashboardPeriodLabel = 'Hari ini';
         $selectedDashboardBranchId = null;
 
         if ($user->hasRole('hrd') || $user->hasRole('admin')) {
@@ -111,10 +114,32 @@ final class DashboardController extends Controller
                 $request->query('period')
             );
 
+            $requestedDate = trim(
+                (string) $request->query('attendance_date', '')
+            );
+
+            if ($requestedDate !== '') {
+                try {
+                    $parsedDate = CarbonImmutable::createFromFormat(
+                        'Y-m-d',
+                        $requestedDate,
+                        $timezone
+                    );
+
+                    if ($parsedDate->format('Y-m-d') === $requestedDate) {
+                        $today = $parsedDate;
+                        $dashboardPeriodKey = self::PERIOD_TODAY;
+                    }
+                } catch (\Throwable) {
+                    // Gunakan tanggal hari ini jika nilai tidak valid.
+                }
+            }
+
             [$periodStart, $periodEnd] = $this->periodRange(
                 $today,
                 $dashboardPeriodKey
             );
+            $dashboardSelectedDate = $periodStart->format('Y-m-d');
 
             $dashboardBranches = $this->availableBranches($user);
 
@@ -133,6 +158,16 @@ final class DashboardController extends Controller
 
             $startDate = $periodStart->toDateString();
             $endDate = $periodEnd->toDateString();
+            $dashboardStatusFilter = in_array(
+                $request->query('status'),
+                ['on_time', 'late'],
+                true
+            )
+                ? (string) $request->query('status')
+                : '';
+            $dashboardEmployeeSearch = trim(
+                (string) $request->query('search', '')
+            );
 
             $dashboardStats = [
                 'active_branches' => Branch::query()
@@ -229,10 +264,34 @@ final class DashboardController extends Controller
                 $attendanceSummary
             );
 
+            $dashboardStats['present_employees'] =
+                Attendance::query()
+                    ->whereIn('branch_id', $branchIds)
+                    ->whereDate('attendance_date', '>=', $startDate)
+                    ->whereDate('attendance_date', '<=', $endDate)
+                    ->where('validation_status', 'accepted')
+                    ->where('attendance_type', 'check_in')
+                    ->distinct('employee_id')
+                    ->count('employee_id');
+
+            $dashboardStats['absent_employees'] = max(
+                0,
+                $dashboardStats['active_employees']
+                    - $dashboardStats['present_employees']
+            );
+
             $branchAttendance = Branch::query()
                 ->whereIn('id', $branchIds)
                 ->where('status', 'active')
                 ->withCount([
+                    'employees as active_employee_count' => static function (
+                        Builder $query
+                    ): void {
+                        $query->where(
+                            'employment_status',
+                            'active'
+                        );
+                    },
                     'attendances as attendance_count' => static function (
                         Builder $query
                     ) use ($startDate, $endDate): void {
@@ -252,6 +311,25 @@ final class DashboardController extends Controller
                                 'accepted'
                             );
                     },
+                    'attendances as present_count' => static function (
+                        Builder $query
+                    ) use ($startDate, $endDate): void {
+                        $query
+                            ->whereDate('attendance_date', '>=', $startDate)
+                            ->whereDate('attendance_date', '<=', $endDate)
+                            ->where('validation_status', 'accepted')
+                            ->where('attendance_type', 'check_in');
+                    },
+                    'attendances as late_count' => static function (
+                        Builder $query
+                    ) use ($startDate, $endDate): void {
+                        $query
+                            ->whereDate('attendance_date', '>=', $startDate)
+                            ->whereDate('attendance_date', '<=', $endDate)
+                            ->where('validation_status', 'accepted')
+                            ->where('attendance_type', 'check_in')
+                            ->where('punctuality_status', 'late');
+                    },
                 ])
                 ->orderByDesc('attendance_count')
                 ->orderBy('code')
@@ -259,7 +337,32 @@ final class DashboardController extends Controller
                     'id',
                     'code',
                     'name',
-                ]);
+                ])
+                ->each(static function (Branch $branch): void {
+                    $activeEmployeeCount = (int) (
+                        $branch->active_employee_count ?? 0
+                    );
+                    $presentCount = (int) (
+                        $branch->present_count ?? 0
+                    );
+
+                    $branch->setAttribute(
+                        'absent_count',
+                        max(0, $activeEmployeeCount - $presentCount)
+                    );
+                    $branch->setAttribute(
+                        'attendance_rate',
+                        $activeEmployeeCount > 0
+                            ? min(
+                                100,
+                                (int) round(
+                                    ($presentCount / $activeEmployeeCount)
+                                    * 100
+                                )
+                            )
+                            : 0
+                    );
+                });
 
             $recentAttendances = Attendance::query()
                 ->with([
@@ -277,9 +380,51 @@ final class DashboardController extends Controller
                     '<=',
                     $endDate
                 )
+                ->when(
+                    $dashboardStatusFilter !== '',
+                    static function (
+                        Builder $query
+                    ) use ($dashboardStatusFilter): void {
+                        $query->where(
+                            'punctuality_status',
+                            $dashboardStatusFilter
+                        );
+                    }
+                )
+                ->when(
+                    $dashboardEmployeeSearch !== '',
+                    static function (
+                        Builder $query
+                    ) use ($dashboardEmployeeSearch): void {
+                        $query->whereHas(
+                            'employee',
+                            static function (
+                                Builder $employeeQuery
+                            ) use ($dashboardEmployeeSearch): void {
+                                $employeeQuery->where(
+                                    static function (
+                                        Builder $searchQuery
+                                    ) use ($dashboardEmployeeSearch): void {
+                                        $searchQuery
+                                            ->where(
+                                                'full_name',
+                                                'like',
+                                                '%' . $dashboardEmployeeSearch . '%'
+                                            )
+                                            ->orWhere(
+                                                'employee_number',
+                                                'like',
+                                                '%' . $dashboardEmployeeSearch . '%'
+                                            );
+                                    }
+                                );
+                            }
+                        );
+                    }
+                )
                 ->orderByDesc('attendance_date')
                 ->orderByDesc('attendance_time')
-                ->limit(8)
+                ->limit(16)
                 ->get();
 
             $dashboardPeriodLabel =
@@ -314,6 +459,9 @@ final class DashboardController extends Controller
             'employeeTodayCheckOut' => $employeeTodayCheckOut,
             'dashboardPeriodLabel' => $dashboardPeriodLabel,
             'selectedDashboardBranchId' => $selectedDashboardBranchId,
+            'dashboardStatusFilter' => $dashboardStatusFilter,
+            'dashboardEmployeeSearch' => $dashboardEmployeeSearch,
+            'dashboardSelectedDate' => $dashboardSelectedDate,
         ]);
     }
 
@@ -328,7 +476,7 @@ final class DashboardController extends Controller
             true
         )
             ? (string) $period
-            : self::PERIOD_WEEK;
+            : self::PERIOD_TODAY;
     }
 
     /**

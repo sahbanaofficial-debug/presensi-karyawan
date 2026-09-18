@@ -164,6 +164,12 @@
     $summaryOnTime = (int) ($attendanceSummary['on_time'] ?? 0);
     $summaryLate = (int) ($attendanceSummary['late'] ?? 0);
     $summaryCheckOut = (int) ($attendanceSummary['check_out'] ?? 0);
+    $summaryPresent = (int) (
+        $dashboardStats['present_employees'] ?? 0
+    );
+    $summaryAbsent = (int) (
+        $dashboardStats['absent_employees'] ?? 0
+    );
 
     $onTimePercent = $summaryTotal > 0
         ? round(($summaryOnTime / $summaryTotal) * 100, 2)
@@ -189,6 +195,32 @@
     );
     $selectedDashboardBranchId =
         $selectedDashboardBranchId ?? null;
+    $dashboardStatusFilter = $dashboardStatusFilter ?? '';
+    $dashboardEmployeeSearch = $dashboardEmployeeSearch ?? '';
+    $dashboardSelectedDate = $dashboardSelectedDate
+        ?? now('Asia/Jakarta')->format('Y-m-d');
+    $recentAttendanceRows = $recentAttendances
+        ->groupBy(
+            static fn ($attendance): string => sprintf(
+                '%s-%s',
+                $attendance->employee_id,
+                $attendance->attendance_date?->format('Y-m-d') ?? '-'
+            )
+        )
+        ->map(static function ($items): array {
+            return [
+                'check_in' => $items->firstWhere(
+                    'attendance_type',
+                    'check_in'
+                ),
+                'check_out' => $items->firstWhere(
+                    'attendance_type',
+                    'check_out'
+                ),
+                'latest' => $items->first(),
+            ];
+        })
+        ->take(8);
 @endphp
 
 @push('styles')
@@ -1613,18 +1645,6 @@
             </p>
         </div>
 
-        @if ($primaryActionAvailable)
-            <a
-                href="{{ route($primaryAction['route']) }}"
-                class="btn btn-primary dashboard-heading-action"
-            >
-                <i
-                    class="bi {{ $primaryAction['icon'] }} me-2"
-                    aria-hidden="true"
-                ></i>
-                Buka Monitoring
-            </a>
-        @endif
     </header>
 
     <div class="dashboard-stack management-dashboard">
@@ -1654,35 +1674,19 @@
                 >
                     <div>
                         <label
-                            for="dashboard_period"
+                            for="dashboard_date"
                             class="form-label"
                         >
-                            Periode
+                            Tanggal
                         </label>
 
-                        <select
-                            id="dashboard_period"
-                            name="period"
-                            class="form-select"
+                        <input
+                            id="dashboard_date"
+                            name="attendance_date"
+                            type="date"
+                            class="form-control"
+                            value="{{ $dashboardSelectedDate }}"
                         >
-                            <option
-                                value="week"
-                                @selected(
-                                    $dashboardPeriodKey === 'week'
-                                )
-                            >
-                                Minggu ini
-                            </option>
-
-                            <option
-                                value="today"
-                                @selected(
-                                    $dashboardPeriodKey === 'today'
-                                )
-                            >
-                                Hari ini
-                            </option>
-                        </select>
                     </div>
 
                     <div>
@@ -1738,6 +1742,56 @@
                         @endif
                     </div>
 
+                    <div>
+                        <label
+                            for="dashboard_status"
+                            class="form-label"
+                        >
+                            Status
+                        </label>
+
+                        <select
+                            id="dashboard_status"
+                            name="status"
+                            class="form-select"
+                        >
+                            <option value="">Semua status</option>
+                            <option
+                                value="on_time"
+                                @selected($dashboardStatusFilter === 'on_time')
+                            >
+                                Tepat waktu
+                            </option>
+                            <option
+                                value="late"
+                                @selected($dashboardStatusFilter === 'late')
+                            >
+                                Terlambat
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label
+                            for="dashboard_search"
+                            class="form-label"
+                        >
+                            Karyawan
+                        </label>
+
+                        <div class="dashboard-search-field">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <input
+                                id="dashboard_search"
+                                name="search"
+                                type="search"
+                                class="form-control"
+                                value="{{ $dashboardEmployeeSearch }}"
+                                placeholder="Cari nama karyawan"
+                            >
+                        </div>
+                    </div>
+
                     <div class="dashboard-filter-actions">
                         <button
                             type="submit"
@@ -1783,7 +1837,7 @@
                             <i class="bi bi-building" aria-hidden="true"></i>
                         </span>
                         <span>
-                            <span class="dashboard-stat-label">Cabang aktif</span>
+                            <span class="dashboard-stat-label">Cabang</span>
                             <strong class="dashboard-stat-value">{{ $dashboardStats['active_branches'] }}</strong>
                         </span>
                     </article>
@@ -1793,7 +1847,7 @@
                             <i class="bi bi-people" aria-hidden="true"></i>
                         </span>
                         <span>
-                            <span class="dashboard-stat-label">Karyawan aktif</span>
+                            <span class="dashboard-stat-label">Karyawan</span>
                             <strong class="dashboard-stat-value">{{ $dashboardStats['active_employees'] }}</strong>
                         </span>
                     </article>
@@ -1803,28 +1857,28 @@
                             <i class="bi bi-person-check" aria-hidden="true"></i>
                         </span>
                         <span>
-                            <span class="dashboard-stat-label">Total presensi</span>
-                            <strong class="dashboard-stat-value">{{ $dashboardStats['period_attendances'] }}</strong>
+                            <span class="dashboard-stat-label">Hadir</span>
+                            <strong class="dashboard-stat-value">{{ $summaryPresent }}</strong>
                         </span>
                     </article>
 
                     <article class="dashboard-stat-card tone-orange">
-                        <span class="dashboard-stat-icon">
-                            <i class="bi bi-check-circle" aria-hidden="true"></i>
-                        </span>
-                        <span>
-                            <span class="dashboard-stat-label">Tepat waktu</span>
-                            <strong class="dashboard-stat-value">{{ $summaryOnTime }}</strong>
-                        </span>
-                    </article>
-
-                    <article class="dashboard-stat-card tone-red">
                         <span class="dashboard-stat-icon">
                             <i class="bi bi-clock-history" aria-hidden="true"></i>
                         </span>
                         <span>
                             <span class="dashboard-stat-label">Terlambat</span>
                             <strong class="dashboard-stat-value">{{ $summaryLate }}</strong>
+                        </span>
+                    </article>
+
+                    <article class="dashboard-stat-card tone-neutral">
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-person-dash" aria-hidden="true"></i>
+                        </span>
+                        <span>
+                            <span class="dashboard-stat-label">Belum Hadir</span>
+                            <strong class="dashboard-stat-value">{{ $summaryAbsent }}</strong>
                         </span>
                     </article>
                 </div>
@@ -1835,46 +1889,72 @@
                     <div class="dashboard-panel-header">
                         <div>
                             <h2 id="attendance-composition-title" class="section-title mb-1">
-                                Ringkasan Presensi
+                                Ringkasan Per Cabang
                             </h2>
                             <p class="section-description mb-0">
-                                Komposisi presensi pada periode aktif.
+                                Kehadiran karyawan pada setiap cabang.
                             </p>
                         </div>
+
+                        <a
+                            href="{{ route('attendance-monitoring.index') }}"
+                            class="dashboard-see-all"
+                        >
+                            Lihat Semua
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </a>
                     </div>
 
-                    <div class="dashboard-panel-body">
-                        <div class="dashboard-donut-layout">
-                            <div
-                                class="dashboard-donut {{ $summaryTotal === 0 ? 'empty' : '' }}"
-                                style="--on-time-end: {{ $onTimePercent }}%; --late-end: {{ $lateEnd }}%;"
-                                role="img"
-                                aria-label="{{ $summaryOnTime }} masuk tepat waktu, {{ $summaryLate }} masuk terlambat, dan {{ $summaryCheckOut }} pulang"
-                            >
-                                <span class="dashboard-donut-value">
-                                    <span class="dashboard-donut-number">{{ $summaryTotal }}</span>
-                                    <span class="dashboard-donut-caption">presensi</span>
-                                </span>
-                            </div>
-
-                            <ul class="dashboard-legend">
-                                <li class="dashboard-legend-item">
-                                    <span class="dashboard-legend-dot success"></span>
-                                    <span>Masuk tepat waktu</span>
-                                    <strong>{{ $summaryOnTime }}</strong>
-                                </li>
-                                <li class="dashboard-legend-item">
-                                    <span class="dashboard-legend-dot warning"></span>
-                                    <span>Masuk terlambat</span>
-                                    <strong>{{ $summaryLate }}</strong>
-                                </li>
-                                <li class="dashboard-legend-item">
-                                    <span class="dashboard-legend-dot brand"></span>
-                                    <span>Pulang</span>
-                                    <strong>{{ $summaryCheckOut }}</strong>
-                                </li>
-                            </ul>
-                        </div>
+                    <div class="dashboard-branch-summary-wrap">
+                        <table class="dashboard-branch-summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Cabang</th>
+                                    <th>Hadir</th>
+                                    <th>Terlambat</th>
+                                    <th>Belum Hadir</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($branchAttendance as $branchItem)
+                                    <tr>
+                                        <td><strong>{{ $branchItem->code }}</strong></td>
+                                        <td>{{ $branchItem->name }}</td>
+                                        <td>
+                                            <span class="branch-metric success">
+                                                {{ $branchItem->present_count }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="branch-metric warning">
+                                                {{ $branchItem->late_count }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="branch-metric neutral">
+                                                {{ $branchItem->absent_count }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a
+                                                href="{{ route('attendance-monitoring.index', ['branch_id' => $branchItem->id]) }}"
+                                                class="branch-detail-link"
+                                            >
+                                                Lihat Detail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-secondary py-4">
+                                            Belum ada data cabang.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </section>
 
@@ -1895,15 +1975,7 @@
                             <div class="dashboard-branch-chart">
                                 @foreach ($branchAttendance as $branchItem)
                                     @php
-                                        $barWidth = (int) $branchItem->attendance_count > 0
-                                            ? max(
-                                                2,
-                                                round(
-                                                    ((int) $branchItem->attendance_count / $branchAttendanceMax) * 100,
-                                                    2
-                                                )
-                                            )
-                                            : 0;
+                                        $barWidth = (int) $branchItem->attendance_rate;
                                     @endphp
 
                                     <div class="dashboard-branch-row">
@@ -1914,7 +1986,7 @@
                                             <span class="dashboard-branch-bar" style="width: {{ $barWidth }}%"></span>
                                         </span>
                                         <strong class="dashboard-branch-count">
-                                            {{ $branchItem->attendance_count }} presensi
+                                            {{ $branchItem->attendance_rate }}%
                                         </strong>
                                     </div>
                                 @endforeach
@@ -1947,7 +2019,8 @@
 
                     @if (\Illuminate\Support\Facades\Route::has('attendance-monitoring.index'))
                         <a href="{{ route('attendance-monitoring.index') }}" class="btn btn-sm btn-outline-primary">
-                            Lihat monitoring
+                            <i class="bi bi-download me-1" aria-hidden="true"></i>
+                            Lihat Data
                         </a>
                     @endif
                 </div>
@@ -1956,72 +2029,75 @@
                     <table class="table dashboard-table align-middle">
                         <thead>
                             <tr>
-                                <th>Tanggal/Waktu</th>
-                                <th>Karyawan</th>
                                 <th>Cabang</th>
-                                <th>Jenis</th>
-                                <th>Ketepatan</th>
+                                <th>Karyawan</th>
+                                <th>Masuk</th>
+                                <th>Pulang</th>
                                 <th>Jarak</th>
-                                <th>Akurasi</th>
-                                <th>Status</th>
+                                <th>Ketepatan</th>
+                                <th>Validasi</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($recentAttendances as $attendance)
+                            @forelse ($recentAttendanceRows as $attendanceRow)
                                 @php
-                                    $punctualityLabel = match ($attendance->punctuality_status) {
+                                    $checkIn = $attendanceRow['check_in'];
+                                    $checkOut = $attendanceRow['check_out'];
+                                    $attendance = $checkIn ?? $checkOut ?? $attendanceRow['latest'];
+                                    $punctualityLabel = match ($checkIn?->punctuality_status) {
                                         'on_time' => 'Tepat Waktu',
                                         'late' => 'Terlambat',
-                                        default => 'Tidak Dinilai',
+                                        default => 'Belum Hadir',
                                     };
 
-                                    $punctualityClass = match ($attendance->punctuality_status) {
+                                    $punctualityClass = match ($checkIn?->punctuality_status) {
                                         'on_time' => 'success',
                                         'late' => 'warning',
                                         default => 'neutral',
                                     };
                                 @endphp
                                 <tr>
-                                    <td><strong>
-                                            {{
-                                                $attendance
-                                                    ->attendance_date
-                                                    ?->locale('id')
-                                                    ->translatedFormat(
-                                                        'd M Y'
-                                                    )
-                                                ?? '-'
-                                            }}
-                                        </strong>
-                                        <div class="text-secondary small">
-                                            {{
-                                                $attendance
-                                                    ->attendance_time
-                                                    ?->format('H:i:s')
-                                                ?? '-'
-                                            }}
-                                        </div></td>
+                                    <td><strong>{{ $attendance?->branch?->code ?? '-' }}</strong></td>
                                     <td>
-                                        <strong>{{ $attendance->employee?->full_name ?? '-' }}</strong>
+                                        <strong>{{ $attendance?->employee?->full_name ?? '-' }}</strong>
                                         <div class="text-secondary small">
-                                            {{ $attendance->employee?->employee_number ?? '-' }}
+                                            {{ $attendance?->employee?->employee_number ?? '-' }}
                                         </div>
                                     </td>
-                                    <td>{{ $attendance->branch?->code ?? '-' }}</td>
                                     <td>
-                                        {{ $attendance->attendance_type === 'check_in' ? 'Masuk' : 'Pulang' }}
+                                        {{ $checkIn?->attendance_time?->format('H:i') ?? '—' }}
+                                        @if ($checkIn)
+                                            <span class="text-secondary">WIB</span>
+                                        @endif
                                     </td>
                                     <td>
+                                        {{ $checkOut?->attendance_time?->format('H:i') ?? '—' }}
+                                        @if ($checkOut)
+                                            <span class="text-secondary">WIB</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ number_format((float) ($attendance?->distance ?? 0), 2, ',', '.') }} m</td>
+                                    <td>
                                         <span class="dashboard-badge {{ $punctualityClass }}">
+                                            <i class="bi bi-circle-fill" aria-hidden="true"></i>
                                             {{ $punctualityLabel }}
                                         </span>
                                     </td>
-                                    <td>{{ number_format((float) $attendance->distance, 2, ',', '.') }} m</td>
-                                    <td>{{ number_format((float) $attendance->accuracy, 2, ',', '.') }} m</td>
                                     <td>
-                                        <span class="dashboard-badge {{ $attendance->validation_status === 'accepted' ? 'success' : 'warning' }}">
-                                            {{ $attendance->validation_status === 'accepted' ? 'Diterima' : 'Ditolak' }}
+                                        <span class="dashboard-badge {{ $attendance?->validation_status === 'accepted' ? 'success' : 'danger' }}">
+                                            <i class="bi bi-circle-fill" aria-hidden="true"></i>
+                                            {{ $attendance?->validation_status === 'accepted' ? 'Diterima' : 'Ditolak' }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <a
+                                            href="{{ route('attendance-monitoring.index', ['employee_id' => $attendance?->employee_id]) }}"
+                                            class="dashboard-row-action"
+                                            aria-label="Lihat detail presensi {{ $attendance?->employee?->full_name ?? 'karyawan' }}"
+                                        >
+                                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             @empty
@@ -2037,7 +2113,7 @@
             </section>
         @endif
 
-        <section class="dashboard-panel" aria-labelledby="dashboard-actions-title">
+        <section class="dashboard-panel dashboard-quick-actions" aria-labelledby="dashboard-actions-title">
             <div class="dashboard-panel-header">
                 <div>
                     <h2 id="dashboard-actions-title" class="section-title mb-1">

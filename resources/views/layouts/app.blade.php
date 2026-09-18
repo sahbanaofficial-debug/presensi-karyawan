@@ -1450,16 +1450,37 @@
                         </a>
 
                         <div class="d-none d-lg-block min-w-0">
-                            <div class="app-topbar-eyebrow">
-                                PT Gadai Ogan Baru
-                            </div>
-
-                            <div class="app-topbar-title">
-                                @yield(
-                                    'title',
-                                    'Sistem Presensi Karyawan'
+                            @if (
+                                request()->routeIs('dashboard')
+                                && in_array(
+                                    $authenticatedUser?->role,
+                                    ['hrd', 'admin'],
+                                    true
                                 )
-                            </div>
+                            )
+                                <div class="app-topbar-eyebrow">
+                                    Selamat datang,
+                                </div>
+
+                                <div class="app-topbar-title">
+                                    {{ $authenticatedUser?->role === 'hrd' ? 'Tim HRD' : 'Admin Cabang' }}
+                                </div>
+
+                                <div class="app-topbar-subtitle">
+                                    Kelola presensi karyawan dengan lebih mudah dan akurat.
+                                </div>
+                            @else
+                                <div class="app-topbar-eyebrow">
+                                    PT Gadai Ogan Baru
+                                </div>
+
+                                <div class="app-topbar-title">
+                                    @yield(
+                                        'title',
+                                        'Sistem Presensi Karyawan'
+                                    )
+                                </div>
+                            @endif
                         </div>
                     </div>
 

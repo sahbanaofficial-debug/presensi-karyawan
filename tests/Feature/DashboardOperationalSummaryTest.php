@@ -79,7 +79,7 @@ final class DashboardOperationalSummaryTest extends TestCase
         );
 
         $this->actingAs($hrd)
-            ->get(route('dashboard'))
+            ->get(route('dashboard', ['period' => 'week']))
             ->assertOk()
             ->assertViewIs('dashboard')
             ->assertViewHas('dashboardPeriodKey', 'week')
@@ -94,6 +94,8 @@ final class DashboardOperationalSummaryTest extends TestCase
                     && $stats['active_employees'] === 2
                     && $stats['active_terminals'] === 0
                     && $stats['period_attendances'] === 2
+                    && $stats['present_employees'] === 1
+                    && $stats['absent_employees'] === 1
             )
             ->assertViewHas(
                 'attendanceSummary',
@@ -104,13 +106,12 @@ final class DashboardOperationalSummaryTest extends TestCase
                     && $summary['total'] === 2
             )
             ->assertSee('Filter ringkasan')
-            ->assertSee('Minggu ini')
+            ->assertSee('value="2026-08-03"', false)
             ->assertSee('Semua cabang')
-            ->assertSee('Ringkasan Presensi')
-            ->assertSee('Total presensi')
-            ->assertSee('Masuk tepat waktu')
-            ->assertSee('Masuk terlambat')
-            ->assertSee('Pulang')
+            ->assertSee('Ringkasan Per Cabang')
+            ->assertSee('Hadir')
+            ->assertSee('Terlambat')
+            ->assertSee('Belum Hadir')
             ->assertSee('Perbandingan Kehadiran Antar Cabang')
             ->assertSee('Detail Presensi Karyawan')
             ->assertSee('03 Agustus 2026')
@@ -166,6 +167,8 @@ final class DashboardOperationalSummaryTest extends TestCase
                 'dashboardStats',
                 static fn (?array $stats): bool => $stats !== null
                     && $stats['period_attendances'] === 1
+                    && $stats['present_employees'] === 1
+                    && $stats['absent_employees'] === 0
             )
             ->assertViewHas(
                 'recentAttendances',
@@ -175,8 +178,8 @@ final class DashboardOperationalSummaryTest extends TestCase
                         ?->attendance_date
                         ?->toDateString() === '2026-08-05'
             )
-            ->assertSee('Ringkasan Presensi')
-            ->assertSee('Total presensi');
+            ->assertSee('Ringkasan Per Cabang')
+            ->assertSee('Hadir');
     }
 
     public function test_hrd_branch_filter_scopes_all_dashboard_data(): void
