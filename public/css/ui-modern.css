@@ -1326,3 +1326,402 @@ body {
         margin-top: 1.5rem;
     }
 }
+
+/* ============================================================
+ * MANAGEMENT DASHBOARD V3
+ * Susunan dashboard operasional mengikuti referensi pengguna,
+ * dengan palet oranye-putih yang sama dengan halaman login.
+ * ============================================================ */
+.management-app {
+    --sidebar-width: 15.5rem;
+    background: #f4f6f8;
+}
+
+.management-app .app-sidebar {
+    background:
+        radial-gradient(circle at 8% 4%, rgba(239, 100, 24, 0.13), transparent 18rem),
+        #17212b;
+}
+
+.management-app .app-brand {
+    min-height: 4.75rem;
+    padding-inline: 1.15rem;
+}
+
+.management-app .app-brand-mark {
+    width: 2.65rem;
+    height: 2.65rem;
+    flex-basis: 2.65rem;
+    border-radius: 0.7rem;
+}
+
+.management-app .app-brand-title {
+    font-size: 0.86rem;
+}
+
+.management-app .app-brand-subtitle {
+    font-size: 0.62rem;
+}
+
+.management-app .app-nav {
+    padding: 0.95rem 0.7rem 1.5rem;
+}
+
+.management-app .app-nav-section + .app-nav-section {
+    margin-top: 1.15rem;
+}
+
+.management-app .app-nav-heading {
+    margin-bottom: 0.35rem;
+    padding-inline: 0.7rem;
+    font-size: 0.59rem;
+}
+
+.management-app .app-nav-link {
+    min-height: 2.55rem;
+    gap: 0.65rem;
+    margin-bottom: 0.12rem;
+    padding: 0.58rem 0.72rem;
+    border-radius: 0.58rem;
+    font-size: 0.79rem;
+}
+
+.management-app .app-nav-link.active {
+    background: linear-gradient(100deg, #ef6418, #dd520b);
+    box-shadow: 0 0.5rem 1.15rem rgba(0, 0, 0, 0.14);
+}
+
+.management-app .app-sidebar-user {
+    padding: 0.75rem;
+}
+
+.management-app .app-user-card {
+    padding: 0.7rem;
+    border-radius: 0.75rem;
+}
+
+.management-app .app-topbar,
+.management-app .app-topbar-inner {
+    min-height: 4.75rem;
+}
+
+.management-app .app-topbar {
+    background: #fff;
+}
+
+.management-app .app-content {
+    max-width: 100%;
+    padding: 1.35rem clamp(1rem, 2vw, 1.75rem) 2rem;
+}
+
+.management-app .dashboard-page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.management-app .dashboard-page-heading .page-title {
+    color: #17212b;
+    font-size: clamp(1.45rem, 2vw, 1.85rem);
+    letter-spacing: -0.035em;
+}
+
+.management-app .dashboard-page-heading .page-description {
+    margin-top: 0.3rem;
+    font-size: 0.82rem;
+}
+
+.management-app .dashboard-heading-action {
+    flex: 0 0 auto;
+    padding-inline: 1rem;
+}
+
+.management-app .management-dashboard {
+    gap: 0.9rem;
+}
+
+.management-app .management-dashboard .dashboard-filter-panel {
+    padding: 0.85rem 0.95rem;
+    border-color: #e2e7eb;
+    border-radius: 0.8rem;
+    box-shadow: 0 0.25rem 1rem rgba(23, 33, 43, 0.035);
+}
+
+.management-app .management-dashboard .dashboard-filter-intro,
+.management-app .management-dashboard .dashboard-filter-caption,
+.management-app .management-dashboard .dashboard-summary-heading {
+    display: none !important;
+}
+
+.management-app .management-dashboard .dashboard-filter-grid {
+    grid-template-columns: minmax(8.5rem, 0.65fr) minmax(13rem, 1.25fr) auto;
+    gap: 0.65rem;
+}
+
+.management-app .management-dashboard .form-label {
+    margin-bottom: 0.3rem;
+    color: #56616c;
+    font-size: 0.68rem;
+    font-weight: 800;
+}
+
+.management-app .management-dashboard .form-select,
+.management-app .management-dashboard .dashboard-filter-lock {
+    min-height: 2.55rem;
+    border-radius: 0.58rem;
+    font-size: 0.78rem;
+}
+
+.management-app .management-dashboard .dashboard-filter-actions {
+    align-items: flex-end;
+}
+
+.management-app .management-dashboard .dashboard-filter-actions .btn {
+    min-height: 2.55rem;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.76rem;
+}
+
+.management-app .management-dashboard .dashboard-stat-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.management-app .management-dashboard .dashboard-stat-card {
+    min-height: 5.65rem;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 0.8rem;
+    box-shadow: 0 0.25rem 1rem rgba(23, 33, 43, 0.035);
+}
+
+.management-app .management-dashboard .dashboard-stat-card::after {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    width: 0.2rem;
+    height: auto;
+    border-radius: 0.8rem 0 0 0.8rem;
+}
+
+.management-app .management-dashboard .dashboard-stat-icon {
+    width: 2.35rem;
+    height: 2.35rem;
+    flex-basis: 2.35rem;
+    border-radius: 0.65rem;
+    font-size: 1rem;
+}
+
+.management-app .management-dashboard .dashboard-stat-label {
+    color: #66727e;
+    font-size: 0.64rem;
+    line-height: 1.3;
+}
+
+.management-app .management-dashboard .dashboard-stat-value {
+    margin-top: 0.25rem;
+    color: #17212b;
+    font-size: 1.48rem;
+}
+
+.management-app .management-dashboard .tone-blue::after {
+    background: #3b82f6;
+}
+
+.management-app .management-dashboard .tone-blue .dashboard-stat-icon {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+.management-app .management-dashboard .tone-indigo::after {
+    background: #7857d8;
+}
+
+.management-app .management-dashboard .tone-indigo .dashboard-stat-icon {
+    color: #6d4fc5;
+    background: #f3efff;
+}
+
+.management-app .management-dashboard .tone-green::after {
+    background: #23a36d;
+}
+
+.management-app .management-dashboard .tone-green .dashboard-stat-icon {
+    color: #16815a;
+    background: #eaf8f2;
+}
+
+.management-app .management-dashboard .tone-orange::after {
+    background: #ef6418;
+}
+
+.management-app .management-dashboard .tone-orange .dashboard-stat-icon {
+    color: #d9510d;
+    background: #fff2e9;
+}
+
+.management-app .management-dashboard .tone-red::after {
+    background: #de5b62;
+}
+
+.management-app .management-dashboard .tone-red .dashboard-stat-icon {
+    color: #c8454d;
+    background: #fff0f1;
+}
+
+.management-app .management-dashboard .dashboard-chart-grid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
+    gap: 0.9rem;
+}
+
+.management-app .management-dashboard .dashboard-chart-grid > :first-child {
+    order: 2;
+}
+
+.management-app .management-dashboard .dashboard-chart-grid > :last-child {
+    order: 1;
+}
+
+.management-app .management-dashboard .dashboard-panel {
+    border-color: #e2e7eb;
+    border-radius: 0.8rem;
+    box-shadow: 0 0.25rem 1rem rgba(23, 33, 43, 0.035);
+}
+
+.management-app .management-dashboard .dashboard-panel-header {
+    min-height: 3.65rem;
+    align-items: center;
+    padding: 0.8rem 1rem;
+}
+
+.management-app .management-dashboard .section-title {
+    color: #17212b;
+    font-size: 0.88rem;
+}
+
+.management-app .management-dashboard .section-description {
+    color: #77818b;
+    font-size: 0.68rem;
+}
+
+.management-app .management-dashboard .dashboard-panel-body {
+    padding: 1rem;
+}
+
+.management-app .management-dashboard .dashboard-branch-chart {
+    gap: 0.8rem;
+}
+
+.management-app .management-dashboard .dashboard-branch-row {
+    grid-template-columns: minmax(7.5rem, 0.9fr) minmax(9rem, 1.6fr) auto;
+    gap: 0.65rem;
+}
+
+.management-app .management-dashboard .dashboard-branch-name {
+    font-size: 0.72rem;
+}
+
+.management-app .management-dashboard .dashboard-branch-track {
+    height: 0.55rem;
+    background: #f0f2f4;
+}
+
+.management-app .management-dashboard .dashboard-branch-bar {
+    background: linear-gradient(90deg, #f58a44, #e95d12);
+}
+
+.management-app .management-dashboard .dashboard-branch-count {
+    min-height: 1.65rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+}
+
+.management-app .management-dashboard .dashboard-donut-layout {
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 1rem;
+}
+
+.management-app .management-dashboard .dashboard-donut {
+    width: 7.5rem;
+    height: 7.5rem;
+}
+
+.management-app .management-dashboard .dashboard-donut::after {
+    inset: 1.05rem;
+}
+
+.management-app .management-dashboard .dashboard-donut-number {
+    font-size: 1.45rem;
+}
+
+.management-app .management-dashboard .dashboard-donut-caption,
+.management-app .management-dashboard .dashboard-legend-item {
+    font-size: 0.68rem;
+}
+
+.management-app .management-dashboard .dashboard-legend {
+    gap: 0.65rem;
+}
+
+.management-app .management-dashboard .dashboard-table {
+    min-width: 52rem;
+}
+
+.management-app .management-dashboard .dashboard-table th {
+    padding: 0.7rem 0.8rem;
+    color: #727d88;
+    background: #f7f8f9;
+    font-size: 0.63rem;
+}
+
+.management-app .management-dashboard .dashboard-table td {
+    padding: 0.72rem 0.8rem;
+    font-size: 0.71rem;
+}
+
+.management-app .management-dashboard .dashboard-badge {
+    padding: 0.25rem 0.48rem;
+    font-size: 0.62rem;
+}
+
+@media (max-width: 1199.98px) {
+    .management-app .management-dashboard .dashboard-stat-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .management-app .management-dashboard .dashboard-chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .management-app .management-dashboard .dashboard-chart-grid > * {
+        order: initial !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .management-app .dashboard-page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .management-app .dashboard-heading-action {
+        width: 100%;
+    }
+
+    .management-app .management-dashboard .dashboard-filter-grid,
+    .management-app .management-dashboard .dashboard-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .management-app .management-dashboard .dashboard-filter-actions {
+        grid-column: auto;
+    }
+
+    .management-app .management-dashboard .dashboard-stat-card {
+        min-height: 5.25rem;
+    }
+}

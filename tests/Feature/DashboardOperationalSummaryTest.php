@@ -106,13 +106,13 @@ final class DashboardOperationalSummaryTest extends TestCase
             ->assertSee('Filter ringkasan')
             ->assertSee('Minggu ini')
             ->assertSee('Semua cabang')
-            ->assertSee('Komposisi presensi minggu ini')
-            ->assertSee('Presensi minggu ini')
+            ->assertSee('Ringkasan Presensi')
+            ->assertSee('Total presensi')
             ->assertSee('Masuk tepat waktu')
             ->assertSee('Masuk terlambat')
             ->assertSee('Pulang')
-            ->assertSee('Presensi per cabang')
-            ->assertSee('Presensi terbaru')
+            ->assertSee('Perbandingan Kehadiran Antar Cabang')
+            ->assertSee('Detail Presensi Karyawan')
             ->assertSee('03 Agustus 2026')
             ->assertSee('09 Agustus 2026')
             ->assertSee('Seluruh cabang');
@@ -175,8 +175,8 @@ final class DashboardOperationalSummaryTest extends TestCase
                         ?->attendance_date
                         ?->toDateString() === '2026-08-05'
             )
-            ->assertSee('Komposisi presensi hari ini')
-            ->assertSee('Presensi hari ini');
+            ->assertSee('Ringkasan Presensi')
+            ->assertSee('Total presensi');
     }
 
     public function test_hrd_branch_filter_scopes_all_dashboard_data(): void

@@ -1603,49 +1603,37 @@
 
     @else
 
-    <header class="page-header">
-        <h1 class="page-title">Dashboard</h1>
+    <header class="page-header dashboard-page-heading">
+        <div>
+            <h1 class="page-title">Monitoring Presensi Cabang</h1>
 
-        <p class="page-description">
-            Ringkasan akun dan aktivitas Sistem Presensi PT Gadai Ogan Baru.
-        </p>
+            <p class="page-description">
+                Pantau hasil presensi karyawan dari seluruh cabang
+                dalam satu halaman.
+            </p>
+        </div>
+
+        @if ($primaryActionAvailable)
+            <a
+                href="{{ route($primaryAction['route']) }}"
+                class="btn btn-primary dashboard-heading-action"
+            >
+                <i
+                    class="bi {{ $primaryAction['icon'] }} me-2"
+                    aria-hidden="true"
+                ></i>
+                Buka Monitoring
+            </a>
+        @endif
     </header>
 
-    <div class="dashboard-stack">
-        <section class="dashboard-welcome">
-            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
-                <div class="d-flex align-items-start gap-3 min-w-0">
-                    <span class="dashboard-welcome-icon">
-                        <i class="bi bi-person-check" aria-hidden="true"></i>
-                    </span>
-
-                    <div class="min-w-0">
-                        <div class="dashboard-kicker">Selamat datang</div>
-
-                        <h2 class="dashboard-title">{{ $displayName }}</h2>
-
-                        <p class="dashboard-copy">
-                            Anda masuk sebagai {{ $roleLabel }}.
-                            {{ $roleDescription }}
-                        </p>
-                    </div>
-                </div>
-
-                @if ($primaryActionAvailable)
-                    <a href="{{ route($primaryAction['route']) }}" class="btn btn-primary flex-shrink-0">
-                        <i class="bi {{ $primaryAction['icon'] }} me-2" aria-hidden="true"></i>
-                        {{ $primaryAction['label'] }}
-                    </a>
-                @endif
-            </div>
-        </section>
-
+    <div class="dashboard-stack management-dashboard">
         @if ($isManagementDashboard && is_array($dashboardStats))
             <section
                 class="dashboard-filter-panel"
                 aria-labelledby="dashboard-filter-title"
             >
-                <div class="mb-3">
+                <div class="dashboard-filter-intro mb-3">
                     <h2
                         id="dashboard-filter-title"
                         class="section-title mb-1"
@@ -1774,7 +1762,7 @@
             </section>
 
             <section aria-labelledby="dashboard-operational-summary">
-                <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-2 mb-3">
+                <div class="dashboard-summary-heading d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-2 mb-3">
                     <div>
                         <h2 id="dashboard-operational-summary" class="section-title mb-1">
                             Ringkasan operasional
@@ -1790,7 +1778,7 @@
                 </div>
 
                 <div class="dashboard-stat-grid">
-                    <article class="dashboard-stat-card">
+                    <article class="dashboard-stat-card tone-blue">
                         <span class="dashboard-stat-icon">
                             <i class="bi bi-building" aria-hidden="true"></i>
                         </span>
@@ -1800,7 +1788,7 @@
                         </span>
                     </article>
 
-                    <article class="dashboard-stat-card">
+                    <article class="dashboard-stat-card tone-indigo">
                         <span class="dashboard-stat-icon">
                             <i class="bi bi-people" aria-hidden="true"></i>
                         </span>
@@ -1810,23 +1798,33 @@
                         </span>
                     </article>
 
-                    <article class="dashboard-stat-card">
+                    <article class="dashboard-stat-card tone-green">
                         <span class="dashboard-stat-icon">
-                            <i class="bi bi-display" aria-hidden="true"></i>
+                            <i class="bi bi-person-check" aria-hidden="true"></i>
                         </span>
                         <span>
-                            <span class="dashboard-stat-label">Terminal aktif</span>
-                            <strong class="dashboard-stat-value">{{ $dashboardStats['active_terminals'] }}</strong>
+                            <span class="dashboard-stat-label">Total presensi</span>
+                            <strong class="dashboard-stat-value">{{ $dashboardStats['period_attendances'] }}</strong>
                         </span>
                     </article>
 
-                    <article class="dashboard-stat-card">
+                    <article class="dashboard-stat-card tone-orange">
                         <span class="dashboard-stat-icon">
-                            <i class="bi bi-fingerprint" aria-hidden="true"></i>
+                            <i class="bi bi-check-circle" aria-hidden="true"></i>
                         </span>
                         <span>
-                            <span class="dashboard-stat-label">Presensi {{ $dashboardPeriodLabelLower }}</span>
-                            <strong class="dashboard-stat-value">{{ $dashboardStats['period_attendances'] }}</strong>
+                            <span class="dashboard-stat-label">Tepat waktu</span>
+                            <strong class="dashboard-stat-value">{{ $summaryOnTime }}</strong>
+                        </span>
+                    </article>
+
+                    <article class="dashboard-stat-card tone-red">
+                        <span class="dashboard-stat-icon">
+                            <i class="bi bi-clock-history" aria-hidden="true"></i>
+                        </span>
+                        <span>
+                            <span class="dashboard-stat-label">Terlambat</span>
+                            <strong class="dashboard-stat-value">{{ $summaryLate }}</strong>
                         </span>
                     </article>
                 </div>
@@ -1837,10 +1835,10 @@
                     <div class="dashboard-panel-header">
                         <div>
                             <h2 id="attendance-composition-title" class="section-title mb-1">
-                                Komposisi presensi {{ $dashboardPeriodLabelLower }}
+                                Ringkasan Presensi
                             </h2>
                             <p class="section-description mb-0">
-                                Presensi yang diterima oleh sistem.
+                                Komposisi presensi pada periode aktif.
                             </p>
                         </div>
                     </div>
@@ -1884,10 +1882,10 @@
                     <div class="dashboard-panel-header">
                         <div>
                             <h2 id="branch-attendance-title" class="section-title mb-1">
-                                Presensi per cabang
+                                Perbandingan Kehadiran Antar Cabang
                             </h2>
                             <p class="section-description mb-0">
-                                Perbandingan jumlah presensi pada periode aktif.
+                                Jumlah transaksi presensi pada setiap cabang.
                             </p>
                         </div>
                     </div>
@@ -1940,10 +1938,10 @@
                 <div class="dashboard-panel-header">
                     <div>
                         <h2 id="recent-attendance-title" class="section-title mb-1">
-                            Presensi terbaru
+                            Detail Presensi Karyawan
                         </h2>
                         <p class="section-description mb-0">
-                            Delapan aktivitas presensi terbaru pada periode aktif.
+                            Aktivitas presensi terbaru pada periode aktif.
                         </p>
                     </div>
 
@@ -2080,6 +2078,7 @@
             </div>
         </section>
 
+        @if (! $isManagementDashboard)
         <section class="dashboard-panel" aria-labelledby="dashboard-account-title">
             <div class="dashboard-panel-header">
                 <div>
@@ -2115,6 +2114,7 @@
                 </div>
             </div>
         </section>
+        @endif
     </div>
     @endif
 @endsection
