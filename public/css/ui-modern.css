@@ -964,3 +964,365 @@ body {
         transition: none;
     }
 }
+
+/* Login composition aligned with the approved PT Gadai Ogan Baru reference */
+.login-body {
+    background:
+        radial-gradient(circle at 10% 16%, rgba(238, 102, 22, 0.06), transparent 22rem),
+        radial-gradient(circle at 88% 82%, rgba(238, 102, 22, 0.05), transparent 24rem),
+        #f6f5f3;
+}
+
+.login-body .login-main {
+    max-width: 86rem;
+    padding: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.login-body .login-shell {
+    width: min(100%, 78rem);
+    min-height: min(47rem, calc(100vh - 7rem));
+    margin: 0 auto;
+    border: 0.35rem solid #17202a;
+    border-radius: 2rem;
+    box-shadow: 0 1.5rem 4rem rgba(23, 32, 42, 0.16);
+}
+
+.login-body .login-information {
+    isolation: isolate;
+    align-items: center;
+    padding: clamp(2.5rem, 5vw, 4.75rem);
+    padding-right: clamp(4rem, 7vw, 6.5rem);
+    overflow: hidden;
+    text-align: center;
+    background:
+        radial-gradient(circle at 83% 10%, transparent 0 3.5rem, rgba(255,255,255,.13) 3.55rem 3.68rem, transparent 3.73rem 5rem, rgba(255,255,255,.1) 5.05rem 5.18rem, transparent 5.23rem),
+        radial-gradient(circle at 78% 82%, transparent 0 3.6rem, rgba(255,255,255,.11) 3.65rem 3.78rem, transparent 3.83rem 5.1rem, rgba(255,255,255,.08) 5.15rem 5.28rem, transparent 5.33rem),
+        linear-gradient(135deg, #ff5d00 0%, #f36b12 54%, #ff7a13 100%);
+}
+
+.login-body .login-information::before {
+    inset: 0;
+    width: auto;
+    height: auto;
+    border: 0;
+    border-radius: 0;
+    opacity: 0.34;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,.24) 0 14%, transparent 14% 42%, rgba(255,255,255,.22) 42% 56%, transparent 56%) 2.3rem 2.3rem / 3.25rem 3.25rem no-repeat,
+        linear-gradient(rgba(255,255,255,.24) 0 14%, transparent 14% 42%, rgba(255,255,255,.22) 42% 56%, transparent 56%) 2.3rem 2.3rem / 3.25rem 3.25rem no-repeat,
+        linear-gradient(90deg, rgba(255,255,255,.2) 0 14%, transparent 14% 42%, rgba(255,255,255,.18) 42% 56%, transparent 56%) 3.1rem calc(100% - 6.5rem) / 3rem 3rem no-repeat,
+        linear-gradient(rgba(255,255,255,.2) 0 14%, transparent 14% 42%, rgba(255,255,255,.18) 42% 56%, transparent 56%) 3.1rem calc(100% - 6.5rem) / 3rem 3rem no-repeat;
+    box-shadow: none;
+    content: "";
+}
+
+.login-body .login-information::after {
+    z-index: 2;
+    top: 0;
+    right: -0.1rem;
+    bottom: 0;
+    width: 3.3rem;
+    height: auto;
+    border: 0;
+    border-radius: 0;
+    background:
+        radial-gradient(circle at 100% 50%, #fff 0 1.9rem, transparent 1.96rem)
+        0 0 / 100% 4.65rem repeat-y;
+    box-shadow: none;
+    content: "";
+}
+
+.login-body .login-panel-brand {
+    z-index: 1;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-bottom: 1.3rem;
+    text-align: center;
+}
+
+.login-body .login-panel-brand img {
+    width: clamp(8.25rem, 14vw, 11.5rem);
+    height: clamp(8.25rem, 14vw, 11.5rem);
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    filter: drop-shadow(0 0.6rem 0.9rem rgba(120, 37, 0, 0.2));
+}
+
+.login-body .login-panel-brand > span > strong {
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.login-body .login-panel-brand > span > strong::after {
+    width: 3rem;
+    height: 0.2rem;
+    display: block;
+    margin: 0.75rem auto 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    content: "";
+}
+
+.login-body .login-panel-brand > span > span {
+    display: none;
+}
+
+.login-body .information-kicker {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(1.65rem, 3vw, 2.3rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    text-transform: none;
+}
+
+.login-body .information-kicker::before {
+    display: none;
+}
+
+.login-body .information-title {
+    margin-top: 0.05rem;
+    font-size: clamp(2.55rem, 4vw, 3.55rem);
+    line-height: 1.03;
+    white-space: nowrap;
+}
+
+.login-body .information-copy {
+    max-width: 29rem;
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: clamp(0.95rem, 1.4vw, 1.18rem);
+    line-height: 1.55;
+}
+
+.login-body .capability-list {
+    width: 100%;
+    max-width: 34rem;
+    gap: 0;
+    margin-top: auto;
+    padding-top: 3.5rem;
+}
+
+.login-body .capability-item {
+    position: relative;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0 0.8rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.login-body .capability-item + .capability-item::before {
+    position: absolute;
+    top: 12%;
+    bottom: 12%;
+    left: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.55);
+    content: "";
+}
+
+.login-body .capability-icon {
+    width: 2.6rem;
+    height: 2.6rem;
+    flex-basis: 2.6rem;
+    border-radius: 50%;
+    color: #ed650f;
+    background: #fff;
+    font-size: 1.2rem;
+}
+
+.login-body .capability-title {
+    font-size: 0.72rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.login-body .login-form-panel {
+    padding: clamp(2.5rem, 6vw, 5.25rem);
+    padding-left: clamp(3rem, 7vw, 6.25rem);
+}
+
+.login-body .login-form-wrapper {
+    max-width: 30rem;
+}
+
+.login-body .login-form-title {
+    font-size: clamp(2rem, 3.2vw, 2.65rem);
+}
+
+.login-body .login-form-copy {
+    color: #626b78;
+    font-size: 0.9rem;
+}
+
+.login-body .form-label {
+    color: #171d25;
+    font-weight: 800;
+}
+
+.login-body .input-group-text,
+.login-body .form-control {
+    min-height: 3.35rem;
+    background: #fafbfc;
+}
+
+.login-body .btn-login {
+    min-height: 3.45rem;
+    border-radius: 0.65rem;
+    background: linear-gradient(90deg, #f27217, #ff5a00);
+    box-shadow: 0 0.65rem 1.4rem rgba(238, 102, 22, 0.17);
+    font-size: 1rem;
+}
+
+.login-body .login-support {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    color: #667085;
+    font-size: 0.8rem;
+}
+
+.login-body .login-support i {
+    display: none;
+}
+
+.login-body .login-support strong {
+    color: #ed650f;
+}
+
+.login-form-copyright {
+    margin: 2.2rem 0 0;
+    color: #7c8591;
+    font-size: 0.76rem;
+    text-align: center;
+}
+
+.login-body > .login-page > .login-footer {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    .login-body .login-shell {
+        grid-template-columns: minmax(0, 1fr) minmax(27rem, 1fr);
+    }
+}
+
+@media (max-width: 991.98px) {
+    .login-body .login-main {
+        max-width: 32rem;
+        padding: 1rem;
+    }
+
+    .login-body .login-shell {
+        display: block;
+        min-height: 0;
+        border-width: 0.25rem;
+        border-radius: 2rem;
+    }
+
+    .login-body .login-information {
+        min-height: 19rem;
+        padding: 1.4rem 1.4rem 3.2rem;
+    }
+
+    .login-body .login-information::after {
+        top: auto;
+        right: 0;
+        bottom: -0.1rem;
+        left: 0;
+        width: auto;
+        height: 2.45rem;
+        background:
+            radial-gradient(circle at 50% 100%, #fff 0 1.35rem, transparent 1.4rem)
+            0 0 / 3.35rem 100% repeat-x;
+    }
+
+    .login-body .login-panel-brand {
+        gap: 0.35rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .login-body .login-panel-brand img {
+        width: 5.5rem;
+        height: 5.5rem;
+    }
+
+    .login-body .login-panel-brand > span > strong {
+        font-size: 0.7rem;
+    }
+
+    .login-body .login-panel-brand > span > strong::after {
+        width: 2rem;
+        height: 0.14rem;
+        margin-top: 0.45rem;
+    }
+
+    .login-body .information-kicker,
+    .login-body .capability-list {
+        display: none;
+    }
+
+    .login-body .information-title {
+        display: block;
+        max-width: none;
+        margin-top: 0.2rem;
+        font-size: 1.65rem;
+        white-space: normal;
+    }
+
+    .login-body .information-copy {
+        display: block;
+        max-width: 18rem;
+        margin-top: 0.45rem;
+        font-size: 0.78rem;
+        line-height: 1.45;
+    }
+
+    .login-body .login-form-panel {
+        margin-top: -0.05rem;
+        padding: 2rem 1.5rem 1.5rem;
+        border-radius: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .login-body .login-main {
+        min-height: 100vh;
+        padding: 0;
+    }
+
+    .login-body .login-shell {
+        min-height: 100vh;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .login-body .login-information {
+        min-height: 18.5rem;
+    }
+
+    .login-body .login-form-panel {
+        padding: 1.8rem 1.35rem 1.4rem;
+    }
+
+    .login-body .login-form-title {
+        font-size: 1.55rem;
+    }
+
+    .login-body .login-form {
+        margin-top: 1.4rem;
+    }
+
+    .login-body .login-support {
+        margin-top: 1.4rem;
+    }
+
+    .login-form-copyright {
+        margin-top: 1.5rem;
+    }
+}

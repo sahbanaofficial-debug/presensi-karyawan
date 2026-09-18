@@ -749,19 +749,19 @@
                         <li class="capability-item">
                             <span class="capability-icon">
                                 <i
-                                    class="bi bi-qr-code-scan"
+                                    class="bi bi-geo-alt-fill"
                                     aria-hidden="true"
                                 ></i>
                             </span>
 
                             <span>
                                 <span class="capability-title">
-                                    QR Code dinamis
+                                    Lokasi
                                 </span>
 
                                 <span class="capability-copy">
-                                    Token presensi berubah berkala dan
-                                    divalidasi oleh server.
+                                    Posisi perangkat divalidasi sesuai
+                                    lokasi cabang.
                                 </span>
                             </span>
                         </li>
@@ -769,19 +769,19 @@
                         <li class="capability-item">
                             <span class="capability-icon">
                                 <i
-                                    class="bi bi-geo-alt"
+                                    class="bi bi-qr-code-scan"
                                     aria-hidden="true"
                                 ></i>
                             </span>
 
                             <span>
                                 <span class="capability-title">
-                                    Validasi geofence
+                                    QR Dinamis
                                 </span>
 
                                 <span class="capability-copy">
-                                    Jarak perangkat dihitung dengan Formula
-                                    Haversine sesuai cabang penempatan.
+                                    Token presensi berubah berkala dan
+                                    divalidasi oleh server.
                                 </span>
                             </span>
                         </li>
@@ -796,12 +796,12 @@
 
                             <span>
                                 <span class="capability-title">
-                                    Kontrol dan audit
+                                    Data terpusat
                                 </span>
 
                                 <span class="capability-copy">
-                                    Hak akses, waktu server, serta hasil
-                                    validasi dicatat secara terpusat.
+                                    Hasil presensi tersimpan dan dapat
+                                    dipantau oleh HRD.
                                 </span>
                             </span>
                         </li>
@@ -1013,10 +1013,14 @@
                             ></i>
 
                             <span>
-                                Hubungi HRD apabila akun tidak dapat
-                                digunakan atau data akses perlu diperbarui.
+                                Mengalami kendala?
+                                <strong>Hubungi HRD.</strong>
                             </span>
                         </div>
+
+                        <p class="login-form-copyright">
+                            © {{ now()->year }} PT Gadai Ogan Baru
+                        </p>
                     </div>
                 </section>
             </div>
