@@ -1920,24 +1920,24 @@
                             <tbody>
                                 @forelse ($branchAttendance as $branchItem)
                                     <tr>
-                                        <td><strong>{{ $branchItem->code }}</strong></td>
-                                        <td>{{ $branchItem->name }}</td>
-                                        <td>
+                                        <td data-label="Kode"><strong>{{ $branchItem->code }}</strong></td>
+                                        <td data-label="Nama Cabang">{{ $branchItem->name }}</td>
+                                        <td data-label="Hadir">
                                             <span class="branch-metric success">
                                                 {{ $branchItem->present_count }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Terlambat">
                                             <span class="branch-metric warning">
                                                 {{ $branchItem->late_count }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Belum Hadir">
                                             <span class="branch-metric neutral">
                                                 {{ $branchItem->absent_count }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Aksi">
                                             <a
                                                 href="{{ route('attendance-monitoring.index', ['branch_id' => $branchItem->id]) }}"
                                                 class="branch-detail-link"
@@ -1947,7 +1947,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    <tr class="dashboard-empty-row">
                                         <td colspan="6" class="text-center text-secondary py-4">
                                             Belum ada data cabang.
                                         </td>
@@ -2058,39 +2058,39 @@
                                     };
                                 @endphp
                                 <tr>
-                                    <td><strong>{{ $attendance?->branch?->code ?? '-' }}</strong></td>
-                                    <td>
+                                    <td data-label="Cabang"><strong>{{ $attendance?->branch?->code ?? '-' }}</strong></td>
+                                    <td data-label="Karyawan">
                                         <strong>{{ $attendance?->employee?->full_name ?? '-' }}</strong>
                                         <div class="text-secondary small">
                                             {{ $attendance?->employee?->employee_number ?? '-' }}
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Masuk">
                                         {{ $checkIn?->attendance_time?->format('H:i') ?? '—' }}
                                         @if ($checkIn)
                                             <span class="text-secondary">WIB</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td data-label="Pulang">
                                         {{ $checkOut?->attendance_time?->format('H:i') ?? '—' }}
                                         @if ($checkOut)
                                             <span class="text-secondary">WIB</span>
                                         @endif
                                     </td>
-                                    <td>{{ number_format((float) ($attendance?->distance ?? 0), 2, ',', '.') }} m</td>
-                                    <td>
+                                    <td data-label="Jarak">{{ number_format((float) ($attendance?->distance ?? 0), 2, ',', '.') }} m</td>
+                                    <td data-label="Ketepatan">
                                         <span class="dashboard-badge {{ $punctualityClass }}">
                                             <i class="bi bi-circle-fill" aria-hidden="true"></i>
                                             {{ $punctualityLabel }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Validasi">
                                         <span class="dashboard-badge {{ $attendance?->validation_status === 'accepted' ? 'success' : 'danger' }}">
                                             <i class="bi bi-circle-fill" aria-hidden="true"></i>
                                             {{ $attendance?->validation_status === 'accepted' ? 'Diterima' : 'Ditolak' }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Aksi">
                                         <a
                                             href="{{ route('attendance-monitoring.index', ['employee_id' => $attendance?->employee_id]) }}"
                                             class="dashboard-row-action"
@@ -2101,7 +2101,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
+                                <tr class="dashboard-empty-row">
                                     <td colspan="8" class="text-center py-5 text-secondary">
                                         Belum ada presensi pada periode ini.
                                     </td>

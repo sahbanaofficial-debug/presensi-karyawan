@@ -37,7 +37,10 @@ final class BranchTerminalOperationalPageTest extends TestCase
             )
             ->assertSee(
                 'Aktifkan Perangkat'
-            );
+            )
+            ->assertSee('terminal-countdown-progress')
+            ->assertSee('Kode diperbarui otomatis')
+            ->assertSee('logo-pt-gadai-ogan-baru.png');
     }
 
     public function test_page_exposes_terminal_api_endpoints_and_security_headers_contract(): void

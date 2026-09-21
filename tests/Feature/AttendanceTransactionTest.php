@@ -91,7 +91,9 @@ final class AttendanceTransactionTest extends TestCase
                 static fn (Employee $viewEmployee): bool => $viewEmployee->is($employee)
             )
             ->assertSee('Presensi Karyawan')
-            ->assertSee('Mulai Kamera');
+            ->assertSee('Mulai Kamera')
+            ->assertSee('Posisikan seluruh QR terminal')
+            ->assertSee('attendance-result-card');
     }
 
     public function test_on_time_check_in_is_accepted(): void

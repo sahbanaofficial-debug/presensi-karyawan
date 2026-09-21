@@ -26,13 +26,13 @@
     <style>
         :root {
             color-scheme: light;
-            --terminal-navy: #12233f;
-            --terminal-blue: #2457d6;
-            --terminal-soft: #eef4ff;
-            --terminal-border: #d8e1ef;
-            --terminal-muted: #64748b;
-            --terminal-success: #16784a;
-            --terminal-warning: #9a6700;
+            --terminal-navy: #17212b;
+            --terminal-blue: #c2410c;
+            --terminal-soft: #fff3eb;
+            --terminal-border: #e4e9ee;
+            --terminal-muted: #475467;
+            --terminal-success: #027a48;
+            --terminal-warning: #946200;
             --terminal-danger: #b42318;
         }
 
@@ -43,17 +43,7 @@
         body {
             min-height: 100vh;
             margin: 0;
-            background:
-                radial-gradient(
-                    circle at top left,
-                    rgba(36, 87, 214, 0.16),
-                    transparent 32rem
-                ),
-                linear-gradient(
-                    145deg,
-                    #f7f9fc,
-                    #edf2f9
-                );
+            background: #f8fafc;
             color: var(--terminal-navy);
             font-family:
                 Inter,
@@ -93,9 +83,15 @@
             align-items: center;
             justify-content: center;
             border-radius: 1rem;
-            background: var(--terminal-navy);
-            color: #ffffff;
-            font-size: 1.35rem;
+            background: #fff3eb;
+            padding: 0.3rem;
+        }
+
+        .terminal-brand-icon img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .terminal-brand-title {
@@ -204,7 +200,7 @@
             border-color: var(--terminal-blue);
             box-shadow:
                 0 0 0 0.25rem
-                rgba(36, 87, 214, 0.14);
+                rgba(194, 65, 12, 0.14);
         }
 
         .activation-code-input {
@@ -229,32 +225,35 @@
 
         .btn-terminal-primary:hover,
         .btn-terminal-primary:focus {
-            background: #1948bd;
+            background: #9f3410;
             color: #ffffff;
         }
 
         .display-layout {
             display: grid;
-            grid-template-columns:
-                minmax(20rem, 0.8fr)
-                minmax(0, 1.2fr);
-            gap: clamp(1rem, 2vw, 1.75rem);
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.8rem;
+            align-items: stretch;
         }
 
         .terminal-info-panel {
+            grid-column: 1;
+            grid-row: 1;
             display: flex;
-            min-height: 34rem;
-            flex-direction: column;
+            align-items: center;
             justify-content: space-between;
+            gap: 1rem;
+            border: 1px solid var(--terminal-border);
             border-radius: 1rem;
-            background:
-                linear-gradient(
-                    150deg,
-                    var(--terminal-navy),
-                    #1d3e70
-                );
-            color: #ffffff;
-            padding: clamp(1.25rem, 3vw, 2.25rem);
+            background: #ffffff;
+            color: var(--terminal-navy);
+            padding: 0.85rem 1.25rem;
+        }
+
+        .terminal-info-heading {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         .terminal-status-pill {
@@ -262,48 +261,62 @@
             width: fit-content;
             align-items: center;
             gap: 0.45rem;
-            border: 1px solid
-                rgba(255, 255, 255, 0.24);
+            border: 1px solid #a9e7cd;
             border-radius: 999px;
-            background:
-                rgba(255, 255, 255, 0.1);
+            background: #ecfdf5;
+            color: #027a48;
             padding: 0.48rem 0.75rem;
             font-size: 0.78rem;
             font-weight: 800;
         }
 
         .terminal-info-name {
-            margin: 1.5rem 0 0;
-            font-size: clamp(2rem, 4vw, 3.5rem);
+            margin: 0;
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
             font-weight: 850;
-            letter-spacing: -0.04em;
-            line-height: 1.04;
+            letter-spacing: -0.02em;
+            line-height: 1.25;
         }
 
         .terminal-info-branch {
-            margin: 0.75rem 0 0;
-            color: rgba(255, 255, 255, 0.72);
-            font-size: 1rem;
+            margin: 0.12rem 0 0;
+            color: var(--terminal-muted);
+            font-size: 0.84rem;
+        }
+
+        .terminal-device-details {
+            position: relative;
+            flex: 0 0 auto;
+        }
+
+        .terminal-device-details summary {
+            cursor: pointer;
+            color: var(--terminal-blue);
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .terminal-device-details[open] {
+            flex-basis: min(100%, 22rem);
         }
 
         .terminal-info-meta {
             display: grid;
             gap: 0.8rem;
-            margin-top: 2rem;
+            margin-top: 1rem;
         }
 
         .terminal-info-row {
             display: flex;
             justify-content: space-between;
             gap: 1rem;
-            border-top: 1px solid
-                rgba(255, 255, 255, 0.13);
+            border-top: 1px solid var(--terminal-border);
             padding-top: 0.8rem;
             font-size: 0.82rem;
         }
 
         .terminal-info-label {
-            color: rgba(255, 255, 255, 0.62);
+            color: var(--terminal-muted);
         }
 
         .terminal-info-value {
@@ -325,40 +338,42 @@
         }
 
         .qr-panel {
+            grid-column: 1;
+            grid-row: 2;
             display: flex;
-            min-height: 34rem;
+            min-height: min(76vh, 47rem);
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border: 1px solid var(--terminal-border);
             border-radius: 1rem;
             background: #ffffff;
-            padding: clamp(1.25rem, 3vw, 2.25rem);
+            padding: clamp(1.25rem, 2vw, 2rem);
             text-align: center;
         }
 
         .qr-panel-title {
             margin: 0;
-            font-size: clamp(1.3rem, 2vw, 1.8rem);
+            font-size: clamp(1.5rem, 2.4vw, 2.2rem);
             font-weight: 850;
         }
 
         .qr-panel-copy {
-            margin: 0.4rem 0 1.25rem;
+            margin: 0.35rem 0 1rem;
             color: var(--terminal-muted);
             font-size: 0.9rem;
         }
 
         .qr-stage {
             display: flex;
-            width: min(100%, 25rem);
+            width: min(100%, 54vh, 36rem);
             aspect-ratio: 1;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--terminal-border);
-            border-radius: 1.25rem;
+            border: 1px solid #dce3e9;
+            border-radius: 1rem;
             background: #ffffff;
-            padding: clamp(1rem, 3vw, 2rem);
+            padding: clamp(1.5rem, 5.5vh, 4rem);
         }
 
         .qr-stage img,
@@ -375,8 +390,8 @@
         }
 
         .qr-status {
-            width: min(100%, 32rem);
-            margin-top: 1.25rem;
+            width: min(100%, 40rem);
+            margin-top: 0.9rem;
             border-radius: 0.8rem;
             padding: 0.8rem 1rem;
             font-size: 0.85rem;
@@ -404,9 +419,43 @@
         }
 
         .qr-countdown {
-            margin-top: 0.7rem;
+            display: flex;
+            width: min(100%, 40rem);
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 0.85rem;
             color: var(--terminal-muted);
-            font-size: 0.78rem;
+            font-size: 0.95rem;
+        }
+
+        .qr-countdown strong {
+            color: var(--terminal-navy);
+            font-variant-numeric: tabular-nums;
+            font-size: 1.15rem;
+        }
+
+        .qr-countdown-track {
+            width: min(100%, 40rem);
+            height: 0.35rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+            border-radius: 999px;
+            background: #edf1f4;
+        }
+
+        .qr-countdown-fill {
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: #e9651b;
+            transition: width 1s linear;
+        }
+
+        .qr-countdown-help {
+            margin: 0.65rem 0 0;
+            color: var(--terminal-muted);
+            font-size: 0.82rem;
         }
 
         .terminal-alert {
@@ -450,9 +499,30 @@
             .qr-panel {
                 min-height: auto;
             }
+
+            .qr-panel {
+                grid-column: 1;
+                grid-row: 2;
+            }
+
+            .terminal-info-panel {
+                grid-column: 1;
+                grid-row: 1;
+            }
         }
 
         @media (max-width: 575.98px) {
+            .terminal-info-panel,
+            .terminal-info-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .terminal-device-details[open] {
+                flex-basis: auto;
+                width: 100%;
+            }
+
             .terminal-topbar {
                 align-items: flex-start;
             }
@@ -487,9 +557,11 @@
             <div class="terminal-brand">
                 <span
                     class="terminal-brand-icon"
-                    aria-hidden="true"
                 >
-                    <i class="bi bi-qr-code"></i>
+                    <img
+                        src="{{ asset('images/logo-pt-gadai-ogan-baru.png') }}"
+                        alt="Logo PT Gadai Ogan Baru"
+                    >
                 </span>
 
                 <div>
@@ -626,7 +698,7 @@
                 >
                     <div class="display-layout">
                         <section class="terminal-info-panel">
-                            <div>
+                            <div class="terminal-info-heading">
                                 <span class="terminal-status-pill">
                                     <i
                                         class="bi bi-broadcast-pin"
@@ -636,20 +708,25 @@
                                     Terminal Terhubung
                                 </span>
 
-                                <h2
-                                    id="terminal-name"
-                                    class="terminal-info-name"
-                                >
-                                    Terminal
-                                </h2>
+                                <div>
+                                    <h2
+                                        id="terminal-name"
+                                        class="terminal-info-name"
+                                    >
+                                        Terminal
+                                    </h2>
 
-                                <p
-                                    id="terminal-branch"
-                                    class="terminal-info-branch"
-                                >
-                                    Cabang
-                                </p>
+                                    <p
+                                        id="terminal-branch"
+                                        class="terminal-info-branch"
+                                    >
+                                        Cabang
+                                    </p>
+                                </div>
+                            </div>
 
+                            <details class="terminal-device-details">
+                                <summary>Pengaturan terminal</summary>
                                 <div class="terminal-info-meta">
                                     <div class="terminal-info-row">
                                         <span class="terminal-info-label">
@@ -690,35 +767,35 @@
                                         </span>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="terminal-info-actions">
-                                <button
-                                    type="button"
-                                    id="terminal-refresh-button"
-                                    class="btn btn-light"
-                                >
-                                    <i
-                                        class="bi bi-arrow-clockwise me-1"
-                                        aria-hidden="true"
-                                    ></i>
+                                <div class="terminal-info-actions">
+                                    <button
+                                        type="button"
+                                        id="terminal-refresh-button"
+                                        class="btn btn-light"
+                                    >
+                                        <i
+                                            class="bi bi-arrow-clockwise me-1"
+                                            aria-hidden="true"
+                                        ></i>
 
-                                    Perbarui
-                                </button>
+                                        Perbarui
+                                    </button>
 
-                                <button
-                                    type="button"
-                                    id="terminal-reset-button"
-                                    class="btn btn-outline-light"
-                                >
-                                    <i
-                                        class="bi bi-box-arrow-right me-1"
-                                        aria-hidden="true"
-                                    ></i>
+                                    <button
+                                        type="button"
+                                        id="terminal-reset-button"
+                                        class="btn btn-outline-secondary"
+                                    >
+                                        <i
+                                            class="bi bi-box-arrow-right me-1"
+                                            aria-hidden="true"
+                                        ></i>
 
-                                    Lepas Perangkat
-                                </button>
-                            </div>
+                                        Lepas Perangkat
+                                    </button>
+                                </div>
+                            </details>
                         </section>
 
                         <section class="qr-panel">
@@ -727,8 +804,7 @@
                             </h2>
 
                             <p class="qr-panel-copy">
-                                QR berubah otomatis mengikuti periode
-                                keamanan server.
+                                Arahkan kamera ponsel ke kode di bawah ini.
                             </p>
 
                             <div
@@ -749,11 +825,29 @@
                             </div>
 
                             <div class="qr-countdown">
-                                Pembaruan berikutnya:
+                                <span>Kode diperbarui otomatis</span>
                                 <strong id="terminal-countdown">
                                     -
                                 </strong>
                             </div>
+                            <div
+                                class="qr-countdown-track"
+                                role="progressbar"
+                                aria-label="Sisa waktu kode QR aktif"
+                                aria-valuemin="0"
+                                aria-valuemax="30"
+                                aria-valuenow="0"
+                                id="terminal-countdown-progress"
+                            >
+                                <div
+                                    class="qr-countdown-fill"
+                                    id="terminal-countdown-fill"
+                                ></div>
+                            </div>
+                            <p class="qr-countdown-help">
+                                Tidak perlu terburu-buru. Jika kode berganti,
+                                pindai kode terbaru yang muncul otomatis.
+                            </p>
                         </section>
                     </div>
                 </div>
@@ -876,6 +970,16 @@
                     'terminal-countdown'
                 );
 
+            const countdownProgress =
+                document.getElementById(
+                    'terminal-countdown-progress'
+                );
+
+            const countdownFill =
+                document.getElementById(
+                    'terminal-countdown-fill'
+                );
+
             const refreshButton =
                 document.getElementById(
                     'terminal-refresh-button'
@@ -905,6 +1009,7 @@
             let pollingEnabled = false;
             let requestInProgress = false;
             let secondsRemaining = 0;
+            let countdownCycleSeconds = 30;
             let pollTimer = null;
 
             const uuidPattern =
@@ -1240,8 +1345,8 @@
                     qrStage,
                     {
                         text: payload,
-                        width: 340,
-                        height: 340,
+                        width: 512,
+                        height: 512,
 
                         correctLevel:
                             window.QRCode
@@ -1254,6 +1359,31 @@
             const updateCountdown = function () {
                 if (countdownElement === null) {
                     return;
+                }
+
+                const remaining = pollingEnabled
+                    ? Math.max(0, secondsRemaining)
+                    : 0;
+
+                if (countdownProgress !== null) {
+                    countdownProgress.setAttribute(
+                        'aria-valuemax',
+                        String(countdownCycleSeconds)
+                    );
+                    countdownProgress.setAttribute(
+                        'aria-valuenow',
+                        String(remaining)
+                    );
+                }
+
+                if (countdownFill !== null) {
+                    countdownFill.style.width =
+                        Math.min(
+                            100,
+                            remaining
+                                / countdownCycleSeconds
+                                * 100
+                        ) + '%';
                 }
 
                 if (! pollingEnabled) {
@@ -1667,6 +1797,11 @@
                             )
                         );
                     }
+
+                    countdownCycleSeconds = Math.max(
+                        1,
+                        secondsRemaining
+                    );
 
                     updateQrStatus(
                         'QR aktif dan siap dipindai.',

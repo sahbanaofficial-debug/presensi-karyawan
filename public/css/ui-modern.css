@@ -1912,3 +1912,133 @@ body {
         min-height: 5.25rem;
     }
 }
+
+/* The mobile drawer has a white surface, unlike the dark desktop sidebar. */
+.management-app .app-mobile-navigation {
+    background: #ffffff;
+    color: #17212b;
+}
+
+.management-app .app-mobile-navigation .app-brand-title,
+.management-app .app-mobile-navigation .app-nav-link {
+    color: #17212b;
+}
+
+.management-app .app-mobile-navigation .app-brand-subtitle,
+.management-app .app-mobile-navigation .app-nav-heading {
+    color: #667085;
+}
+
+.management-app .app-mobile-navigation .app-nav-link:hover,
+.management-app .app-mobile-navigation .app-nav-link:focus {
+    color: #17212b;
+    background: #fff3eb;
+}
+
+.management-app .app-mobile-navigation .app-nav-link.active {
+    color: #ffffff;
+    background: #c2410c;
+}
+
+@media (max-width: 767.98px) {
+    .management-app .management-dashboard .dashboard-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+    }
+
+    .management-app .management-dashboard .dashboard-stat-card {
+        min-width: 0;
+        padding: 0.75rem;
+    }
+
+    .management-app .management-dashboard .dashboard-stat-card:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .management-app .management-dashboard .dashboard-stat-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        flex-basis: 2.5rem;
+        font-size: 1.1rem;
+    }
+
+    .management-app .management-dashboard .dashboard-stat-label {
+        font-size: 0.75rem;
+    }
+
+    .management-app .management-dashboard .dashboard-stat-value {
+        font-size: 1.55rem;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-wrap,
+    .management-app .management-dashboard .dashboard-table-wrap {
+        overflow-x: visible;
+        padding: 0.75rem;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-table,
+    .management-app .management-dashboard .dashboard-table {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-table thead,
+    .management-app .management-dashboard .dashboard-table thead {
+        display: none;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-table tbody,
+    .management-app .management-dashboard .dashboard-table tbody {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-table tr,
+    .management-app .management-dashboard .dashboard-table tr {
+        display: grid;
+        gap: 0.45rem;
+        padding: 0.85rem;
+        border: 1px solid #e4e9ee;
+        border-radius: 0.8rem;
+        background: #ffffff;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-table td,
+    .management-app .management-dashboard .dashboard-table td {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+        min-width: 0;
+        padding: 0.15rem 0;
+        border: 0;
+        font-size: 0.82rem;
+        text-align: right;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-table td::before,
+    .management-app .management-dashboard .dashboard-table td::before {
+        content: attr(data-label);
+        flex: 0 0 6.75rem;
+        color: #667085;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-table .dashboard-empty-row td,
+    .management-app .management-dashboard .dashboard-table .dashboard-empty-row td {
+        display: block;
+        text-align: center;
+    }
+
+    .management-app .management-dashboard .dashboard-branch-summary-table .dashboard-empty-row td::before,
+    .management-app .management-dashboard .dashboard-table .dashboard-empty-row td::before {
+        display: none;
+    }
+}

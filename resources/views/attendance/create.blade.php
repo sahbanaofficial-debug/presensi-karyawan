@@ -186,16 +186,24 @@
             position: relative;
             min-height: 23rem;
             overflow: hidden;
-            border: 1px solid var(--neutral-300);
+            border: 1px solid #dce3e9;
             border-radius: var(--radius-lg);
-            background: var(--neutral-25);
+            background: #17212b;
         }
 
         .scanner-stage::after {
             position: absolute;
-            inset: var(--space-3);
-            border: 1px dashed var(--brand-300);
-            border-radius: var(--radius-md);
+            inset: 12%;
+            border-radius: 1.2rem;
+            background:
+                linear-gradient(#fff, #fff) top left / 3rem 0.3rem no-repeat,
+                linear-gradient(#fff, #fff) top left / 0.3rem 3rem no-repeat,
+                linear-gradient(#fff, #fff) top right / 3rem 0.3rem no-repeat,
+                linear-gradient(#fff, #fff) top right / 0.3rem 3rem no-repeat,
+                linear-gradient(#fff, #fff) bottom left / 3rem 0.3rem no-repeat,
+                linear-gradient(#fff, #fff) bottom left / 0.3rem 3rem no-repeat,
+                linear-gradient(#fff, #fff) bottom right / 3rem 0.3rem no-repeat,
+                linear-gradient(#fff, #fff) bottom right / 0.3rem 3rem no-repeat;
             content: "";
             pointer-events: none;
         }
@@ -254,15 +262,76 @@
         }
 
         .scanner-empty-title {
-            color: var(--neutral-900);
+            color: #fff;
             font-size: 0.9375rem;
             font-weight: 800;
         }
 
         .scanner-empty-copy {
-            color: var(--attendance-muted);
-            font-size: 0.75rem;
+            color: #d9e2ea;
+            font-size: 0.875rem;
             line-height: 1.6;
+        }
+
+        .scanner-tip {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin: 0 0 1rem;
+            color: var(--attendance-muted);
+            font-size: 0.875rem;
+        }
+
+        .scanner-tip i {
+            color: var(--attendance-orange-dark);
+            font-size: 1.1rem;
+        }
+
+        .attendance-result-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.25rem;
+            border: 1px solid;
+            border-radius: var(--radius-lg);
+        }
+
+        .attendance-result-card.is-success {
+            border-color: #a9e7cd;
+            background: #ecfdf5;
+            color: #065f46;
+        }
+
+        .attendance-result-card.is-error {
+            border-color: #f4b4ae;
+            background: #fff3f2;
+            color: #9f2b20;
+        }
+
+        .attendance-result-icon {
+            display: inline-flex;
+            width: 2.75rem;
+            height: 2.75rem;
+            flex: 0 0 2.75rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.8rem;
+            background: rgba(255, 255, 255, 0.75);
+            font-size: 1.3rem;
+        }
+
+        .attendance-result-title {
+            margin: 0 0 0.25rem;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .attendance-result-details {
+            display: grid;
+            gap: 0.2rem;
+            margin-top: 0.6rem;
+            font-size: 0.875rem;
+            font-weight: 700;
         }
 
         .location-value {
@@ -1391,6 +1460,10 @@
 
         <div class="p-3 p-md-4">
             <div class="scanner-wrapper">
+                <p class="scanner-tip">
+                    <i class="bi bi-bounding-box-circles" aria-hidden="true"></i>
+                    Posisikan seluruh QR terminal di dalam bingkai kamera.
+                </p>
                 <div
                     id="scanner-alert"
                     class="alert {{
@@ -1590,6 +1663,7 @@
             );
 
             const csrfToken = @json(csrf_token());
+            const employeeDisplayName = @json($employee->full_name);
 
             const toNullableNumber = function (value) {
                 if (
@@ -1829,30 +1903,38 @@
 
                 attendanceResult.className =
                     success
-                        ? 'alert alert-success'
-                        : 'alert alert-danger';
+                        ? 'attendance-result-card is-success'
+                        : 'attendance-result-card is-error';
 
                 attendanceResult.innerHTML = '';
 
-                const title =
-                    document.createElement('div');
+                const icon = document.createElement('span');
+                icon.className = 'attendance-result-icon';
+                icon.setAttribute('aria-hidden', 'true');
+                icon.innerHTML = success
+                    ? '<i class="bi bi-check-circle-fill"></i>'
+                    : '<i class="bi bi-exclamation-circle-fill"></i>';
 
-                title.className = 'fw-semibold mb-1';
+                const content = document.createElement('div');
+                content.className = 'min-w-0';
+
+                const title =
+                    document.createElement('h3');
+
+                title.className = 'attendance-result-title';
 
                 title.textContent =
                     success
-                        ? 'Presensi Berhasil'
-                        : 'Presensi Ditolak';
+                        ? 'Presensi berhasil dicatat'
+                        : 'Presensi belum berhasil';
 
                 const messageElement =
                     document.createElement('div');
 
                 messageElement.textContent = message;
 
-                attendanceResult.appendChild(title);
-                attendanceResult.appendChild(
-                    messageElement
-                );
+                content.appendChild(title);
+                content.appendChild(messageElement);
 
                 if (
                     success
@@ -1863,37 +1945,56 @@
                         document.createElement('div');
 
                     details.className =
-                        'small mt-2';
+                        'attendance-result-details';
 
                     const attendanceType =
                         data.attendance_type === 'check_out'
                             ? 'Presensi Pulang'
                             : 'Presensi Masuk';
 
-                    const distance =
-                        Number(data.distance ?? 0)
-                            .toFixed(2);
+                    const attendanceAt = new Date(
+                        data.attendance_time ?? ''
+                    );
 
-                    const accuracy =
-                        Number(data.accuracy ?? 0)
-                            .toFixed(2);
+                    const timeLabel = Number.isNaN(
+                        attendanceAt.getTime()
+                    )
+                        ? 'Waktu server tercatat'
+                        : new Intl.DateTimeFormat(
+                            'id-ID',
+                            {
+                                timeZone: 'Asia/Jakarta',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false,
+                            }
+                        ).format(attendanceAt) + ' WIB';
 
-                    const radius =
-                        Number(data.geofence_radius ?? 0)
-                            .toFixed(2);
+                    const punctualityLabel =
+                        data.punctuality_status === 'late'
+                            ? 'Terlambat'
+                            : data.punctuality_status === 'on_time'
+                                ? 'Tepat waktu'
+                                : 'Tercatat';
 
-                    details.textContent =
+                    [
+                        employeeDisplayName,
                         attendanceType
-                        + ' | Jarak '
-                        + distance
-                        + ' meter | Radius '
-                        + radius
-                        + ' meter | Akurasi '
-                        + accuracy
-                        + ' meter | Di dalam geofence';
+                            + ' · '
+                            + timeLabel
+                            + ' · '
+                            + punctualityLabel,
+                    ].forEach(function (value) {
+                        const line = document.createElement('span');
+                        line.textContent = value;
+                        details.appendChild(line);
+                    });
 
-                    attendanceResult.appendChild(details);
+                    content.appendChild(details);
                 }
+
+                attendanceResult.appendChild(icon);
+                attendanceResult.appendChild(content);
             };
 
             const clearResult = function () {

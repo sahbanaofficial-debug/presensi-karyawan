@@ -114,6 +114,8 @@ final class DashboardOperationalSummaryTest extends TestCase
             ->assertSee('Belum Hadir')
             ->assertSee('Perbandingan Kehadiran Antar Cabang')
             ->assertSee('Detail Presensi Karyawan')
+            ->assertSee('data-label="Nama Cabang"', false)
+            ->assertSee('data-label="Karyawan"', false)
             ->assertSee('03 Agustus 2026')
             ->assertSee('09 Agustus 2026')
             ->assertSee('Seluruh cabang');
