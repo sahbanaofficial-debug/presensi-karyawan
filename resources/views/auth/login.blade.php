@@ -671,9 +671,13 @@
         href="{{ asset('css/ui-modern.css') }}"
         rel="stylesheet"
     >
+    <link
+        href="{{ asset('css/login-refresh.css') }}"
+        rel="stylesheet"
+    >
 </head>
 
-<body class="login-body">
+<body class="login-body login-refresh">
     <div class="login-page">
         <header class="login-topbar">
             <div class="login-topbar-inner">
@@ -729,83 +733,29 @@
                         </span>
                     </div>
 
-                    <p class="information-kicker">
-                        Selamat datang
-                    </p>
+                    <p class="information-kicker">PORTAL PRESENSI KARYAWAN</p>
 
                     <h1
                         id="system-information-title"
                         class="information-title"
                     >
-                        Sistem Presensi
+                        Kehadiran tercatat.<br>
+                        <span>Kerja lebih tertata.</span>
                     </h1>
 
                     <p class="information-copy">
-                        Presensi karyawan berbasis lokasi dan QR dinamis
-                        dengan data yang tersimpan secara terpusat.
+                        Satu tempat untuk mencatat kehadiran, melihat riwayat,
+                        dan memantau presensi di setiap cabang.
                     </p>
 
-                    <ul class="capability-list">
-                        <li class="capability-item">
-                            <span class="capability-icon">
-                                <i
-                                    class="bi bi-geo-alt-fill"
-                                    aria-hidden="true"
-                                ></i>
-                            </span>
-
-                            <span>
-                                <span class="capability-title">
-                                    Lokasi
-                                </span>
-
-                                <span class="capability-copy">
-                                    Posisi perangkat divalidasi sesuai
-                                    lokasi cabang.
-                                </span>
-                            </span>
-                        </li>
-
-                        <li class="capability-item">
-                            <span class="capability-icon">
-                                <i
-                                    class="bi bi-qr-code-scan"
-                                    aria-hidden="true"
-                                ></i>
-                            </span>
-
-                            <span>
-                                <span class="capability-title">
-                                    QR Dinamis
-                                </span>
-
-                                <span class="capability-copy">
-                                    Token presensi berubah berkala dan
-                                    divalidasi oleh server.
-                                </span>
-                            </span>
-                        </li>
-
-                        <li class="capability-item">
-                            <span class="capability-icon">
-                                <i
-                                    class="bi bi-shield-check"
-                                    aria-hidden="true"
-                                ></i>
-                            </span>
-
-                            <span>
-                                <span class="capability-title">
-                                    Data terpusat
-                                </span>
-
-                                <span class="capability-copy">
-                                    Hasil presensi tersimpan dan dapat
-                                    dipantau oleh HRD.
-                                </span>
-                            </span>
-                        </li>
-                    </ul>
+                    <div class="login-journey" aria-label="Alur presensi">
+                        <span class="login-journey-label">CARA KERJA</span>
+                        <ol class="login-journey-list">
+                            <li><i class="bi bi-geo-alt" aria-hidden="true"></i><span>Lokasi terverifikasi</span></li>
+                            <li><i class="bi bi-qr-code-scan" aria-hidden="true"></i><span>QR dipindai</span></li>
+                            <li><i class="bi bi-check2-circle" aria-hidden="true"></i><span>Presensi tercatat</span></li>
+                        </ol>
+                    </div>
                 </section>
 
                 <section
@@ -813,23 +763,17 @@
                     aria-labelledby="login-title"
                 >
                     <div class="login-form-wrapper">
-                        <span class="login-form-icon">
-                            <i
-                                class="bi bi-person-lock"
-                                aria-hidden="true"
-                            ></i>
-                        </span>
+                        <div class="login-form-eyebrow"><span></span> AKSES KARYAWAN &amp; HRD</div>
 
                         <h2
                             id="login-title"
                             class="login-form-title"
                         >
-                            Masuk ke Akun
+                            Selamat datang kembali.
                         </h2>
 
                         <p class="login-form-copy">
-                            Gunakan akun yang telah diberikan oleh
-                            administrator.
+                            Masuk dengan akun perusahaan untuk melanjutkan.
                         </p>
 
                         @if (session('success'))
