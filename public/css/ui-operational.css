@@ -1,0 +1,430 @@
+/* PT Gadai Ogan Baru: restrained operational UI for HRD and employees.
+   The login and terminal retain their own focused layouts. */
+.management-app,
+.employee-app {
+    --op-canvas: #f6f6f4;
+    --op-surface: #ffffff;
+    --op-border: #dfe2e1;
+    --op-ink: #20292f;
+    --op-muted: #647079;
+    --op-orange: #cf581a;
+    --op-orange-dark: #a84211;
+    --op-orange-soft: #fff3eb;
+    --ui-radius: .7rem;
+    --ui-radius-sm: .55rem;
+    --ui-shadow: none;
+    --shadow-xs: none;
+    --shadow-sm: none;
+    --shadow-md: none;
+    color: var(--op-ink);
+    background: var(--op-canvas);
+}
+
+.app-skip-link {
+    position: fixed;
+    z-index: 1100;
+    top: .6rem;
+    left: .6rem;
+    padding: .55rem .85rem;
+    transform: translateY(-150%);
+    border-radius: .4rem;
+    background: #fff;
+    color: #20292f;
+    font-weight: 700;
+}
+
+.app-skip-link:focus {
+    transform: translateY(0);
+}
+
+.management-app .app-sidebar {
+    border-right: 1px solid #30383c;
+    background: #232b30;
+    box-shadow: none;
+}
+
+.management-app .app-brand {
+    border-bottom-color: rgba(255,255,255,.1);
+}
+
+.management-app .app-brand-mark {
+    background: transparent;
+}
+
+.management-app .app-nav-heading {
+    color: #9eaaaf;
+    letter-spacing: .09em;
+}
+
+.management-app .app-nav-link {
+    border-left: 3px solid transparent;
+    border-radius: .35rem;
+    color: #c9d0d2;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+.management-app .app-nav-link:hover,
+.management-app .app-nav-link:focus-visible {
+    background: rgba(255,255,255,.07);
+    color: #fff;
+}
+
+.management-app .app-nav-link.active {
+    border-left-color: #f08545;
+    background: rgba(234,113,48,.15);
+    box-shadow: none;
+    color: #fff;
+}
+
+.management-app .app-user-card {
+    border-color: rgba(255,255,255,.13);
+    border-radius: .5rem;
+    background: transparent;
+}
+
+.management-app .app-topbar,
+.employee-app .app-topbar {
+    border-bottom: 1px solid var(--op-border);
+    background: #fff;
+    box-shadow: none;
+}
+
+.management-app .app-topbar-eyebrow {
+    color: var(--op-orange-dark);
+    letter-spacing: .09em;
+}
+
+.management-app .app-topbar-title,
+.employee-app .app-topbar-title {
+    color: var(--op-ink);
+}
+
+.management-app .app-content {
+    max-width: 92rem;
+    margin-inline: auto;
+    padding: clamp(1.15rem, 2.3vw, 2rem);
+}
+
+.management-app .page-header,
+.employee-app .page-header {
+    margin-bottom: 1.4rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--op-border);
+}
+
+.management-app .page-title,
+.employee-app .page-title {
+    color: var(--op-ink);
+    font-size: clamp(1.55rem, 2.5vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -.035em;
+    line-height: 1.2;
+}
+
+.management-app .page-description,
+.employee-app .page-description {
+    color: var(--op-muted);
+    font-size: .86rem;
+    line-height: 1.6;
+}
+
+.management-app .content-card,
+.management-app .card,
+.management-app .dashboard-panel,
+.management-app .dashboard-filter-panel,
+.management-app .dashboard-stat-card,
+.management-app .employee-summary-card,
+.management-app .employee-toolbar,
+.management-app .employee-list-card,
+.management-app .monitoring-summary-card,
+.management-app .monitoring-filter-card,
+.management-app .monitoring-list-card,
+.management-app .report-summary-card,
+.management-app .report-filter-card,
+.management-app .report-list-card,
+.employee-app .content-card,
+.employee-app .card,
+.employee-app .employee-today-card,
+.employee-app .employee-presence-card,
+.employee-app .employee-account-card,
+.employee-app .history-profile-card,
+.employee-app .history-filter-card,
+.employee-app .history-list-card,
+.employee-app .history-summary-card {
+    border: 1px solid var(--op-border);
+    border-radius: .7rem;
+    background: var(--op-surface);
+    box-shadow: none;
+}
+
+.management-app .card-header,
+.management-app .content-card > .border-bottom,
+.management-app .dashboard-panel-header,
+.management-app .employee-list-header,
+.employee-app .history-card-header {
+    border-bottom-color: var(--op-border);
+    background: #fff;
+}
+
+.management-app .form-label,
+.employee-app .form-label {
+    color: #344047;
+    font-size: .79rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.management-app .form-control,
+.management-app .form-select,
+.management-app .input-group-text,
+.employee-app .form-control,
+.employee-app .form-select,
+.employee-app .input-group-text {
+    min-height: 2.8rem;
+    border-color: #cfd6d8;
+    border-radius: .5rem;
+    background-color: #fff;
+    color: var(--op-ink);
+    font-size: .86rem;
+}
+
+.management-app .form-control:focus,
+.management-app .form-select:focus,
+.employee-app .form-control:focus,
+.employee-app .form-select:focus {
+    border-color: var(--op-orange);
+    box-shadow: 0 0 0 .2rem rgba(207,88,26,.12);
+}
+
+.management-app .btn,
+.employee-app .btn {
+    min-height: 2.7rem;
+    border-radius: .48rem;
+    font-weight: 700;
+    box-shadow: none;
+}
+
+.management-app .btn-primary,
+.employee-app .btn-primary {
+    border-color: var(--op-orange);
+    background: var(--op-orange);
+    color: #fff;
+}
+
+.management-app .btn-primary:hover,
+.employee-app .btn-primary:hover,
+.management-app .btn-primary:focus-visible,
+.employee-app .btn-primary:focus-visible {
+    border-color: var(--op-orange-dark);
+    background: var(--op-orange-dark);
+    color: #fff;
+}
+
+.management-app .btn-outline-primary,
+.employee-app .btn-outline-primary {
+    border-color: #e1b59d;
+    color: var(--op-orange-dark);
+    background: #fff;
+}
+
+.management-app .btn-outline-primary:hover,
+.employee-app .btn-outline-primary:hover {
+    border-color: var(--op-orange);
+    background: var(--op-orange-soft);
+    color: var(--op-orange-dark);
+}
+
+.management-app .btn-light,
+.employee-app .btn-light {
+    border: 1px solid var(--op-border);
+    background: #fff;
+    color: var(--op-ink);
+}
+
+.management-app .table,
+.employee-app .table {
+    color: var(--op-ink);
+    font-size: .83rem;
+}
+
+.management-app .table thead th,
+.employee-app .table thead th {
+    border-bottom: 1px solid var(--op-border);
+    background: #f6f7f5;
+    color: #56636b;
+    font-size: .69rem;
+    font-weight: 800;
+    letter-spacing: .045em;
+}
+
+.management-app .table > :not(caption) > * > *,
+.employee-app .table > :not(caption) > * > * {
+    border-bottom-color: #e8eae8;
+}
+
+.management-app .table tbody tr:hover,
+.employee-app .table tbody tr:hover {
+    background: #faf8f5;
+}
+
+.management-app .pagination .page-link,
+.employee-app .pagination .page-link {
+    border-color: var(--op-border);
+    border-radius: .4rem !important;
+    box-shadow: none;
+}
+
+.management-app .app-flash,
+.employee-app .app-flash {
+    border-radius: .55rem;
+    box-shadow: none;
+}
+
+/* Dashboard: treat metrics as data, not decorative tiles. */
+.management-app .management-dashboard .dashboard-stat-card {
+    min-height: 5.75rem;
+    border-color: var(--op-border);
+    border-radius: .6rem;
+    background: #fff;
+    box-shadow: none;
+}
+
+.management-app .management-dashboard .dashboard-stat-card::after {
+    display: none;
+}
+
+.management-app .management-dashboard .dashboard-stat-icon,
+.management-app .management-dashboard .tone-blue .dashboard-stat-icon,
+.management-app .management-dashboard .tone-indigo .dashboard-stat-icon,
+.management-app .management-dashboard .tone-green .dashboard-stat-icon,
+.management-app .management-dashboard .tone-orange .dashboard-stat-icon,
+.management-app .management-dashboard .tone-red .dashboard-stat-icon,
+.management-app .management-dashboard .tone-neutral .dashboard-stat-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-basis: 2.25rem;
+    border: 1px solid #ece7e2;
+    border-radius: .45rem;
+    background: #faf6f2;
+    color: var(--op-orange-dark);
+    font-size: 1rem;
+}
+
+.management-app .management-dashboard .dashboard-stat-value {
+    color: var(--op-ink);
+    font-size: 1.65rem;
+}
+
+.management-app .management-dashboard .dashboard-panel,
+.management-app .management-dashboard .dashboard-filter-panel {
+    border-color: var(--op-border);
+    border-radius: .7rem;
+    box-shadow: none;
+}
+
+.management-app .management-dashboard .dashboard-branch-bar {
+    background: var(--op-orange);
+}
+
+.management-app .management-dashboard .dashboard-branch-summary-table {
+    border-color: var(--op-border);
+    border-radius: .45rem;
+}
+
+.management-app .management-dashboard .dashboard-branch-summary-table th {
+    background: #f6f7f5;
+}
+
+/* Employee pages: prioritize today's schedule and the scan action. */
+.employee-app .app-content {
+    max-width: 48rem;
+    padding-bottom: 7rem;
+}
+
+.employee-app .employee-hero {
+    border: 0;
+    border-radius: .7rem;
+    background: #b94f1c;
+    box-shadow: none;
+}
+
+.employee-app .employee-hero::before,
+.employee-app .employee-hero::after {
+    display: none;
+}
+
+.employee-app .employee-hero-kicker,
+.employee-app .employee-hero-date {
+    color: rgba(255,255,255,.86);
+}
+
+.employee-app .employee-hero-avatar {
+    border-color: rgba(255,255,255,.4);
+    background: rgba(255,255,255,.14);
+}
+
+.employee-app .employee-status-box {
+    border-color: var(--op-border);
+    border-radius: .5rem;
+    background: #f8f9f7;
+}
+
+.employee-app .employee-global-nav {
+    border-top: 1px solid var(--op-border);
+    background: #fff;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.employee-app .employee-global-nav-link {
+    border-radius: .45rem;
+}
+
+.employee-app .employee-global-nav-link.active {
+    background: var(--op-orange-soft);
+    color: var(--op-orange-dark);
+}
+
+.employee-app .history-summary-icon,
+.employee-app .employee-today-icon,
+.employee-app .employee-account-icon,
+.employee-app .employee-shortcut-icon {
+    border-radius: .45rem;
+    background: var(--op-orange-soft);
+    color: var(--op-orange-dark);
+}
+
+@media (max-width: 767.98px) {
+    .management-app .app-content {
+        padding: 1rem .85rem 2rem;
+    }
+
+    .management-app .page-header,
+    .employee-app .page-header {
+        margin-bottom: 1rem;
+        padding-bottom: .8rem;
+    }
+
+    .management-app .app-mobile-navigation {
+        background: #fff;
+    }
+
+    .management-app .app-mobile-navigation .app-nav-link.active {
+        border-left-color: var(--op-orange);
+        background: var(--op-orange-soft);
+        box-shadow: none;
+        color: var(--op-orange-dark);
+    }
+
+    .employee-app .employee-hero {
+        padding: 1.1rem 1.15rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .management-app .app-nav-link {
+        transition: none;
+    }
+}

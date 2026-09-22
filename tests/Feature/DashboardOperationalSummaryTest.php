@@ -106,6 +106,7 @@ final class DashboardOperationalSummaryTest extends TestCase
                     && $summary['total'] === 2
             )
             ->assertSee('Filter ringkasan')
+            ->assertSee('css/ui-operational.css')
             ->assertSee('value="2026-08-03"', false)
             ->assertSee('Semua cabang')
             ->assertSee('Ringkasan Per Cabang')
@@ -397,6 +398,7 @@ final class DashboardOperationalSummaryTest extends TestCase
                 static fn (?Attendance $attendance): bool => $attendance?->is($checkOut) === true
             )
             ->assertSee('Jadwal Hari Ini')
+            ->assertSee('css/ui-operational.css')
             ->assertSee('Mulai Presensi')
             ->assertSee('Tepat Waktu')
             ->assertSee('Selesai')

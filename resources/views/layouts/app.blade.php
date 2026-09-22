@@ -1098,6 +1098,10 @@
         href="{{ asset('css/ui-modern.css') }}"
         rel="stylesheet"
     >
+    <link
+        href="{{ asset('css/ui-operational.css') }}"
+        rel="stylesheet"
+    >
 </head>
 
 <body
@@ -1108,6 +1112,7 @@
                 . (auth()->user()?->role ?? 'guest')
     }}"
 >
+    <a href="#main-content" class="app-skip-link">Langsung ke konten</a>
     @php
         $authenticatedUser = auth()->user();
 
@@ -1585,7 +1590,7 @@
                 </div>
             </header>
 
-            <main class="app-content">
+            <main id="main-content" class="app-content" tabindex="-1">
                 @if (session('success'))
                     <div
                         class="alert alert-success
