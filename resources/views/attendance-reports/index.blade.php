@@ -255,7 +255,22 @@
 
         @media (max-width: 420px) {
             .report-summary-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: var(--space-2);
+            }
+
+            .report-summary-card {
+                padding: var(--space-3);
+            }
+
+            .report-summary-icon {
+                width: 2rem;
+                height: 2rem;
+                margin-bottom: var(--space-2);
+            }
+
+            .report-summary-copy {
+                display: none;
             }
 
             .report-mobile-grid {
