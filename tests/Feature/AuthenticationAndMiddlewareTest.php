@@ -18,13 +18,13 @@ final class AuthenticationAndMiddlewareTest extends TestCase
 
     private const PASSWORD = 'Presensi123!';
 
-    public function test_guest_sees_refreshed_login_form_without_changing_authentication_fields(): void
+    public function test_guest_sees_original_login_layout_with_motion_stylesheet(): void
     {
         $this->get(route('login'))
             ->assertOk()
-            ->assertSee('css/login-refresh.css')
-            ->assertSee('login-journey')
-            ->assertSee('Selamat datang kembali.')
+            ->assertSee('css/login-motion.css')
+            ->assertSee('Masuk ke Akun')
+            ->assertSee('QR Dinamis')
             ->assertSee('name="email"', false)
             ->assertSee('name="password"', false)
             ->assertSee('name="remember"', false)
