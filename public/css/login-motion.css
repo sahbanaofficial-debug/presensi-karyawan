@@ -23,6 +23,20 @@
     animation: login-logo-float 5s ease-in-out 1s infinite;
 }
 
+/* Keep the approved copy visually centered at every breakpoint. */
+.login-body .information-kicker,
+.login-body .information-title,
+.login-body .information-copy {
+    align-self: center;
+    text-align: center;
+    text-wrap: balance;
+}
+
+.login-body .information-copy {
+    margin-right: auto;
+    margin-left: auto;
+}
+
 .login-body .btn-login {
     transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
 }

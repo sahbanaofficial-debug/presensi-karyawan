@@ -668,15 +668,15 @@
     </style>
 
     <link
+        href="{{ asset('css/ui-luxe.css') }}"
+        rel="stylesheet"
+    >
+    <link
         href="{{ asset('css/ui-modern.css') }}"
         rel="stylesheet"
     >
     <link
         href="{{ asset('css/login-motion.css') }}"
-        rel="stylesheet"
-    >
-    <link
-        href="{{ asset('css/ui-luxe.css') }}"
         rel="stylesheet"
     >
 </head>
