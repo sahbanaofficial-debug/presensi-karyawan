@@ -23,6 +23,7 @@ final class AuthenticationAndMiddlewareTest extends TestCase
         $this->get(route('login'))
             ->assertOk()
             ->assertSee('css/login-motion.css')
+            ->assertSee('css/ui-luxe.css')
             ->assertSee('Masuk ke Akun')
             ->assertSee('QR Dinamis')
             ->assertSee('name="email"', false)

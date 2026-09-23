@@ -1,0 +1,1077 @@
+/*
+ * PT Gadai Ogan Baru — Luxe UI system
+ * A restrained, premium layer shared by management, employee, login,
+ * and terminal surfaces. Business logic remains untouched.
+ */
+
+:root {
+    --luxe-ink: #171c1f;
+    --luxe-ink-2: #22292d;
+    --luxe-ink-3: #30393e;
+    --luxe-copper: #c95d24;
+    --luxe-copper-dark: #963f17;
+    --luxe-copper-soft: #fbede4;
+    --luxe-champagne: #d9b99b;
+    --luxe-canvas: #f4f2ee;
+    --luxe-surface: #fffefa;
+    --luxe-surface-2: #faf8f4;
+    --luxe-line: #ded9d1;
+    --luxe-line-strong: #cdc5bb;
+    --luxe-text: #20272b;
+    --luxe-muted: #697278;
+    --luxe-success: #237257;
+    --luxe-warning: #9b6814;
+    --luxe-danger: #ad3e37;
+    --luxe-radius: 1rem;
+    --luxe-radius-sm: .68rem;
+    --luxe-shadow: 0 .7rem 2.2rem rgba(27, 31, 33, .065);
+    --luxe-shadow-lg: 0 1.6rem 4.5rem rgba(20, 24, 26, .13);
+}
+
+/* Shared application frame */
+.management-app,
+.employee-app {
+    --op-canvas: var(--luxe-canvas);
+    --op-surface: var(--luxe-surface);
+    --op-border: var(--luxe-line);
+    --op-ink: var(--luxe-text);
+    --op-muted: var(--luxe-muted);
+    --op-orange: var(--luxe-copper);
+    --op-orange-dark: var(--luxe-copper-dark);
+    --op-orange-soft: var(--luxe-copper-soft);
+    --ui-radius: var(--luxe-radius);
+    --ui-radius-sm: var(--luxe-radius-sm);
+    --ui-shadow: var(--luxe-shadow);
+    --shadow-xs: 0 .2rem .65rem rgba(27, 31, 33, .045);
+    --shadow-sm: var(--luxe-shadow);
+    --shadow-md: var(--luxe-shadow-lg);
+    color: var(--luxe-text);
+    background: var(--luxe-canvas);
+}
+
+.management-app .app-shell,
+.employee-app .app-shell {
+    background: var(--luxe-canvas);
+}
+
+.management-app .app-sidebar {
+    width: 16rem;
+    border: 0;
+    border-right: 1px solid rgba(255, 255, 255, .08);
+    background: var(--luxe-ink);
+    box-shadow: .8rem 0 2.5rem rgba(18, 21, 23, .08);
+}
+
+.management-app .app-brand {
+    min-height: 5.7rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    color: #fff;
+}
+
+.management-app .app-brand-mark {
+    width: 2.85rem;
+    height: 2.85rem;
+    flex: 0 0 2.85rem;
+    padding: .18rem;
+    border: 1px solid rgba(217, 185, 155, .28);
+    border-radius: .8rem;
+    background: rgba(255, 255, 255, .035);
+}
+
+.management-app .app-brand-title {
+    color: #fff;
+    font-size: .9rem;
+    letter-spacing: -.015em;
+}
+
+.management-app .app-brand-subtitle {
+    color: rgba(255, 255, 255, .52);
+    font-size: .62rem;
+}
+
+.management-app .app-nav {
+    padding: 1.35rem .85rem 2rem;
+}
+
+.management-app .app-nav-section + .app-nav-section {
+    margin-top: 1.35rem;
+}
+
+.management-app .app-nav-heading {
+    margin-bottom: .45rem;
+    padding-inline: .9rem;
+    color: rgba(255, 255, 255, .36);
+    font-size: .59rem;
+    font-weight: 800;
+    letter-spacing: .13em;
+}
+
+.management-app .app-nav-link {
+    min-height: 2.8rem;
+    margin-bottom: .16rem;
+    padding: .72rem .82rem;
+    border: 1px solid transparent;
+    border-left-width: 1px;
+    border-radius: .65rem;
+    color: rgba(255, 255, 255, .67);
+    font-size: .78rem;
+    font-weight: 650;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+}
+
+.management-app .app-nav-link:hover,
+.management-app .app-nav-link:focus-visible {
+    border-color: rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .055);
+    color: #fff;
+    transform: translateX(.12rem);
+}
+
+.management-app .app-nav-link.active {
+    border-color: rgba(217, 185, 155, .25);
+    border-left: 3px solid #dc8a56;
+    background: rgba(201, 93, 36, .16);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .025);
+}
+
+.management-app .app-nav-icon {
+    color: rgba(217, 185, 155, .8);
+}
+
+.management-app .app-nav-link.active .app-nav-icon {
+    color: #f1b187;
+}
+
+.management-app .app-sidebar-user {
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(0, 0, 0, .08);
+}
+
+.management-app .app-user-card {
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: .8rem;
+    background: rgba(255, 255, 255, .035);
+}
+
+.management-app .app-sidebar .app-user-name {
+    color: #fff;
+}
+
+.management-app .app-sidebar .app-user-role {
+    color: rgba(255, 255, 255, .48);
+}
+
+.management-app .app-sidebar .btn-light {
+    border-color: rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .055);
+    color: rgba(255, 255, 255, .75);
+}
+
+.management-app .app-main {
+    min-width: 0;
+}
+
+.management-app .app-topbar,
+.employee-app .app-topbar {
+    min-height: 5.7rem;
+    border-bottom: 1px solid var(--luxe-line);
+    background: rgba(255, 254, 250, .96);
+    box-shadow: 0 .2rem 1rem rgba(27, 31, 33, .025);
+    backdrop-filter: blur(1rem);
+    -webkit-backdrop-filter: blur(1rem);
+}
+
+.management-app .app-topbar-inner,
+.employee-app .app-topbar-inner {
+    min-height: 5.7rem;
+    padding-inline: clamp(1rem, 2.4vw, 2.25rem);
+}
+
+.management-app .app-topbar-eyebrow,
+.management-app .app-topbar-subtitle {
+    color: var(--luxe-muted);
+}
+
+.management-app .app-topbar-eyebrow {
+    margin-bottom: .18rem;
+    font-size: .63rem;
+    letter-spacing: .11em;
+}
+
+.management-app .app-topbar-title,
+.employee-app .app-topbar-title {
+    color: var(--luxe-ink);
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+.management-app .app-topbar .btn-light,
+.employee-app .app-topbar .btn-light {
+    border-color: var(--luxe-line);
+    background: var(--luxe-surface);
+    box-shadow: 0 .2rem .8rem rgba(27, 31, 33, .04);
+}
+
+.management-app .app-user-avatar,
+.employee-app .app-user-avatar {
+    border: 1px solid #f0d3c0;
+    background: var(--luxe-copper-soft);
+    color: var(--luxe-copper-dark);
+}
+
+.management-app .app-content {
+    width: 100%;
+    max-width: 96rem;
+    margin-inline: auto;
+    padding: clamp(1.35rem, 2.7vw, 2.65rem);
+}
+
+.management-app .page-header,
+.employee-app .page-header {
+    position: relative;
+    margin-bottom: 1.65rem;
+    padding: 0 0 1.2rem 1rem;
+    border-bottom: 1px solid var(--luxe-line);
+}
+
+.management-app .page-header::before,
+.employee-app .page-header::before {
+    position: absolute;
+    top: .2rem;
+    bottom: 1.25rem;
+    left: 0;
+    width: 3px;
+    border-radius: 99px;
+    background: var(--luxe-copper);
+    content: "";
+}
+
+.management-app .page-title,
+.employee-app .page-title {
+    color: var(--luxe-ink);
+    font-size: clamp(1.65rem, 2.6vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+}
+
+.management-app .page-description,
+.employee-app .page-description {
+    max-width: 54rem;
+    margin-top: .45rem;
+    color: var(--luxe-muted);
+    line-height: 1.65;
+}
+
+/* Surfaces shared across list, detail, form, monitoring and report pages */
+.management-app .content-card,
+.management-app .card,
+.management-app [class*="-summary-card"],
+.management-app [class*="-toolbar"],
+.management-app [class*="-table-card"],
+.management-app [class*="-list-card"],
+.management-app [class*="-filter-card"],
+.management-app [class*="-form-card"],
+.management-app [class*="-detail-card"],
+.management-app [class*="-overview-card"],
+.management-app [class*="-panel"],
+.employee-app .content-card,
+.employee-app .card,
+.employee-app [class*="-summary-card"],
+.employee-app [class*="-filter-card"],
+.employee-app [class*="-list-card"],
+.employee-app [class*="-account-card"],
+.employee-app [class*="-today-card"],
+.employee-app [class*="-presence-card"] {
+    border: 1px solid var(--luxe-line);
+    border-radius: var(--luxe-radius);
+    background: var(--luxe-surface);
+    box-shadow: var(--luxe-shadow);
+}
+
+.management-app [class*="-card-header"],
+.management-app [class*="-list-header"],
+.management-app [class*="-table-header"],
+.management-app [class*="-panel-header"],
+.employee-app [class*="-card-header"],
+.employee-app [class*="-list-header"] {
+    border-bottom-color: var(--luxe-line);
+    background: var(--luxe-surface-2);
+}
+
+.management-app .card-header,
+.management-app .card-footer,
+.employee-app .card-header,
+.employee-app .card-footer {
+    border-color: var(--luxe-line);
+    background: var(--luxe-surface-2);
+}
+
+.management-app .form-label,
+.employee-app .form-label {
+    margin-bottom: .48rem;
+    color: #3e484d;
+    font-size: .76rem;
+    font-weight: 750;
+    letter-spacing: .01em;
+}
+
+.management-app .form-control,
+.management-app .form-select,
+.management-app .input-group-text,
+.employee-app .form-control,
+.employee-app .form-select,
+.employee-app .input-group-text {
+    min-height: 2.95rem;
+    border-color: var(--luxe-line-strong);
+    border-radius: .68rem;
+    background-color: #fff;
+    color: var(--luxe-text);
+    font-size: .84rem;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.management-app .form-control:hover,
+.management-app .form-select:hover,
+.employee-app .form-control:hover,
+.employee-app .form-select:hover {
+    border-color: #b9aea2;
+}
+
+.management-app .form-control:focus,
+.management-app .form-select:focus,
+.employee-app .form-control:focus,
+.employee-app .form-select:focus {
+    border-color: var(--luxe-copper);
+    background: #fff;
+    box-shadow: 0 0 0 .2rem rgba(201, 93, 36, .11);
+}
+
+.management-app .form-text,
+.employee-app .form-text {
+    color: var(--luxe-muted);
+    font-size: .7rem;
+}
+
+.management-app .btn,
+.employee-app .btn {
+    min-height: 2.75rem;
+    border-radius: .66rem;
+    font-size: .79rem;
+    font-weight: 750;
+    letter-spacing: -.005em;
+    box-shadow: none;
+    transition: transform .15s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.management-app .btn:hover,
+.employee-app .btn:hover {
+    transform: translateY(-1px);
+}
+
+.management-app .btn-primary,
+.employee-app .btn-primary {
+    border-color: var(--luxe-copper);
+    background: var(--luxe-copper);
+    color: #fff;
+    box-shadow: 0 .35rem .9rem rgba(150, 63, 23, .14);
+}
+
+.management-app .btn-primary:hover,
+.employee-app .btn-primary:hover,
+.management-app .btn-primary:focus-visible,
+.employee-app .btn-primary:focus-visible {
+    border-color: var(--luxe-copper-dark);
+    background: var(--luxe-copper-dark);
+    color: #fff;
+}
+
+.management-app .btn-outline-primary,
+.employee-app .btn-outline-primary {
+    border-color: #d9a987;
+    background: transparent;
+    color: var(--luxe-copper-dark);
+}
+
+.management-app .btn-outline-primary:hover,
+.employee-app .btn-outline-primary:hover {
+    border-color: var(--luxe-copper);
+    background: var(--luxe-copper-soft);
+    color: var(--luxe-copper-dark);
+}
+
+.management-app .btn-outline-secondary,
+.employee-app .btn-outline-secondary,
+.management-app .btn-light,
+.employee-app .btn-light {
+    border-color: var(--luxe-line-strong);
+    background: var(--luxe-surface);
+    color: #465158;
+}
+
+.management-app .badge,
+.employee-app .badge {
+    padding: .42rem .62rem;
+    border-radius: 999px;
+    font-size: .65rem;
+    font-weight: 750;
+}
+
+.management-app .table,
+.employee-app .table {
+    margin-bottom: 0;
+    color: var(--luxe-text);
+    font-size: .8rem;
+}
+
+.management-app .table thead th,
+.employee-app .table thead th {
+    padding: .82rem 1rem;
+    border-top: 1px solid var(--luxe-line);
+    border-bottom: 1px solid var(--luxe-line);
+    background: #f4f1ec;
+    color: #657078;
+    font-size: .64rem;
+    font-weight: 800;
+    letter-spacing: .065em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.management-app .table tbody td,
+.employee-app .table tbody td {
+    padding: .92rem 1rem;
+    border-bottom-color: #ebe7e1;
+    vertical-align: middle;
+}
+
+.management-app .table tbody tr,
+.employee-app .table tbody tr {
+    background: var(--luxe-surface);
+    transition: background-color .13s ease;
+}
+
+.management-app .table tbody tr:hover,
+.employee-app .table tbody tr:hover {
+    background: #fbf6f1;
+}
+
+.management-app .pagination,
+.employee-app .pagination {
+    gap: .3rem;
+}
+
+.management-app .pagination .page-link,
+.employee-app .pagination .page-link {
+    min-width: 2.3rem;
+    border-color: var(--luxe-line);
+    border-radius: .55rem !important;
+    background: var(--luxe-surface);
+    color: var(--luxe-text);
+    box-shadow: none;
+    text-align: center;
+}
+
+.management-app .page-item.active .page-link,
+.employee-app .page-item.active .page-link {
+    border-color: var(--luxe-ink);
+    background: var(--luxe-ink);
+    color: #fff;
+}
+
+.management-app .dropdown-menu,
+.employee-app .dropdown-menu {
+    padding: .45rem;
+    border: 1px solid var(--luxe-line);
+    border-radius: .8rem;
+    background: var(--luxe-surface);
+    box-shadow: var(--luxe-shadow-lg);
+}
+
+.management-app .dropdown-item,
+.employee-app .dropdown-item {
+    border-radius: .55rem;
+    font-size: .8rem;
+}
+
+.management-app .dropdown-item:hover,
+.employee-app .dropdown-item:hover {
+    background: var(--luxe-copper-soft);
+    color: var(--luxe-copper-dark);
+}
+
+.management-app .alert,
+.employee-app .alert {
+    border-radius: .75rem;
+    box-shadow: none;
+}
+
+/* Dashboard: measured and executive, rather than decorative. */
+.management-app .management-dashboard .dashboard-filter-panel {
+    padding: 1.1rem;
+    border: 1px solid var(--luxe-line);
+    background: var(--luxe-surface);
+    box-shadow: var(--luxe-shadow);
+}
+
+.management-app .management-dashboard .dashboard-stat-card {
+    position: relative;
+    min-height: 6.2rem;
+    overflow: hidden;
+    border: 1px solid var(--luxe-line);
+    border-radius: .9rem;
+    background: var(--luxe-surface);
+    box-shadow: var(--luxe-shadow);
+}
+
+.management-app .management-dashboard .dashboard-stat-card::before {
+    position: absolute;
+    top: 0;
+    right: 1rem;
+    left: 1rem;
+    height: 2px;
+    background: var(--luxe-champagne);
+    content: "";
+}
+
+.management-app .management-dashboard .dashboard-stat-card::after {
+    display: none;
+}
+
+.management-app .management-dashboard .dashboard-stat-icon,
+.management-app .management-dashboard [class*="tone-"] .dashboard-stat-icon {
+    width: 2.35rem;
+    height: 2.35rem;
+    flex-basis: 2.35rem;
+    border: 1px solid #eadccf;
+    border-radius: .62rem;
+    background: #fcf2eb;
+    color: var(--luxe-copper-dark);
+}
+
+.management-app .management-dashboard .dashboard-stat-label {
+    color: var(--luxe-muted);
+    font-size: .65rem;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+}
+
+.management-app .management-dashboard .dashboard-stat-value {
+    color: var(--luxe-ink);
+    font-size: 1.7rem;
+}
+
+.management-app .management-dashboard .dashboard-panel {
+    overflow: hidden;
+    border: 1px solid var(--luxe-line);
+    border-radius: var(--luxe-radius);
+    background: var(--luxe-surface);
+    box-shadow: var(--luxe-shadow);
+}
+
+.management-app .management-dashboard .dashboard-panel-header {
+    border-bottom: 1px solid var(--luxe-line);
+    background: var(--luxe-surface-2);
+}
+
+.management-app .management-dashboard .dashboard-branch-track {
+    background: #e8e3dc;
+}
+
+.management-app .management-dashboard .dashboard-branch-bar {
+    background: var(--luxe-copper);
+}
+
+/* Employee experience */
+.employee-app {
+    background: #f1eee9;
+}
+
+.employee-app .app-content {
+    width: 100%;
+    max-width: 50rem;
+    padding: clamp(1rem, 3vw, 2rem) clamp(.85rem, 3vw, 1.5rem) 7.5rem;
+}
+
+.employee-app .employee-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(217, 185, 155, .18);
+    border-radius: 1.15rem;
+    background: var(--luxe-ink);
+    box-shadow: 0 1.4rem 3.5rem rgba(22, 26, 28, .16);
+}
+
+.employee-app .employee-hero::before {
+    display: block;
+    position: absolute;
+    top: -4rem;
+    right: -3rem;
+    width: 13rem;
+    height: 13rem;
+    border: 1px solid rgba(217, 185, 155, .18);
+    border-radius: 50%;
+    background: transparent;
+    content: "";
+}
+
+.employee-app .employee-hero::after {
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 38%;
+    height: 3px;
+    background: var(--luxe-copper);
+    content: "";
+}
+
+.employee-app .employee-hero-kicker,
+.employee-app .employee-hero-date {
+    color: rgba(255, 255, 255, .62);
+}
+
+.employee-app .employee-hero-name {
+    color: #fff;
+    letter-spacing: -.045em;
+}
+
+.employee-app .employee-hero-avatar {
+    border: 1px solid rgba(217, 185, 155, .35);
+    background: rgba(255, 255, 255, .06);
+    color: #f3c29f;
+}
+
+.employee-app .employee-today-card,
+.employee-app .employee-presence-card,
+.employee-app .employee-account-card,
+.employee-app .history-profile-card,
+.employee-app .history-filter-card,
+.employee-app .history-list-card,
+.employee-app .history-summary-card {
+    border: 1px solid var(--luxe-line);
+    border-radius: 1rem;
+    background: var(--luxe-surface);
+    box-shadow: var(--luxe-shadow);
+}
+
+.employee-app .employee-status-box {
+    border: 1px solid #e5e0d8;
+    border-radius: .8rem;
+    background: #f7f4ef;
+}
+
+.employee-app .history-summary-icon,
+.employee-app .employee-today-icon,
+.employee-app .employee-account-icon,
+.employee-app .employee-shortcut-icon,
+.employee-app .attendance-section-icon {
+    border: 1px solid #eedbcd;
+    border-radius: .65rem;
+    background: var(--luxe-copper-soft);
+    color: var(--luxe-copper-dark);
+}
+
+.employee-app .employee-global-nav {
+    border: 1px solid rgba(205, 197, 187, .86);
+    border-bottom: 0;
+    border-radius: 1.15rem 1.15rem 0 0;
+    background: rgba(255, 254, 250, .96);
+    box-shadow: 0 -1rem 2.5rem rgba(27, 31, 33, .08);
+    backdrop-filter: blur(1rem);
+    -webkit-backdrop-filter: blur(1rem);
+}
+
+.employee-app .employee-global-nav-link {
+    border-radius: .72rem;
+    color: #727a7f;
+}
+
+.employee-app .employee-global-nav-link.active {
+    background: var(--luxe-ink);
+    color: #fff;
+}
+
+/* Mobile navigation and responsive data */
+.management-app .app-mobile-navigation {
+    background: var(--luxe-surface);
+}
+
+.management-app .app-mobile-navigation .offcanvas-header {
+    border-bottom: 1px solid var(--luxe-line);
+}
+
+.management-app .app-mobile-navigation .app-nav-link {
+    border: 1px solid transparent;
+    border-radius: .68rem;
+    color: #4c575d;
+}
+
+.management-app .app-mobile-navigation .app-nav-link.active {
+    border-color: #ead8ca;
+    border-left: 3px solid var(--luxe-copper);
+    background: var(--luxe-copper-soft);
+    color: var(--luxe-copper-dark);
+}
+
+/* Login */
+.login-body {
+    --brand-500: var(--luxe-copper);
+    --brand-600: #ae4c1d;
+    --brand-700: var(--luxe-copper-dark);
+    --neutral-50: var(--luxe-canvas);
+    --neutral-200: var(--luxe-line);
+    color: var(--luxe-text);
+    background: var(--luxe-canvas);
+}
+
+.login-body .login-page {
+    background-color: var(--luxe-canvas);
+    background-image:
+        linear-gradient(rgba(31, 36, 39, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(31, 36, 39, .025) 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+}
+
+.login-body .login-topbar {
+    border-bottom-color: var(--luxe-line);
+    background: rgba(255, 254, 250, .92);
+    backdrop-filter: blur(1rem);
+    -webkit-backdrop-filter: blur(1rem);
+}
+
+.login-body .brand-mark {
+    border: 1px solid #ead8ca;
+    border-radius: .78rem;
+    background: #fffaf5;
+    padding: .15rem;
+}
+
+.login-body .brand-title {
+    color: var(--luxe-ink);
+}
+
+.login-body .login-shell {
+    border: 1px solid rgba(205, 197, 187, .9);
+    border-radius: 1.4rem;
+    background: var(--luxe-surface);
+    box-shadow: var(--luxe-shadow-lg);
+}
+
+.login-body .login-information {
+    overflow: hidden;
+    border-color: rgba(255, 255, 255, .08);
+    background: var(--luxe-ink);
+    color: #fff;
+}
+
+.login-body .login-information::before {
+    background: var(--luxe-copper);
+}
+
+.login-body .login-information::after {
+    position: absolute;
+    right: -7rem;
+    bottom: -7rem;
+    width: 18rem;
+    height: 18rem;
+    border: 1px solid rgba(217, 185, 155, .16);
+    border-radius: 50%;
+    content: "";
+}
+
+.login-body .login-panel-brand strong,
+.login-body .information-title {
+    color: #fff;
+}
+
+.login-body .login-panel-brand span span,
+.login-body .information-copy {
+    color: rgba(255, 255, 255, .62);
+}
+
+.login-body .information-kicker {
+    color: #efad80;
+}
+
+.login-body .capability-item {
+    position: relative;
+    z-index: 1;
+    border-color: rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .045);
+}
+
+.login-body .capability-icon {
+    border: 1px solid rgba(217, 185, 155, .22);
+    background: rgba(201, 93, 36, .14);
+    color: #efad80;
+}
+
+.login-body .capability-title {
+    color: #fff;
+}
+
+.login-body .capability-copy {
+    color: rgba(255, 255, 255, .55);
+}
+
+.login-body .login-form-panel {
+    background: var(--luxe-surface);
+}
+
+.login-body .login-form-icon {
+    border: 1px solid #ead8ca;
+    border-radius: .75rem;
+    background: var(--luxe-copper-soft);
+    color: var(--luxe-copper-dark);
+}
+
+.login-body .login-form-title {
+    color: var(--luxe-ink);
+}
+
+.login-body .input-group-text,
+.login-body .form-control {
+    min-height: 3.1rem;
+    border-color: var(--luxe-line-strong);
+    background: #fff;
+}
+
+.login-body .input-group-text {
+    background: #f7f3ee;
+}
+
+.login-body .btn-login {
+    min-height: 3.15rem;
+    border-color: var(--luxe-ink);
+    background: var(--luxe-ink);
+    box-shadow: 0 .7rem 1.4rem rgba(22, 27, 29, .14);
+}
+
+.login-body .btn-login:hover,
+.login-body .btn-login:focus-visible {
+    border-color: var(--luxe-copper);
+    background: var(--luxe-copper);
+    box-shadow: 0 .8rem 1.7rem rgba(150, 63, 23, .2);
+}
+
+.login-body .login-support {
+    border-color: var(--luxe-line);
+    background: #f7f4ef;
+}
+
+/* Terminal */
+body:has(.terminal-shell) {
+    background: var(--luxe-canvas);
+    color: var(--luxe-text);
+}
+
+.terminal-shell {
+    width: min(100%, 96rem);
+    padding: clamp(1rem, 2.5vw, 2.4rem);
+}
+
+.terminal-topbar {
+    margin-bottom: 1.45rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--luxe-line);
+}
+
+.terminal-brand-icon {
+    border: 1px solid #e8d6c8;
+    border-radius: .8rem;
+    background: var(--luxe-surface);
+    box-shadow: 0 .3rem 1rem rgba(27, 31, 33, .05);
+}
+
+.terminal-brand-title,
+.terminal-clock-time,
+.activation-title,
+.terminal-info-name,
+.qr-panel-title {
+    color: var(--luxe-ink);
+}
+
+.terminal-brand-copy,
+.terminal-clock-date,
+.activation-copy,
+.terminal-info-branch,
+.qr-panel-copy,
+.qr-countdown-help {
+    color: var(--luxe-muted);
+}
+
+.terminal-card {
+    border: 1px solid var(--luxe-line);
+    border-radius: 1.35rem;
+    background: var(--luxe-surface);
+    box-shadow: var(--luxe-shadow-lg);
+}
+
+.activation-eyebrow {
+    color: var(--luxe-copper-dark);
+}
+
+.activation-form-card,
+.terminal-info-panel,
+.qr-panel {
+    border-color: var(--luxe-line);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 .55rem 1.8rem rgba(27, 31, 33, .045);
+}
+
+.terminal-shell .form-control {
+    border-color: var(--luxe-line-strong);
+    border-radius: .68rem;
+}
+
+.terminal-shell .form-control:focus {
+    border-color: var(--luxe-copper);
+    box-shadow: 0 0 0 .22rem rgba(201, 93, 36, .11);
+}
+
+.terminal-shell .btn-terminal-primary {
+    border-color: var(--luxe-ink);
+    border-radius: .68rem;
+    background: var(--luxe-ink);
+    color: #fff;
+    box-shadow: 0 .65rem 1.5rem rgba(27, 31, 33, .13);
+}
+
+.terminal-shell .btn-terminal-primary:hover,
+.terminal-shell .btn-terminal-primary:focus-visible {
+    border-color: var(--luxe-copper);
+    background: var(--luxe-copper);
+}
+
+.terminal-status-pill {
+    border: 1px solid #cfe2d9;
+    background: #eff7f3;
+    color: var(--luxe-success);
+}
+
+.qr-stage {
+    border-color: #d7c7b9;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.qr-countdown-fill {
+    background: var(--luxe-copper);
+}
+
+/* Motion is short and purposeful. */
+@keyframes luxe-enter {
+    from { opacity: 0; transform: translateY(.45rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.management-app .app-content > *,
+.employee-app .app-content > * {
+    animation: luxe-enter .38s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+.management-app .app-content > *:nth-child(2),
+.employee-app .app-content > *:nth-child(2) { animation-delay: .045s; }
+
+.management-app .app-content > *:nth-child(3),
+.employee-app .app-content > *:nth-child(3) { animation-delay: .08s; }
+
+@media (min-width: 992px) {
+    .management-app .app-main {
+        margin-left: 16rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .management-app .app-topbar,
+    .employee-app .app-topbar {
+        min-height: 4.65rem;
+    }
+
+    .management-app .app-topbar-inner,
+    .employee-app .app-topbar-inner {
+        min-height: 4.65rem;
+    }
+
+    .management-app .app-mobile-brand .app-brand-mark,
+    .employee-app .app-mobile-brand .app-brand-mark {
+        width: 2.25rem;
+        height: 2.25rem;
+        flex-basis: 2.25rem;
+        border-color: #ead8ca;
+        background: #fffaf5;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .management-app .app-content {
+        padding: 1.15rem .85rem 2rem;
+    }
+
+    .management-app .page-header,
+    .employee-app .page-header {
+        margin-bottom: 1.1rem;
+        padding: 0 0 .9rem .8rem;
+    }
+
+    .management-app .page-header::before,
+    .employee-app .page-header::before {
+        bottom: .95rem;
+    }
+
+    .management-app .page-title,
+    .employee-app .page-title {
+        font-size: 1.55rem;
+    }
+
+    .management-app [class*="-summary-grid"] {
+        gap: .65rem;
+    }
+
+    .management-app [class*="-summary-card"] {
+        box-shadow: 0 .35rem 1rem rgba(27, 31, 33, .045);
+    }
+
+    .terminal-topbar {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .login-body .login-page {
+        background-image: none;
+    }
+
+    .login-body .login-shell {
+        border-radius: 1rem;
+        box-shadow: 0 1rem 2.5rem rgba(27, 31, 33, .09);
+    }
+
+    .login-body .login-form-panel {
+        padding: 1.45rem;
+    }
+
+    .terminal-brand-copy {
+        display: none;
+    }
+
+    .terminal-clock {
+        min-width: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .management-app .app-content > *,
+    .employee-app .app-content > * {
+        animation: none;
+    }
+
+    .management-app .app-nav-link,
+    .management-app .btn,
+    .employee-app .btn {
+        transition: none;
+    }
+}

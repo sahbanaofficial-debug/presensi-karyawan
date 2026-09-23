@@ -675,6 +675,10 @@
         href="{{ asset('css/login-motion.css') }}"
         rel="stylesheet"
     >
+    <link
+        href="{{ asset('css/ui-luxe.css') }}"
+        rel="stylesheet"
+    >
 </head>
 
 <body class="login-body">

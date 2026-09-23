@@ -1102,6 +1102,10 @@
         href="{{ asset('css/ui-operational.css') }}"
         rel="stylesheet"
     >
+    <link
+        href="{{ asset('css/ui-luxe.css') }}"
+        rel="stylesheet"
+    >
 </head>
 
 <body

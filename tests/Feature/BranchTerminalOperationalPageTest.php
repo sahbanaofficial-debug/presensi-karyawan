@@ -40,6 +40,7 @@ final class BranchTerminalOperationalPageTest extends TestCase
             )
             ->assertSee('terminal-countdown-progress')
             ->assertSee('Kode diperbarui otomatis')
+            ->assertSee('css/ui-luxe.css')
             ->assertSee('logo-pt-gadai-ogan-baru.png');
     }
 
